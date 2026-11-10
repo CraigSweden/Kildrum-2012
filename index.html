@@ -107,9 +107,9 @@
     <!-- TAB 1: LINEUP GENERATOR -->
     <!-- ========================================== -->
     <div id="lockBanner" class="hidden mb-4 bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 space-y-2">
-      <p class="text-sm text-amber-200"><i class="fa-solid fa-lock"></i> View only. This page is for the coach. Enter the edit password to unlock it.</p>
+      <p class="text-sm text-amber-200"><i class="fa-solid fa-lock"></i> View only. This page is for the coach. Paste the GitHub access token to unlock it.</p>
       <div class="flex flex-wrap gap-2">
-        <input id="unlockPass" type="password" placeholder="Edit password" class="bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white text-sm w-full max-w-xs" onkeydown="if(event.key==='Enter')unlockTabs()">
+        <input id="unlockPass" type="password" placeholder="Access token" class="bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white text-sm w-full max-w-xs" onkeydown="if(event.key==='Enter')unlockTabs()">
         <button onclick="unlockTabs()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Unlock</button>
       </div>
       <p id="unlockMsg" class="text-xs text-red-400"></p>
@@ -588,41 +588,97 @@
   <!-- Firebase SDK Imports -->
   <script type="module">
     // ============================================================
-    //  CLOUD SAVING (Netlify Database via /api/state/*)
-    //  Everyone can read. Saving needs the edit password, which is
-    //  remembered on this device after the first time it's entered.
+    //  CLOUD SAVING (GitHub repository, no server needed)
+    //  Data is stored as small JSON files on a branch called "data"
+    //  in the repo below. Everyone can read it. Saving needs a GitHub
+    //  access token, remembered on this device after it is entered once.
     // ============================================================
-    const PW_KEY = 'kildrum-edit-password';
+    const GH_OWNER = 'craigsweden', GH_REPO = 'Kildrum-2012', GH_BRANCH = 'data';
+    const PW_KEY = 'kildrum-github-token';
+    const GH_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO;
+    const b64 = str => btoa(unescape(encodeURIComponent(str)));
+    const ghHead = (token, accept) => {
+      const h = { 'Accept': accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+      if (token) h['Authorization'] = 'Bearer ' + token;
+      return h;
+    };
+    function ghError(r) {
+      if (r.status === 401) { window.cloud.setPassword(''); return new Error('GitHub did not accept the access token. Please unlock again with a valid token.'); }
+      if (r.status === 403) return new Error('GitHub refused the request. Check the token has "Contents: Read and write" on the ' + GH_REPO + ' repository (or wait a few minutes if you have made many requests).');
+      if (r.status === 404) return new Error('GitHub could not find the repository, or the token has no access to it.');
+      return new Error('GitHub error (' + r.status + ')');
+    }
+    let ghQueue = Promise.resolve();
     window.cloud = {
       password() { try { return localStorage.getItem(PW_KEY) || ''; } catch (e) { return ''; } },
       setPassword(pw) { try { pw ? localStorage.setItem(PW_KEY, pw) : localStorage.removeItem(PW_KEY); } catch (e) {} if (window.applyLock) window.applyLock(); },
+      // true only if the token can write to this repository
       async check(pw) {
-        const r = await fetch('/api/state/check', { method: 'POST', headers: { 'x-edit-password': pw } });
-        return r.ok;
+        const r = await fetch(GH_API, { cache: 'no-store', headers: ghHead(pw) });
+        if (r.status === 401) return false;
+        if (!r.ok) throw new Error('GitHub answered ' + r.status);
+        const j = await r.json();
+        return !j.permissions || !!(j.permissions.push || j.permissions.admin);
       },
-      // Asks for the password if this device doesn't have a working one yet
+      // Asks for the token if this device doesn't have one yet
       async ensurePassword() {
         if (this.password()) return true;
-        const pw = prompt('Enter the edit password to save changes online:');
+        const pw = prompt('Paste your GitHub access token to save changes online:');
         if (!pw) return false;
-        if (!(await this.check(pw))) { alert('Wrong password.'); return false; }
-        this.setPassword(pw);
+        if (!(await this.check(pw.trim()))) { alert('That token was not accepted. It needs Contents: Read and write on the ' + GH_REPO + ' repository.'); return false; }
+        this.setPassword(pw.trim());
         return true;
       },
       async get(key) {
-        const r = await fetch('/api/state/' + key, { cache: 'no-store' });
+        const path = 'data/' + key + '.json';
+        const url = GH_API + '/contents/' + path + '?ref=' + GH_BRANCH;
+        const raw = 'application/vnd.github.raw+json';
+        let r = await fetch(url, { cache: 'no-store', headers: ghHead(this.password(), raw) });
+        if (r.status === 401) r = await fetch(url, { cache: 'no-store', headers: ghHead('', raw) }); // old token: read anonymously
+        if (r.status === 403 || r.status === 429) r = await fetch('https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + path, { cache: 'no-store' }); // rate limited: use the raw file host
+        if (r.status === 404) return { exists: false };
         if (!r.ok) throw new Error('Could not load (' + r.status + ')');
-        return r.json();
+        const w = await r.json();
+        return { exists: true, data: w.data, updatedAt: w.updatedAt };
       },
-      async put(key, data) {
-        const r = await fetch('/api/state/' + key, {
-          method: 'PUT',
-          headers: { 'content-type': 'application/json', 'x-edit-password': this.password() },
-          body: JSON.stringify(data)
-        });
-        if (r.status === 401) { this.setPassword(''); throw new Error('Wrong or missing edit password'); }
-        if (!r.ok) throw new Error('Save failed (' + r.status + ')');
-        return r.json();
+      // Saves are queued one at a time so quick edits never collide
+      put(key, data) {
+        const run = () => this._put(key, data);
+        const p = ghQueue.then(run, run);
+        ghQueue = p.catch(() => {});
+        return p;
+      },
+      async _ensureBranch(token) {
+        let r = await fetch(GH_API + '/branches/' + GH_BRANCH, { cache: 'no-store', headers: ghHead(token) });
+        if (r.ok) return;
+        if (r.status !== 404) throw ghError(r);
+        r = await fetch(GH_API, { headers: ghHead(token) });
+        if (!r.ok) throw ghError(r);
+        const def = (await r.json()).default_branch;
+        r = await fetch(GH_API + '/git/ref/heads/' + def, { headers: ghHead(token) });
+        if (!r.ok) throw ghError(r);
+        const sha = (await r.json()).object.sha;
+        r = await fetch(GH_API + '/git/refs', { method: 'POST', headers: { ...ghHead(token), 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: 'refs/heads/' + GH_BRANCH, sha }) });
+        if (!r.ok && r.status !== 422) throw ghError(r); // 422 = already exists
+      },
+      async _put(key, data) {
+        const token = this.password();
+        if (!token) throw new Error('Not unlocked. Paste the access token first.');
+        await this._ensureBranch(token);
+        const name = key + '.json', url = GH_API + '/contents/data/' + name;
+        const body = JSON.stringify({ updatedAt: new Date().toISOString(), data });
+        for (let attempt = 0; attempt < 3; attempt++) {
+          let sha;
+          const d = await fetch(GH_API + '/contents/data?ref=' + GH_BRANCH, { cache: 'no-store', headers: ghHead(token) });
+          if (d.ok) { const f = (await d.json()).find(x => x.name === name); if (f) sha = f.sha; }
+          else if (d.status !== 404) throw ghError(d);
+          const r = await fetch(url, { method: 'PUT', headers: { ...ghHead(token), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: 'Update ' + key + ' data', content: b64(body), branch: GH_BRANCH, ...(sha ? { sha } : {}) }) });
+          if (r.ok) return { ok: true };
+          if (r.status === 409 || r.status === 422) continue; // someone saved at the same moment: look again and retry
+          throw ghError(r);
+        }
+        throw new Error('Save conflict. Please try again.');
       }
     };
 
@@ -2097,7 +2153,7 @@ function lgRenderManage() {
   const login = lg.mode === 'online' && !lg.admin ? `
     <div class="bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 space-y-2">
       <p class="text-sm text-amber-200"><i class="fa-solid fa-lock"></i> Results are published online. Everyone can view; only the admin can edit.</p>
-      <div class="flex flex-wrap gap-2"><input id="lgPass" type="password" placeholder="Edit password" class="${cls} max-w-xs" onkeydown="if(event.key==='Enter')lgSignIn()">
+      <div class="flex flex-wrap gap-2"><input id="lgPass" type="password" placeholder="Access token" class="${cls} max-w-xs" onkeydown="if(event.key==='Enter')lgSignIn()">
         <button onclick="lgSignIn()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Sign in</button></div>
       <p id="lgAuthMsg" class="text-xs text-red-400"></p></div>` :
     lg.mode === 'online' ? `<div class="flex items-center justify-between bg-emerald-900/20 border border-emerald-700/40 rounded-lg p-2 text-sm text-emerald-200"><span><i class="fa-solid fa-circle-check"></i> Signed in as admin on this device</span>
@@ -2173,17 +2229,17 @@ async function lgImportXlsx(input) {
 
 // ---------- sign in (online mode) ----------
 async function lgSignIn() {
-  const msg = document.getElementById('lgAuthMsg'), pw = document.getElementById('lgPass').value;
+  const msg = document.getElementById('lgAuthMsg'), pw = document.getElementById('lgPass').value.trim();
   try {
-    if (!pw) { msg.textContent = 'Enter the edit password.'; return; }
-    if (!(await window.cloud.check(pw))) { msg.textContent = 'Wrong password.'; return; }
+    if (!pw) { msg.textContent = 'Paste the access token.'; return; }
+    if (!(await window.cloud.check(pw))) { msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
     window.cloud.setPassword(pw); lg.admin = true; lgRenderManage();
   } catch (e) { msg.textContent = 'Sign in failed: ' + e.message; }
 }
 async function lgSignOut() { window.cloud.setPassword(''); lg.admin = false; lgRenderManage(); }
 
 // ---------- lock the coach tabs (Lineup + Result) ----------
-function isUnlocked() { try { return !!localStorage.getItem('kildrum-edit-password'); } catch (e) { return false; } }
+function isUnlocked() { try { return !!localStorage.getItem('kildrum-github-token'); } catch (e) { return false; } }
 function applyLock() {
   const locked = !isUnlocked();
   ['Lineup', 'Result'].forEach(n => {
@@ -2198,11 +2254,11 @@ function applyLock() {
   if (actions && !onLeague) actions.style.visibility = locked ? 'hidden' : '';
 }
 async function unlockTabs() {
-  const msg = document.getElementById('unlockMsg'), pw = document.getElementById('unlockPass').value;
+  const msg = document.getElementById('unlockMsg'), pw = document.getElementById('unlockPass').value.trim();
   msg.textContent = '';
   try {
-    if (!pw) { msg.textContent = 'Enter the edit password.'; return; }
-    if (!(await window.cloud.check(pw))) { msg.textContent = 'Wrong password.'; return; }
+    if (!pw) { msg.textContent = 'Paste the access token.'; return; }
+    if (!(await window.cloud.check(pw))) { msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
     window.cloud.setPassword(pw); lg.admin = true;
     document.getElementById('unlockPass').value = '';
     if (typeof lgRenderManage === 'function') lgRenderManage();
