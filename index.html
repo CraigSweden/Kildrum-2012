@@ -393,6 +393,18 @@
       <!-- LEFT PANEL: RESULT & COMMENTARY CONTROLS -->
       <section class="lg:col-span-5 space-y-4 overflow-y-auto max-h-[calc(100vh-100px)] pr-1">
         
+        <!-- League match picker: fills in score, opposition, side and date from the league -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+          <h2 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-link"></i> League Match
+          </h2>
+          <select id="leagueMatchSelect" onchange="applyLeagueMatch(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-md px-3 py-2 text-white text-sm font-semibold focus:outline-none focus:border-red-500 transition">
+            <option value="">Choose a league match...</option>
+          </select>
+          <p class="text-[11px] text-slate-400 mt-2">The score, opposition, home/away and date fill in from the league result. Scorers you add below are saved to this match when you press <b>Save to Cloud</b> and feed the Scorers tab.</p>
+          <p id="leagueMatchNote" class="text-[11px] mt-1 text-slate-400"></p>
+        </div>
+
         <!-- Match Commentary / Summary -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
           <div class="flex justify-between items-center mb-2">
@@ -466,6 +478,7 @@
             </button>
           </div>
 
+          <p id="goalsNote" class="text-[11px] mb-2 text-slate-400"></p>
           <div id="goalEventsContainer" class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
             <!-- Dynamic goal rows -->
           </div>
@@ -582,6 +595,7 @@
           <button data-lg="prog"   onclick="lgShow('prog')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64v336c0 44.2 35.8 80 80 80h400c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.3c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l73.4-73.4 57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/></svg> Progression</button>
           <button data-lg="h2h"    onclick="lgShow('h2h')"    class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M32 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0M0 224c0-35.3 28.7-64 64-64h64c3.2 0 6.4.2 9.5.7l-44.4 44.4c-28.1 28.1-28.1 73.7 0 101.8l56 56c3.4 3.4 7 6.4 10.9 9V464c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V343.4c-19.1-11-32-31.7-32-55.4zM352 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0m66.9 141.1-44.4-44.4c3.1-.5 6.3-.7 9.5-.7h64c35.3 0 64 28.7 64 64v64c0 23.7-12.9 44.4-32 55.4V464c0 26.5-21.5 48-48 48h-32c-26.5 0-48-21.5-48-48v-92.1c3.9-2.6 7.5-5.6 10.9-9l56-56c28.1-28.1 28.1-73.7 0-101.8m-116.1-27.3c9-3.7 19.3-1.7 26.2 5.2l56 56c9.4 9.4 9.4 24.6 0 33.9l-56 56c-6.9 6.9-17.2 8.9-26.2 5.2S288 321.7 288 312v-24h-64v24c0 9.7-5.8 18.5-14.8 22.2s-19.3 1.7-26.2-5.2l-56-56c-9.4-9.4-9.4-24.6 0-33.9l56-56c6.9-6.9 17.2-8.9 26.2-5.2S224 190.3 224 200v24h64v-24c0-9.7 5.8-18.5 14.8-22.2"/></svg> Head to Head</button>
           <button data-lg="diag"   onclick="lgShow('diag')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 576 512" aria-hidden="true"><path d="M32 48C32 21.5 53.5 0 80 0h48c17.7 0 32 14.3 32 32s-14.3 32-32 32H96v128c0 53 43 96 96 96s96-43 96-96V64h-32c-17.7 0-32-14.3-32-32s14.3-32 32-32h48c26.5 0 48 21.5 48 48v144c0 77.4-55 142-128 156.8V368c0 61.9 50.1 112 112 112s112-50.1 112-112v-85.5c-37.3-13.2-64-48.7-64-90.5 0-53 43-96 96-96s96 43 96 96c0 41.8-26.7 77.4-64 90.5V368c0 97.2-78.8 176-176 176s-176-78.8-176-176v-19.2C87 334 32 269.4 32 192zm448 176a32 32 0 1 0 0-64 32 32 0 1 0 0 64"/></svg> Diagnostics</button>
+          <button data-lg="scorers" onclick="lgShow('scorers')" class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="m417.3 360.1-71.6-4.8c-5.2-.3-10.3 1.1-14.5 4.2s-7.2 7.4-8.4 12.5l-17.6 69.6c-15.7 4.2-32.2 6.4-49.2 6.4s-33.5-2.2-49.2-6.4L189.2 372c-1.3-5-4.3-9.4-8.4-12.5s-9.3-4.5-14.5-4.2l-71.6 4.8c-17.6-27.2-28.5-59.2-30.4-93.6l60.7-38.2c4.4-2.8 7.6-7 9.2-11.9s1.4-10.2-.5-15L107 134.8c21-25.6 48.3-45.8 79.7-57.9l55.2 46c4 3.3 9 5.1 14.1 5.1s10.2-1.8 14.1-5.1l55.2-46c31.3 12.1 58.7 32.3 79.6 57.9l-26.7 66.6c-1.9 4.8-2.1 10.1-.5 15s4.9 9.1 9.2 11.9l60.7 38.2c-1.9 34.4-12.8 66.4-30.4 93.6zM256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m14.1-325.7c-8.4-6.1-19.8-6.1-28.2 0L194 221c-8.4 6.1-11.9 16.9-8.7 26.8l18.3 56.3c3.2 9.9 12.4 16.6 22.8 16.6h59.2c10.4 0 19.6-6.7 22.8-16.6l18.3-56.3c3.2-9.9-.3-20.7-8.7-26.8l-47.9-34.8z"/></svg> Scorers</button>
           <button data-lg="manage" onclick="lgShow('manage')" class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L368 46.1l97.9 97.9 24.4-24.4c21.9-21.9 21.9-57.3 0-79.2zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L432 177.9 334.1 80zM96 64c-53 0-96 43-96 96v256c0 53 43 96 96 96h256c53 0 96-43 96-96v-96c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg> Manage Results</button>
         </div>
       </div>
@@ -589,6 +603,7 @@
       <div id="lgPanel-prog" class="hidden"></div>
       <div id="lgPanel-h2h" class="hidden"></div>
       <div id="lgPanel-diag" class="hidden"></div>
+      <div id="lgPanel-scorers" class="hidden"></div>
       <div id="lgPanel-manage" class="hidden"></div>
     </div>
 
@@ -715,6 +730,7 @@
           if (data.commentary != null) document.getElementById('matchCommentaryInput').value = data.commentary;
           if (data.squad) squad = data.squad;
           if (data.goalEvents) goalEvents = data.goalEvents;
+          if (data.leagueMatchId != null) leagueMatchId = data.leagueMatchId;
           if (data.homeBadgeSrc) homeBadgeSrc = data.homeBadgeSrc;
           if (data.awayBadgeSrc) awayBadgeSrc = data.awayBadgeSrc;
           if (typeof data.playingAway === 'boolean') setSide(data.playingAway ? 'away' : 'home');
@@ -729,6 +745,7 @@
         window.fbState = 'failed';
       }
       window.matchdayLoaded = true;
+      if (typeof lgMatchInit === 'function') lgMatchInit();
       window.dispatchEvent(new Event('fb-state'));
     };
 
@@ -775,6 +792,7 @@
 
     let homeBadgeSrc = kildrumBadgeSVG;
     let awayBadgeSrc = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCIgeT0iNTgiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QVdBWTwvdGV4dD48L3N2Zz4=";
+    const DEFAULT_AWAY_BADGE = awayBadgeSrc;
 
     const initialSquad = [
       { id: 1, name: "MATTHEW", number: 1, pos: "GK", status: "XI" },
@@ -1138,6 +1156,7 @@
       if (key === 'number') squad[index].number = parseInt(value) || 0;
       if (key === 'name') squad[index].name = value.toUpperCase();
       if (key === 'pos') squad[index].pos = value;
+      if (key === 'name') renderGoalEventsInputs();
       updateGraphic();
     }
 
@@ -1150,6 +1169,7 @@
         pos: "MID",
         status: "SUB"
       });
+      renderGoalEventsInputs();
       renderSquadInputs();
       updateGraphic();
     }
@@ -1164,12 +1184,27 @@
         return;
       }
       squad.splice(index, 1);
+      renderGoalEventsInputs();
       renderSquadInputs();
       updateGraphic();
     }
 
+    const OWN_GOAL = 'OWN GOAL';
+    const gEsc = v => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    // Every player in the squad list, whatever their status (XI, SUB or not called)
+    function squadNames() { return [...new Set(squad.map(p => String(p.name || '').trim().toUpperCase()).filter(Boolean))].sort((x, y) => x.localeCompare(y)); }
+    function playerOptions(selected, blankLabel, withOwnGoal) {
+      const names = squadNames(), sel = String(selected || '').trim().toUpperCase();
+      let html = `<option value="">${blankLabel}</option>`;
+      html += names.map(n => `<option value="${gEsc(n)}" ${n === sel ? 'selected' : ''}>${gEsc(n)}</option>`).join('');
+      if (withOwnGoal) html += `<option value="${OWN_GOAL}" ${sel === OWN_GOAL ? 'selected' : ''}>Own goal (by opposition)</option>`;
+      if (sel && sel !== OWN_GOAL && !names.includes(sel)) html += `<option value="${gEsc(sel)}" selected>${gEsc(sel)} (not in squad)</option>`;
+      return html;
+    }
+
     function renderGoalEventsInputs() {
       const container = document.getElementById('goalEventsContainer');
+      if (!container) return;
       container.innerHTML = '';
 
       goalEvents.forEach((goal, idx) => {
@@ -1177,13 +1212,13 @@
         row.className = 'grid grid-cols-12 gap-1.5 items-center bg-slate-950 p-2 rounded-lg border border-slate-800 text-xs';
         row.innerHTML = `
           <div class="col-span-4">
-            <input type="text" placeholder="Scorer Name" value="${goal.scorer}" oninput="updateGoalEvent(${idx}, 'scorer', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white uppercase font-bold text-xs">
+            <select onchange="updateGoalEvent(${idx}, 'scorer', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-white font-bold text-xs">${playerOptions(goal.scorer, 'Scorer...', true)}</select>
           </div>
           <div class="col-span-4">
-            <input type="text" placeholder="Assist (Opt)" value="${goal.assist}" oninput="updateGoalEvent(${idx}, 'assist', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-300 uppercase text-xs">
+            <select onchange="updateGoalEvent(${idx}, 'assist', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-slate-300 text-xs">${playerOptions(goal.assist, 'Assist (opt)', false)}</select>
           </div>
           <div class="col-span-3">
-            <input type="text" placeholder="Min (e.g. 45')" value="${goal.minute}" oninput="updateGoalEvent(${idx}, 'minute', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-amber-400 font-mono font-bold text-center text-xs">
+            <input type="text" placeholder="Min" value="${gEsc(goal.minute)}" oninput="updateGoalEvent(${idx}, 'minute', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-amber-400 font-mono font-bold text-center text-xs">
           </div>
           <div class="col-span-1 text-center">
             <button onclick="removeGoalEvent(${idx})" class="text-slate-500 hover:text-red-400 transition"><i class="fa-solid fa-xmark"></i></button>
@@ -1191,10 +1226,20 @@
         `;
         container.appendChild(row);
       });
+      updateGoalsNote();
+    }
+
+    // Shows how many of Kildrum's goals have a scorer picked
+    function updateGoalsNote() {
+      const el = document.getElementById('goalsNote'); if (!el) return;
+      const k = parseInt(document.getElementById('homeScoreInput').value, 10) || 0;
+      const n = goalEvents.filter(g => String(g.scorer || '').trim()).length;
+      el.className = 'text-[11px] mb-2 ' + (n === k ? 'text-emerald-400' : 'text-amber-300');
+      el.textContent = `Goals with a scorer: ${n} of ${k} (Kildrum Utd score)` + (n === k ? ' \u2713' : '');
     }
 
     function addGoalEvent() {
-      goalEvents.push({ scorer: "NEW SCORER", assist: "", minute: "90'" });
+      goalEvents.push({ scorer: "", assist: "", minute: "" });
       renderGoalEventsInputs();
       updateResultGraphic();
     }
@@ -1204,6 +1249,7 @@
       if (key === 'assist') goalEvents[index].assist = value.toUpperCase();
       if (key === 'minute') goalEvents[index].minute = value;
       updateResultGraphic();
+      updateGoalsNote();
     }
 
     function removeGoalEvent(index) {
@@ -1413,7 +1459,8 @@
         goalEvents.forEach(g => {
           const name = (g.scorer || '').trim();
           if (!name) return;
-          (byScorer[name] = byScorer[name] || []).push(g.minute);
+          byScorer[name] = byScorer[name] || [];
+          if (String(g.minute || '').trim()) byScorer[name].push(String(g.minute).trim());
         });
         const html = Object.keys(byScorer).map(n =>
           `<div>${n} <span style="color:#fbbf24">${byScorer[n].join(', ')}</span></div>`
@@ -1422,6 +1469,8 @@
         goalsRight.innerHTML = playingAway ? html : '';
       }
 
+      if (typeof updateGoalsNote === 'function') updateGoalsNote();
+      if (typeof lgMatchNote === 'function') lgMatchNote();
       fitReportText();
     }
 
@@ -1503,6 +1552,7 @@
         commentary: document.getElementById('matchCommentaryInput').value,
         squad: squad,
         goalEvents: goalEvents,
+        leagueMatchId: leagueMatchId,
         homeBadgeSrc: homeBadgeSrc,
         awayBadgeSrc: awayBadgeSrc,
         updatedAt: new Date().toISOString()
@@ -1519,7 +1569,8 @@
         setCloudBtn('<i class="fa-solid fa-spinner animate-spin"></i> Saving...');
         await window.cloud.put('matchday', matchdayPayload());
         matchdayDirty = false;
-        setCloudBtn('<i class="fa-solid fa-check"></i> Saved!');
+        const sc = (typeof saveScorersToLeague === 'function') ? await saveScorersToLeague() : null;
+        setCloudBtn(sc && sc.ok === false ? '<i class="fa-solid fa-triangle-exclamation"></i> Saved (scorers NOT saved)' : '<i class="fa-solid fa-check"></i> Saved!');
         setTimeout(() => setCloudBtn(cloudIdleHtml()), 2500);
       } catch (err) {
         console.error("Cloud save error:", err);
@@ -1554,7 +1605,7 @@
       const motm = document.getElementById('motmInput').value || 'TBD';
       const commentary = document.getElementById('matchCommentaryInput').value || '';
 
-      let goalsText = goalEvents.map(g => `⚽ ${g.scorer} (${g.minute})${g.assist ? ' - Ast: ' + g.assist : ''}`).join('\n');
+      let goalsText = goalEvents.filter(g => String(g.scorer || '').trim()).map(g => `⚽ ${g.scorer}${String(g.minute || '').trim() ? ' (' + g.minute + ')' : ''}${g.assist ? ' - Ast: ' + g.assist : ''}`).join('\n');
 
       const message = `📢 *MATCH RESULT - ${status}* 📢\n` +
         `🏆 *${comp}*\n` +
@@ -1736,6 +1787,8 @@ const LG_BADGE_MAP = {
 const LG_COLOURS = ['#ef4444','#3b82f6','#22c55e','#f59e0b','#a855f7','#06b6d4','#ec4899','#84cc16','#f97316','#14b8a6','#eab308','#8b5cf6','#94a3b8'];
 const LG_SEED = [{"id": 1, "date": "2026-08-29", "home": "Kildrum Utd", "away": "Scotland Boys", "hg": 4, "ag": 3}, {"id": 2, "date": "2026-08-29", "home": "Motherwell FC CT", "away": "Mill Utd Reds", "hg": 1, "ag": 10}, {"id": 3, "date": "2026-08-29", "home": "Blantyre SA Black", "away": "WhitBurn FC", "hg": 5, "ag": 4}, {"id": 4, "date": "2026-08-29", "home": "Calderbraes", "away": "Villa Park Black", "hg": 2, "ag": 5}, {"id": 5, "date": "2026-08-29", "home": "EK Colts Yellow", "away": "St Patricks SA", "hg": 5, "ag": 3}, {"id": 6, "date": "2026-08-29", "home": "Armadale CFC", "away": "Yett Farm Red", "hg": 0, "ag": 1}, {"id": 7, "date": "2026-09-05", "home": "AC Rovers", "away": "Armadale CFC", "hg": 5, "ag": 4}, {"id": 8, "date": "2026-09-05", "home": "St Patricks SA", "away": "Kildrum Utd", "hg": 4, "ag": 4}, {"id": 9, "date": "2026-09-05", "home": "Yett Farm Red", "away": "Blantyre SA Black", "hg": 6, "ag": 4}, {"id": 10, "date": "2026-09-05", "home": "Villa Park Black", "away": "EK Colts Yellow", "hg": 2, "ag": 2}, {"id": 11, "date": "2026-09-05", "home": "Scotland Boys", "away": "Mill Utd Reds", "hg": 0, "ag": 2}, {"id": 12, "date": "2026-09-05", "home": "WhitBurn FC", "away": "Calderbraes", "hg": 3, "ag": 4}, {"id": 13, "date": "2026-09-12", "home": "Kildrum Utd", "away": "Villa Park Black", "hg": 2, "ag": 2}, {"id": 14, "date": "2026-09-12", "home": "Mill Utd Reds", "away": "St Patricks SA", "hg": 2, "ag": 0}, {"id": 15, "date": "2026-09-12", "home": "Calderbraes", "away": "Yett Farm Red", "hg": 0, "ag": 2}, {"id": 16, "date": "2026-09-12", "home": "Motherwell FC CT", "away": "Scotland Boys", "hg": 2, "ag": 6}, {"id": 17, "date": "2026-09-12", "home": "EK Colts Yellow", "away": "AC Rovers", "hg": 12, "ag": 2}, {"id": 18, "date": "2026-09-19", "home": "Motherwell FC CT", "away": "Villa Park Black", "hg": 1, "ag": 5}, {"id": 19, "date": "2026-09-26", "home": "AC Rovers", "away": "Calderbraes", "hg": 2, "ag": 3}, {"id": 20, "date": "2026-09-26", "home": "Yett Farm Red", "away": "Armadale CFC", "hg": 5, "ag": 2}, {"id": 21, "date": "2026-09-26", "home": "Villa Park Black", "away": "Scotland Boys", "hg": 2, "ag": 8}, {"id": 22, "date": "2026-09-26", "home": "EK Colts Yellow", "away": "WhitBurn FC", "hg": 2, "ag": 1}, {"id": 23, "date": "2026-10-03", "home": "Calderbraes", "away": "Armadale CFC", "hg": 2, "ag": 3}, {"id": 24, "date": "2026-10-03", "home": "Villa Park Black", "away": "Mill Utd Reds", "hg": 1, "ag": 10}, {"id": 25, "date": "2026-10-17", "home": "Mill Utd Reds", "away": "WhitBurn FC", "hg": 5, "ag": 2}, {"id": 26, "date": "2026-10-17", "home": "Armadale CFC", "away": "EK Colts Yellow", "hg": 8, "ag": 0}, {"id": 27, "date": "2026-10-24", "home": "Kildrum Utd", "away": "Armadale CFC", "hg": 1, "ag": 2}, {"id": 28, "date": "2026-10-24", "home": "Motherwell FC CT", "away": "Yett Farm Red", "hg": 0, "ag": 10}, {"id": 29, "date": "2026-10-24", "home": "Mill Utd Reds", "away": "AC Rovers", "hg": 7, "ag": 1}, {"id": 30, "date": "2026-10-24", "home": "EK Colts Yellow", "away": "Blantyre SA Black", "hg": 5, "ag": 9}, {"id": 31, "date": "2026-10-24", "home": "Scotland Boys", "away": "WhitBurn FC", "hg": 0, "ag": 0}, {"id": 32, "date": "2026-10-24", "home": "St Patricks SA", "away": "Villa Park Black", "hg": 13, "ag": 2}, {"id": 33, "date": "2026-10-31", "home": "Kildrum Utd", "away": "Calderbraes", "hg": 4, "ag": 0}, {"id": 34, "date": "2026-10-31", "home": "Villa Park Black", "away": "WhitBurn FC", "hg": 4, "ag": 2}, {"id": 35, "date": "2026-10-31", "home": "Motherwell FC CT", "away": "Armadale CFC", "hg": 3, "ag": 4}, {"id": 36, "date": "2026-10-31", "home": "Mill Utd Reds", "away": "Blantyre SA Black", "hg": 9, "ag": 3}, {"id": 37, "date": "2026-10-31", "home": "St Patricks SA", "away": "Yett Farm Red", "hg": 3, "ag": 2}, {"id": 38, "date": "2026-10-31", "home": "Scotland Boys", "away": "AC Rovers", "hg": 8, "ag": 1}, {"id": 39, "date": "2026-11-07", "home": "EK Colts Yellow", "away": "Kildrum Utd", "hg": 0, "ag": 3}, {"id": 40, "date": "2026-11-07", "home": "Villa Park Black", "away": "AC Rovers", "hg": 4, "ag": 3}, {"id": 41, "date": "2026-11-07", "home": "Scotland Boys", "away": "St Patricks SA", "hg": 0, "ag": 2}, {"id": 42, "date": "2026-11-07", "home": "WhitBurn FC", "away": "Motherwell FC CT", "hg": 7, "ag": 4}, {"id": 43, "date": "2026-11-07", "home": "Calderbraes", "away": "Mill Utd Reds", "hg": 0, "ag": 4}];
 const LG_SEED_TEAMS = ["AC Rovers", "Armadale CFC", "Blantyre SA Black", "Calderbraes", "EK Colts Yellow", "Kildrum Utd", "Mill Utd Reds", "Motherwell FC CT", "Scotland Boys", "St Patricks SA", "Villa Park Black", "WhitBurn FC", "Yett Farm Red"];
+// Kildrum Utd scorers to date, from the "Scorers" sheet of the spreadsheet (one name per goal)
+const LG_SEED_SCORERS = [{"date": "2026-08-29", "opp": "Scotland Boys", "scorers": ["ROBBIE", "FINLAY", "CHRIS", "DERRY"]}, {"date": "2026-09-05", "opp": "St Patricks SA", "scorers": ["ASHTON", "DERRY", "FINLAY", "ROBBIE"]}, {"date": "2026-09-12", "opp": "Villa Park Black", "scorers": ["ROBBIE", "ASHTON"]}, {"date": "2026-10-24", "opp": "Armadale CFC", "scorers": ["ROBBIE"]}, {"date": "2026-10-31", "opp": "Calderbraes", "scorers": ["CHARLIE", "CHRIS", "WOJTEK", "ROBBIE"]}, {"date": "2026-11-07", "opp": "EK Colts Yellow", "scorers": ["ROBBIE", "ROBBIE", "CHARLIE"]}];
 
 const lg = { matches: [], teams: [], tab: 'table', mode: 'local', admin: false, loaded: false,
              charts: {}, progX: 'date', progShow: null, h2hA: LG_OWN_TEAM, h2hB: '', diagTeam: LG_OWN_TEAM, editId: null };
@@ -1815,8 +1868,22 @@ async function lgSave() {
   return true;
 }
 function lgSetStatus(txt) { const el = document.getElementById('lgStatus'); if (el) el.textContent = txt; }
+// Give Kildrum matches that have no scorers yet the ones listed in `source` (matched on date + opposition)
+function lgAttachScorers(list, source) {
+  list.forEach(m => {
+    if (Array.isArray(m.scorers) || (m.home !== LG_OWN_TEAM && m.away !== LG_OWN_TEAM)) return;
+    const opp = m.home === LG_OWN_TEAM ? m.away : m.home, key = String(opp || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const hit = source.find(x => x.date === m.date && String(x.opp || '').toLowerCase().replace(/[^a-z0-9]/g, '') === key);
+    if (hit) m.scorers = hit.scorers.map(n => ({ scorer: n, assist: '', minute: '' }));
+  });
+}
 function lgApply(data) {
-  lg.matches = (data.matches || []).map(m => ({ id: +m.id, date: m.date, home: m.home, away: m.away, hg: +m.hg, ag: +m.ag }));
+  lg.matches = (data.matches || []).map(m => {
+    const r = { id: +m.id, date: m.date, home: m.home, away: m.away, hg: +m.hg, ag: +m.ag };
+    if (Array.isArray(m.scorers)) r.scorers = m.scorers.map(g => ({ scorer: String(g.scorer || '').trim().toUpperCase(), assist: String(g.assist || '').trim().toUpperCase(), minute: String(g.minute || '').trim() }));
+    return r;
+  });
+  lgAttachScorers(lg.matches, LG_SEED_SCORERS);   // fill in the history from the spreadsheet
   lg.teams = data.teams || [];
 }
 function lgLocalData() { try { const raw = localStorage.getItem(LG_LOCAL_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
@@ -1840,6 +1907,8 @@ async function lgLoad() {
   }
   lg.loaded = true;
   lgRenderAll();
+  if (typeof lgMatchInit === 'function') lgMatchInit();
+  if (typeof lgMatchPickerRefresh === 'function') lgMatchPickerRefresh();
 }
 
 // ---------- navigation ----------
@@ -1849,7 +1918,7 @@ function lgShow(tab) {
     const on = b.dataset.lg === tab;
     b.className = 'lgSubBtn px-3 py-1.5 rounded-md ' + (on ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white');
   });
-  ['table', 'prog', 'h2h', 'diag', 'manage'].forEach(t => document.getElementById('lgPanel-' + t).classList.toggle('hidden', t !== tab));
+  ['table', 'prog', 'h2h', 'diag', 'scorers', 'manage'].forEach(t => document.getElementById('lgPanel-' + t).classList.toggle('hidden', t !== tab));
   lgRenderAll();
 }
 function lgRenderAll() {
@@ -1858,6 +1927,7 @@ function lgRenderAll() {
   if (lg.tab === 'prog') lgRenderProg();
   if (lg.tab === 'h2h') lgRenderH2H();
   if (lg.tab === 'diag') lgRenderDiag();
+  if (lg.tab === 'scorers') lgRenderScorers();
   if (lg.tab === 'manage') lgRenderManage();
 }
 function lgDestroyChart(k) { if (lg.charts[k]) { lg.charts[k].destroy(); delete lg.charts[k]; } }
@@ -2215,7 +2285,7 @@ function lgRenderManage() {
         <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-lg p-3">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-2">All results (${lg.matches.length})</h3>
           <div class="overflow-auto max-h-[560px]"><table class="w-full text-sm"><thead class="text-[10px] uppercase text-slate-400 sticky top-0 bg-slate-900"><tr><th class="px-2 text-left">#</th><th class="px-2 text-left">Date</th><th class="px-2 text-right">Home</th><th class="px-2">Score</th><th class="px-2 text-left">Away</th><th></th></tr></thead><tbody>
-            ${sorted.map(m => `<tr class="border-b border-slate-800 ${lg.editId === m.id ? 'bg-red-600/15' : ''}"><td class="px-2 text-slate-500">${m.id}</td><td class="px-2 text-slate-400 whitespace-nowrap">${lgFmtDate(m.date)}</td><td class="px-2 text-right">${lgEsc(m.home)}</td><td class="px-2 text-center font-bold whitespace-nowrap">${m.hg} - ${m.ag}</td><td class="px-2">${lgEsc(m.away)}</td>
+            ${sorted.map(m => `<tr class="border-b border-slate-800 ${lg.editId === m.id ? 'bg-red-600/15' : ''}"><td class="px-2 text-slate-500">${m.id}</td><td class="px-2 text-slate-400 whitespace-nowrap">${lgFmtDate(m.date)}</td><td class="px-2 text-right">${lgEsc(m.home)}</td><td class="px-2 text-center font-bold whitespace-nowrap">${m.hg} - ${m.ag}</td><td class="px-2">${lgEsc(m.away)}${lgScorersRecorded(m) ? ` <span title="Scorers recorded" class="text-emerald-400 text-[10px] whitespace-nowrap">&#9917; ${m.scorers.length}</span>` : ''}</td>
               <td class="px-2 whitespace-nowrap text-right"><button onclick="lg.editId=${m.id};lgRenderManage();window.scrollTo({top:0,behavior:'smooth'})" class="text-slate-400 hover:text-white px-1"><i class="fa-solid fa-pen"></i></button><button onclick="lgDeleteMatch(${m.id})" class="text-slate-400 hover:text-red-400 px-1"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}
           </tbody></table></div></div>
       </div></div>`;
@@ -2225,11 +2295,13 @@ async function lgSubmitMatch() {
   const m = { date: g('lgfDate'), home: g('lgfHome'), away: g('lgfAway'), hg: parseInt(g('lgfHG'), 10), ag: parseInt(g('lgfAG'), 10) };
   if (!m.date || isNaN(m.hg) || isNaN(m.ag) || m.hg < 0 || m.ag < 0) return alert('Please enter a date and both scores.');
   if (m.home === m.away) return alert('Home and away team must be different.');
-  if (lg.editId) { Object.assign(lg.matches.find(x => x.id === lg.editId), m); lg.editId = null; }
-  else lg.matches.push({ id: Math.max(0, ...lg.matches.map(x => x.id)) + 1, ...m });
+  let rec, isNew = false;
+  if (lg.editId) { rec = lg.matches.find(x => x.id === lg.editId); Object.assign(rec, m); lg.editId = null; }
+  else { rec = { id: Math.max(0, ...lg.matches.map(x => x.id)) + 1, ...m }; lg.matches.push(rec); isNew = true; }
   await lgSave(); lgRenderManage();
+  lgAfterResultChange(rec, isNew);
 }
-async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); await lgSave(); lgRenderManage(); }
+async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); if (leagueMatchId === id) leagueMatchId = null; await lgSave(); lgRenderManage(); lgMatchPickerRefresh(); }
 async function lgAddTeam() { const el = document.getElementById('lgNewTeam'), n = el.value.trim(); if (!n) return; if (!lg.teams.includes(n)) lg.teams.push(n); await lgSave(); lgRenderManage(); }
 function lgRemoveSelected() {
   const sel = document.getElementById('lgRemoveSel');
@@ -2278,9 +2350,22 @@ async function lgImportXlsx(input) {
       out.push(m);
     });
     if (!out.length) throw new Error('No match rows found');
+    // Scorers sheet (Player, Opposition, Date, Goals): fills matches that have no scorers saved; scorers already saved in the app are kept
+    const sws = wb.Sheets['Scorers'] || wb.Sheets[wb.SheetNames.find(n => /scor/i.test(n))];
+    const grouped = new Map();
+    if (sws) XLSX.utils.sheet_to_json(sws, { defval: null }).forEach(r => {
+      if (!r.Player || !r.Opposition) return;
+      let d = r.Date; if (typeof d === 'number') d = lgSerialToISO(d); else if (d instanceof Date) d = d.toISOString().slice(0, 10); else d = String(d).slice(0, 10);
+      const key = d + '|' + String(r.Opposition).trim().toLowerCase();
+      if (!grouped.has(key)) grouped.set(key, { date: d, opp: String(r.Opposition).trim(), scorers: [] });
+      for (let g = 0; g < Math.max(1, parseInt(r.Goals, 10) || 1); g++) grouped.get(key).scorers.push(String(r.Player).trim().toUpperCase());
+    });
+    out.forEach(m => { const prev = lg.matches.find(o => o.date === m.date && o.home === m.home && o.away === m.away); if (prev && Array.isArray(prev.scorers)) m.scorers = prev.scorers; });
+    lgAttachScorers(out, [...grouped.values()]);
+    const withScorers = out.filter(m => Array.isArray(m.scorers) && m.scorers.length).length;
     if (!confirm(`Replace the current ${lg.matches.length} results with ${out.length} from the spreadsheet?`)) return;
     lg.matches = out; await lgSave(); lgRenderManage();
-    document.getElementById('lgImportMsg').textContent = `Imported ${out.length} results.` + (problems.length ? ' Notes: ' + problems.join('; ') : '');
+    document.getElementById('lgImportMsg').textContent = `Imported ${out.length} results` + (withScorers ? ` and scorers for ${withScorers} match${withScorers === 1 ? '' : 'es'}` : '') + '.' + (problems.length ? ' Notes: ' + problems.join('; ') : '');
   } catch (e) { msg.textContent = 'Import failed: ' + e.message; }
   input.value = '';
 }
@@ -2295,6 +2380,202 @@ async function lgSignIn() {
   } catch (e) { msg.textContent = 'Sign in failed: ' + e.message; }
 }
 async function lgSignOut() { window.cloud.setPassword(''); lg.admin = false; lgRenderManage(); }
+
+// ---------- League match <-> match report link, and scorers ----------
+let leagueMatchId = null;          // league match the match report is linked to
+const goalDrafts = {};             // unsaved goal lists per match (this visit only)
+let matchLinkDone = false;
+const normName = v => String(v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+function longDate(iso) { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'short' }) + ' ' + d.getFullYear(); }
+function kildrumMatches() { return lg.matches.filter(m => m.home === LG_OWN_TEAM || m.away === LG_OWN_TEAM).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); }
+function kInfo(m) { const home = m.home === LG_OWN_TEAM; return { away: !home, opp: home ? m.away : m.home, k: home ? m.hg : m.ag, o: home ? m.ag : m.hg }; }
+function lgScorersRecorded(m) { if (m.home !== LG_OWN_TEAM && m.away !== LG_OWN_TEAM) return false; return Array.isArray(m.scorers) && (m.scorers.length > 0 || kInfo(m).k === 0); }
+function flagMatchdayDirty() { try { matchdayDirty = true; const b = document.getElementById('cloudSaveBtn'); if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml(); } catch (e) {} }
+
+function lgMatchPickerRefresh() {
+  const sel = document.getElementById('leagueMatchSelect'); if (!sel || !lg.loaded) return;
+  sel.innerHTML = '<option value="">Choose a league match...</option>' + kildrumMatches().map(m =>
+    `<option value="${m.id}" ${m.id === leagueMatchId ? 'selected' : ''}>${lgFmtDate(m.date)} · ${lgEsc(m.home)} ${m.hg}-${m.ag} ${lgEsc(m.away)}${lgScorersRecorded(m) ? '  (scorers saved)' : ''}</option>`).join('');
+  lgMatchNote();
+}
+function lgMatchNote() {
+  const el = document.getElementById('leagueMatchNote'); if (!el || !lg.loaded) return;
+  const m = leagueMatchId == null ? null : lg.matches.find(x => x.id === leagueMatchId);
+  if (!m) { el.className = 'text-[11px] mt-1 text-slate-400'; el.textContent = kildrumMatches().length ? '' : 'No Kildrum Utd results in the league yet. Add one under League > Manage Results.'; return; }
+  const i = kInfo(m);
+  const k = parseInt(document.getElementById('homeScoreInput').value, 10), o = parseInt(document.getElementById('awayScoreInput').value, 10);
+  if (k !== i.k || o !== i.o) {
+    el.className = 'text-[11px] mt-1 text-amber-300';
+    el.textContent = `The league result is ${i.k}-${i.o}, but this report shows ${isNaN(k) ? '?' : k}-${isNaN(o) ? '?' : o}.`;
+  } else {
+    el.className = 'text-[11px] mt-1 text-emerald-400';
+    el.textContent = `Matches the league result: ${m.home} ${m.hg}-${m.ag} ${m.away}. ` + (lgScorersRecorded(m) ? `Scorers saved: ${m.scorers.length}. ` : 'Scorers not saved yet. ') + (window.lastScorerMsg || '');
+  }
+}
+
+// Fill the match report from a league result (score, opposition, home/away, date, badge, goal rows)
+function applyLeagueMatch(idVal, opts = {}) {
+  const id = (idVal === '' || idVal == null) ? null : +idVal;
+  if (leagueMatchId != null && leagueMatchId !== id) goalDrafts[leagueMatchId] = JSON.parse(JSON.stringify(goalEvents));
+  leagueMatchId = id;
+  window.lastScorerMsg = '';
+  const m = id == null ? null : lg.matches.find(x => x.id === id);
+  if (!m) { lgMatchPickerRefresh(); return; }
+  const i = kInfo(m);
+  if (!opts.keepGoals) {
+    if (goalDrafts[id]) goalEvents = JSON.parse(JSON.stringify(goalDrafts[id]));
+    else if (Array.isArray(m.scorers) && m.scorers.length) goalEvents = JSON.parse(JSON.stringify(m.scorers));
+    else goalEvents = Array.from({ length: i.k }, () => ({ scorer: '', assist: '', minute: '' }));
+  }
+  const set = (eid, v) => { const e = document.getElementById(eid); if (e) e.value = v; };
+  set('homeScoreInput', i.k); set('awayScoreInput', i.o); set('oppName', i.opp); set('matchDate', longDate(m.date));
+  const idx = opponentBadges.findIndex(c => normName(c.name) === normName(i.opp));
+  if (idx >= 0) { awayBadgeSrc = opponentBadges[idx].src; set('oppSelect', idx); } else { awayBadgeSrc = DEFAULT_AWAY_BADGE; set('oppSelect', ''); }
+  renderGoalEventsInputs();
+  setSide(i.away ? 'away' : 'home');   // also redraws both graphics
+  lgMatchPickerRefresh();
+  if (!opts.quiet) flagMatchdayDirty();
+}
+
+// On first load: link the report to the latest Kildrum result unless it is already linked
+function lgMatchInit() {
+  if (matchLinkDone || !window.matchdayLoaded || !lg.loaded) return;
+  matchLinkDone = true;
+  if (leagueMatchId != null && !lg.matches.some(x => x.id === leagueMatchId)) leagueMatchId = null;
+  const list = kildrumMatches();
+  if (leagueMatchId == null && list.length) {
+    const m = list[0], i = kInfo(m);
+    const sameOpp = normName(document.getElementById('oppName').value) === normName(i.opp);
+    const sameScore = parseInt(document.getElementById('homeScoreInput').value, 10) === i.k && parseInt(document.getElementById('awayScoreInput').value, 10) === i.o;
+    if (sameOpp && sameScore) { leagueMatchId = m.id; }                 // report is already for this match: just link it
+    else applyLeagueMatch(m.id);                                         // otherwise pre-populate from the league
+  }
+  lgMatchPickerRefresh();
+}
+
+// A result was added or edited in Manage Results
+function lgAfterResultChange(rec, isNew) {
+  const ours = rec.home === LG_OWN_TEAM || rec.away === LG_OWN_TEAM;
+  if (ours && isNew) applyLeagueMatch(rec.id);
+  else if (ours && rec.id === leagueMatchId) applyLeagueMatch(rec.id, { keepGoals: true });
+  else lgMatchPickerRefresh();
+}
+
+// Called by "Save to Cloud": the scorers go onto the linked league match
+async function saveScorersToLeague() {
+  if (leagueMatchId == null || !lg.loaded) return { skipped: true };
+  const m = lg.matches.find(x => x.id === leagueMatchId); if (!m) return { skipped: true };
+  if (lg.mode !== 'online') { window.lastScorerMsg = 'Scorers were not saved to the league because it is offline.'; lgMatchNote(); return { ok: false }; }
+  const events = goalEvents.map(g => ({ scorer: String(g.scorer || '').trim().toUpperCase(), assist: String(g.assist || '').trim().toUpperCase(), minute: String(g.minute || '').trim() })).filter(g => g.scorer);
+  if (!events.length && kInfo(m).k > 0) { window.lastScorerMsg = ''; lgMatchNote(); return { skipped: true }; }
+  m.scorers = events;
+  lg.admin = true;
+  const ok = await lgSave();
+  if (ok) { delete goalDrafts[m.id]; window.lastScorerMsg = `Saved ${events.length} scorer${events.length === 1 ? '' : 's'} to the league.`; lgRenderAll(); lgMatchPickerRefresh(); }
+  else window.lastScorerMsg = 'The scorers could not be saved to the league.';
+  lgMatchNote();
+  return { ok };
+}
+
+// ---------- SCORERS (diagnostics) ----------
+function lgScorerData() {
+  const km = lg.matches.filter(m => m.home === LG_OWN_TEAM || m.away === LG_OWN_TEAM).sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+  const recorded = km.filter(lgScorersRecorded);
+  const players = {}, assists = {}, hauls = [];
+  let expected = 0, assigned = 0, own = 0;
+  recorded.forEach(m => {
+    const i = kInfo(m); expected += i.k;
+    const byP = {};
+    m.scorers.forEach(e => {
+      const n = String(e.scorer || '').trim().toUpperCase(); if (!n) return;
+      assigned++;
+      if (n === 'OWN GOAL') { own++; return; }
+      byP[n] = (byP[n] || 0) + 1;
+      const a = String(e.assist || '').trim().toUpperCase();
+      if (a && a !== 'OWN GOAL') assists[a] = (assists[a] || 0) + 1;
+    });
+    Object.keys(byP).forEach(n => {
+      const g = byP[n];
+      const p = players[n] || (players[n] = { name: n, goals: 0, games: [], doubles: 0, hats: 0, best: 0, last: '' });
+      p.goals += g; p.games.push({ m, g, i });
+      if (g === 2) p.doubles++; if (g >= 3) p.hats++; if (g > p.best) p.best = g; if (m.date > p.last) p.last = m.date;
+      hauls.push({ name: n, goals: g, m, i });
+    });
+  });
+  const list = Object.values(players).sort((a, b) => b.goals - a.goals || a.games.length - b.games.length || a.name.localeCompare(b.name));
+  hauls.sort((a, b) => b.goals - a.goals || b.m.date.localeCompare(a.m.date));
+  return { km, recorded, players: list, assists, hauls, expected, assigned, own };
+}
+
+function lgRenderScorers() {
+  const el = document.getElementById('lgPanel-scorers'); if (!el) return;
+  const D = lgScorerData();
+  if (!D.assigned) {
+    el.innerHTML = `<div class="bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm text-slate-300 space-y-1">
+      <p class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">No scorers recorded yet</p>
+      <p>Open <b>Result &amp; Match Report</b>, choose the league match, pick the scorers from the squad drop-downs and press <b>Save to Cloud</b>. They will appear here.</p></div>`;
+    return;
+  }
+  const shirt = n => { const p = (typeof squad !== 'undefined' ? squad : []).find(x => String(x.name || '').toUpperCase() === n); return p ? p.number : null; };
+  const badge = n => { const no = shirt(n); return `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-600 border border-white/30 text-[10px] font-extrabold text-white shrink-0">${no != null ? no : lgEsc(n.charAt(0))}</span>`; };
+  const medal = i => `<span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-extrabold shrink-0 ${['bg-amber-400 text-slate-900', 'bg-slate-300 text-slate-900', 'bg-orange-700 text-white'][i] || 'bg-slate-700 text-white'}">${i + 1}</span>`;
+  const row = (i, name, val, sub) => `<div class="flex items-center gap-2 py-1 border-b border-slate-800/70 last:border-0">${medal(i)}${badge(name)}<span class="text-sm text-slate-100 font-semibold truncate flex-1 min-w-0">${lgEsc(name)}</span>${sub ? `<span class="text-[10px] text-slate-400 text-right">${sub}</span>` : ''}<span class="font-sports font-extrabold text-sm text-white w-8 text-right">${val}</span></div>`;
+  const tile = (icon, title, note, rows) => `<div class="bg-slate-900 border border-slate-800 rounded-lg p-3"><div class="flex items-baseline justify-between mb-1"><h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider"><i class="fa-solid ${icon}"></i> ${title}</h3><span class="text-[10px] text-slate-500">${note}</span></div>${rows || '<p class="text-sm text-slate-400 py-2">None yet.</p>'}</div>`;
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+  const top3 = D.players.slice(0, 3);
+  const haulRows = D.hauls.slice(0, 3);
+  const hats = D.hauls.filter(h => h.goals >= 3);
+  const dblPlayers = D.players.filter(p => p.doubles > 0).sort((a, b) => b.doubles - a.doubles || b.goals - a.goals).slice(0, 3);
+  const totalDoubles = D.players.reduce((t, p) => t + p.doubles, 0);
+  const topAssists = Object.keys(D.assists).map(n => ({ name: n, a: D.assists[n] })).sort((a, b) => b.a - a.a || a.name.localeCompare(b.name)).slice(0, 3);
+  const unassigned = Math.max(0, D.expected - D.assigned);
+
+  const glance = `<div class="bg-slate-900 border border-slate-800 rounded-lg p-3"><h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-1"><i class="fa-solid fa-chart-simple"></i> Scorers at a glance</h3>
+    <div class="grid grid-cols-3 gap-2 text-center mt-2">
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="font-sports font-extrabold text-xl text-white">${D.recorded.length}/${D.km.length}</div><div class="text-[10px] uppercase text-slate-400">Matches</div><div class="text-[10px] text-slate-500">with scorers</div></div>
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="font-sports font-extrabold text-xl text-white">${D.assigned - D.own}</div><div class="text-[10px] uppercase text-slate-400">Goals</div><div class="text-[10px] text-slate-500">by players</div></div>
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="font-sports font-extrabold text-xl text-white">${D.players.length}</div><div class="text-[10px] uppercase text-slate-400">Scorers</div><div class="text-[10px] text-slate-500">different players</div></div>
+    </div>
+    <p class="text-[10px] text-slate-500 mt-2">${D.own ? `Own goals for us: ${D.own}. ` : ''}${unassigned ? `${plural(unassigned, 'goal')} in recorded matches without a scorer. ` : ''}Matches without scorers are not counted.</p></div>`;
+
+  const tiles = [
+    tile('fa-crown', 'Leading scorer', 'goals', top3.map((p, i) => row(i, p.name, p.goals, plural(p.games.length, 'game'))).join('')),
+    tile('fa-fire', 'Most in a game', 'goals', haulRows.map((h, i) => row(i, h.name, h.goals, `v ${lgEsc(h.i.opp)} · ${lgFmtDate(h.m.date)}`)).join('')),
+    tile('fa-hat-wizard', 'Hat-tricks', `${hats.length} so far`, hats.slice(0, 5).map((h, i) => row(i, h.name, h.goals, `v ${lgEsc(h.i.opp)} · ${lgFmtDate(h.m.date)}`)).join('')),
+    tile('fa-2', 'Doubles', `${totalDoubles} in total`, dblPlayers.map((p, i) => row(i, p.name, p.doubles, plural(p.goals, 'goal'))).join('')),
+    tile('fa-handshake-angle', 'Top assists', 'assists', topAssists.map((x, i) => row(i, x.name, x.a, '')).join('')),
+    glance
+  ].join('');
+
+  const maxG = D.players[0].goals;
+  const totalG = D.assigned - D.own;
+  const board = D.players.map((p, i) => `<tr class="border-b border-slate-800"><td class="px-2 py-1.5 text-slate-500">${i + 1}</td>
+      <td class="px-2"><span class="inline-flex items-center gap-2">${badge(p.name)}<span class="font-semibold text-white">${lgEsc(p.name)}</span></span></td>
+      <td class="px-2 text-center font-sports font-extrabold text-white">${p.goals}</td>
+      <td class="px-2 w-32 hidden sm:table-cell"><div class="h-2 rounded bg-slate-800"><div class="h-2 rounded bg-red-500" style="width:${Math.round(p.goals / maxG * 100)}%"></div></div></td>
+      <td class="px-2 text-center">${p.games.length}</td><td class="px-2 text-center">${(p.goals / p.games.length).toFixed(2)}</td>
+      <td class="px-2 text-center">${p.doubles || '-'}</td><td class="px-2 text-center">${p.hats || '-'}</td><td class="px-2 text-center">${p.best}</td>
+      <td class="px-2 text-center text-slate-400">${totalG ? Math.round(p.goals / totalG * 100) : 0}%</td></tr>`).join('');
+
+  if (!lg.scorerFocus || !D.players.some(p => p.name === lg.scorerFocus)) lg.scorerFocus = D.players[0].name;
+  const fp = D.players.find(p => p.name === lg.scorerFocus);
+  const focusRows = fp.games.slice().sort((a, b) => a.m.date.localeCompare(b.m.date)).map(x => `<tr class="border-b border-slate-800"><td class="px-2 py-1 text-slate-400 whitespace-nowrap">${lgFmtDate(x.m.date)}</td><td class="px-2">${x.i.away ? 'A' : 'H'}</td><td class="px-2">${lgEsc(x.i.opp)}</td><td class="px-2 text-center font-bold whitespace-nowrap">${x.i.k} - ${x.i.o}</td><td class="px-2 whitespace-nowrap">${'&#9917;'.repeat(x.g)}</td></tr>`).join('');
+
+  el.innerHTML = `<div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">${tiles}</div>
+    <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+      <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-ranking-star"></i> Goalscorer table</h3>
+      <div class="overflow-x-auto"><table class="w-full text-sm min-w-[520px]"><thead class="text-[10px] uppercase text-slate-400"><tr><th class="px-2 text-left">#</th><th class="px-2 text-left">Player</th><th class="px-2">Goals</th><th class="hidden sm:table-cell"></th><th class="px-2" title="Games in which the player scored">Games scored</th><th class="px-2" title="Goals per game in which the player scored">Per game</th><th class="px-2">Doubles</th><th class="px-2">Hat-tricks</th><th class="px-2">Best</th><th class="px-2">Share</th></tr></thead><tbody>${board}</tbody></table></div>
+      <p class="text-[10px] text-slate-500 mt-2">A double is exactly 2 goals in a game, a hat-trick is 3 or more. "Per game" counts only the games in which the player scored.</p>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+      <div class="flex items-center justify-between gap-2 mb-2 flex-wrap"><h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Player focus: goals match by match</h3>
+        <select onchange="lg.scorerFocus=this.value;lgRenderScorers()" class="bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white text-sm">${D.players.map(p => `<option value="${lgEsc(p.name)}" ${p.name === lg.scorerFocus ? 'selected' : ''}>${lgEsc(p.name)}</option>`).join('')}</select></div>
+      <p class="text-xs text-slate-400 mb-2">${fp.goals} goal${fp.goals === 1 ? '' : 's'} in ${plural(fp.games.length, 'game')} · best ${fp.best} in a game · last scored ${lgFmtDate(fp.last)}</p>
+      <table class="w-full text-sm"><tbody>${focusRows}</tbody></table>
+    </div></div>`;
+}
 
 // ---------- lock the coach tabs (Lineup + Result) ----------
 function isUnlocked() { try { return !!localStorage.getItem('kildrum-github-token'); } catch (e) { return false; } }
