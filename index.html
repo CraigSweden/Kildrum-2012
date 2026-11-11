@@ -23,6 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    .ico { display:inline-block; width:1em; height:1em; fill:currentColor; vertical-align:-0.125em; }
     body {
       font-family: 'Inter', sans-serif;
     }
@@ -569,11 +570,11 @@
           <p id="lgStatus" class="text-[11px] text-slate-400 mt-0.5"></p>
         </div>
         <div class="flex flex-wrap bg-slate-900 p-1 rounded-lg border border-slate-800 gap-1 text-xs font-bold">
-          <button data-lg="table"  onclick="lgShow('table')"  class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-ranking-star"></i> Table</button>
-          <button data-lg="prog"   onclick="lgShow('prog')"   class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-chart-line"></i> Progression</button>
-          <button data-lg="h2h"    onclick="lgShow('h2h')"    class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-people-arrows"></i> Head to Head</button>
-          <button data-lg="diag"   onclick="lgShow('diag')"   class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-stethoscope"></i> Diagnostics</button>
-          <button data-lg="manage" onclick="lgShow('manage')" class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-pen-to-square"></i> Manage Results</button>
+          <button data-lg="table"  onclick="lgShow('table')"  class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 576 512" aria-hidden="true"><path d="M321.8 54.1 298.2 6.3c-3.9-8.3-16.1-8.6-20.4 0l-23.6 47.8-52.3 7.5c-9.3 1.4-13.3 12.9-6.4 19.8l38 37-9 52.1c-1.4 9.3 8.2 16.5 16.8 12.2l46.9-24.8 46.6 24.4c8.6 4.3 18.3-2.9 16.8-12.2l-9-52.1 38-36.6c6.8-6.8 2.9-18.3-6.4-19.8l-52.3-7.5zM256 256c-26.5 0-48 21.5-48 48v160c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48V304c0-26.5-21.5-48-48-48zM48 320c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48v-96c0-26.5-21.5-48-48-48zm368 112v32c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48v-32c0-26.5-21.5-48-48-48h-64c-26.5 0-48 21.5-48 48"/></svg> Table</button>
+          <button data-lg="prog"   onclick="lgShow('prog')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64v336c0 44.2 35.8 80 80 80h400c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.3c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l73.4-73.4 57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/></svg> Progression</button>
+          <button data-lg="h2h"    onclick="lgShow('h2h')"    class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M32 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0M0 224c0-35.3 28.7-64 64-64h64c3.2 0 6.4.2 9.5.7l-44.4 44.4c-28.1 28.1-28.1 73.7 0 101.8l56 56c3.4 3.4 7 6.4 10.9 9V464c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V343.4c-19.1-11-32-31.7-32-55.4zM352 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0m66.9 141.1-44.4-44.4c3.1-.5 6.3-.7 9.5-.7h64c35.3 0 64 28.7 64 64v64c0 23.7-12.9 44.4-32 55.4V464c0 26.5-21.5 48-48 48h-32c-26.5 0-48-21.5-48-48v-92.1c3.9-2.6 7.5-5.6 10.9-9l56-56c28.1-28.1 28.1-73.7 0-101.8m-116.1-27.3c9-3.7 19.3-1.7 26.2 5.2l56 56c9.4 9.4 9.4 24.6 0 33.9l-56 56c-6.9 6.9-17.2 8.9-26.2 5.2S288 321.7 288 312v-24h-64v24c0 9.7-5.8 18.5-14.8 22.2s-19.3 1.7-26.2-5.2l-56-56c-9.4-9.4-9.4-24.6 0-33.9l56-56c6.9-6.9 17.2-8.9 26.2-5.2S224 190.3 224 200v24h64v-24c0-9.7 5.8-18.5 14.8-22.2"/></svg> Head to Head</button>
+          <button data-lg="diag"   onclick="lgShow('diag')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 576 512" aria-hidden="true"><path d="M32 48C32 21.5 53.5 0 80 0h48c17.7 0 32 14.3 32 32s-14.3 32-32 32H96v128c0 53 43 96 96 96s96-43 96-96V64h-32c-17.7 0-32-14.3-32-32s14.3-32 32-32h48c26.5 0 48 21.5 48 48v144c0 77.4-55 142-128 156.8V368c0 61.9 50.1 112 112 112s112-50.1 112-112v-85.5c-37.3-13.2-64-48.7-64-90.5 0-53 43-96 96-96s96 43 96 96c0 41.8-26.7 77.4-64 90.5V368c0 97.2-78.8 176-176 176s-176-78.8-176-176v-19.2C87 334 32 269.4 32 192zm448 176a32 32 0 1 0 0-64 32 32 0 1 0 0 64"/></svg> Diagnostics</button>
+          <button data-lg="manage" onclick="lgShow('manage')" class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L368 46.1l97.9 97.9 24.4-24.4c21.9-21.9 21.9-57.3 0-79.2zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L432 177.9 334.1 80zM96 64c-53 0-96 43-96 96v256c0 53 43 96 96 96h256c53 0 96-43 96-96v-96c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg> Manage Results</button>
         </div>
       </div>
       <div id="lgPanel-table"></div>
@@ -2174,6 +2175,11 @@ function lgRenderManage() {
           <hr class="border-slate-800 my-2">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Teams</h3>
           <div class="flex gap-2"><input id="lgNewTeam" placeholder="Add a team name" class="${cls}"><button onclick="lgAddTeam()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-200 rounded-md border border-slate-700">Add</button></div>
+          <label class="text-[11px] text-slate-400">Remove a team</label>
+          <div class="flex gap-2"><select id="lgRemoveSel" onchange="lg.removeSel=this.value;lg.removePending=null;lg.removeMsg='';lgRenderManage()" class="${cls}"><option value="">Select a team...</option>${all.filter(t => t !== LG_OWN_TEAM).map(t => { const n = lg.matches.filter(m => m.home === t || m.away === t).length; return `<option value="${lgEsc(t)}" ${t === lg.removeSel ? 'selected' : ''}>${lgEsc(t)} (${n} result${n === 1 ? '' : 's'})</option>`; }).join('')}</select>
+            <button onclick="lgRemoveSelected()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-red-400 hover:text-red-300 rounded-md border border-slate-700 whitespace-nowrap"><i class="fa-solid fa-trash"></i> Remove</button></div>
+          ${lg.removePending ? (() => { const t = lg.removePending, n = lg.matches.filter(m => m.home === t || m.away === t).length; return `<div class="bg-red-900/20 border border-red-700/40 rounded p-2 space-y-2"><p class="text-xs text-red-200">Remove <b>${lgEsc(t)}</b> from the league? ${n ? `This also deletes their ${n} result${n === 1 ? '' : 's'} and changes the other teams' points.` : 'It has no results.'}</p><div class="flex gap-2"><button onclick="lgRemoveConfirm()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Yes, remove it</button><button onclick="lg.removePending=null;lgRenderManage()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Cancel</button></div></div>`; })() : ''}
+          ${lg.removeMsg ? `<p class="text-xs text-amber-300">${lgEsc(lg.removeMsg)}</p>` : ''}
           <hr class="border-slate-800 my-2">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Import from spreadsheet</h3>
           <p class="text-[11px] text-slate-400">Choose your league .xlsx. It reads the <b>Matches</b> tab (MatchID, Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals) and replaces the current results.</p>
@@ -2200,6 +2206,33 @@ async function lgSubmitMatch() {
 }
 async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); await lgSave(); lgRenderManage(); }
 async function lgAddTeam() { const el = document.getElementById('lgNewTeam'), n = el.value.trim(); if (!n) return; if (!lg.teams.includes(n)) lg.teams.push(n); await lgSave(); lgRenderManage(); }
+function lgRemoveSelected() {
+  const sel = document.getElementById('lgRemoveSel');
+  const name = (sel && sel.value) || lg.removeSel || '';
+  lg.removeMsg = '';
+  if (!name) { lg.removePending = null; lg.removeMsg = 'Choose a team in the box first, then click Remove.'; }
+  else lg.removePending = name;
+  lgRenderManage();
+}
+async function lgRemoveConfirm() {
+  const t = lg.removePending;
+  if (!t || t === LG_OWN_TEAM) { lg.removePending = null; lgRenderManage(); return; }
+  const backup = { teams: [...lg.teams], matches: [...lg.matches] };
+  lg.teams = lg.teams.filter(x => x !== t);
+  lg.matches = lg.matches.filter(m => m.home !== t && m.away !== t);
+  if (lg.h2hA === t) lg.h2hA = LG_OWN_TEAM;
+  if (lg.h2hB === t) lg.h2hB = '';
+  if (lg.diagTeam === t) lg.diagTeam = LG_OWN_TEAM;
+  if (lg.progShow && lg.progShow.delete) lg.progShow.delete(t);
+  if (lg.editId && !lg.matches.some(m => m.id === lg.editId)) lg.editId = null;
+  lg.removePending = null; lg.removeSel = ''; lg.removeMsg = 'Removing ' + t + ' and saving...';
+  lgRenderManage();
+  const ok = await lgSave();
+  if (ok === false) { lg.teams = backup.teams; lg.matches = backup.matches; lg.removeMsg = t + ' was NOT removed because the save failed. Check you are unlocked with your access token and try again.'; }
+  else lg.removeMsg = t + ' has been removed.';
+  lgRenderManage();
+  if (typeof lgRenderAll === 'function') lgRenderAll();
+}
 async function lgPublish() { if (await lgSave()) alert('Published. Anyone with the link now sees these results.'); }
 function lgExportJson() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(lgPayload(), null, 2)], { type: 'application/json' })); a.download = 'kildrum-league-backup.json'; a.click(); }
 async function lgImportXlsx(input) {
