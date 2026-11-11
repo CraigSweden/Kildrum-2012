@@ -1507,34 +1507,33 @@
     async function saveMatchToCloud(opts = {}) {
       try {
         if (!window.cloud) throw new Error("Cloud saving not ready yet.");
-        if (opts.auto && !window.cloud.password()) return; // autosave only once a password is set
         if (!(await window.cloud.ensurePassword())) return;
         setCloudBtn('<i class="fa-solid fa-spinner animate-spin"></i> Saving...');
         await window.cloud.put('matchday', matchdayPayload());
+        matchdayDirty = false;
         setCloudBtn('<i class="fa-solid fa-check"></i> Saved!');
-        setTimeout(() => setCloudBtn(CLOUD_BTN_IDLE), 2500);
+        setTimeout(() => setCloudBtn(cloudIdleHtml()), 2500);
       } catch (err) {
         console.error("Cloud save error:", err);
         setCloudBtn('<i class="fa-solid fa-triangle-exclamation"></i> Save Failed');
-        setTimeout(() => setCloudBtn(CLOUD_BTN_IDLE), 3000);
-        if (!opts.auto) alert('Could not save online: ' + err.message);
+        setTimeout(() => setCloudBtn(cloudIdleHtml()), 3000);
+        alert('Could not save online: ' + err.message);
       }
     }
 
-    // Autosave the match day details a couple of seconds after any edit
-    let matchdayAutoTimer = null;
-    function scheduleMatchdayAutosave() {
-      if (!window.matchdayLoaded) return; // don't overwrite saved data before it has loaded
-      clearTimeout(matchdayAutoTimer);
-      matchdayAutoTimer = setTimeout(() => saveMatchToCloud({ auto: true }), 2000);
+    // No autosave: nothing is written to the cloud until you press "Save to Cloud".
+    // We only flag unsaved edits with a small amber dot on the button.
+    let matchdayDirty = false;
+    function cloudIdleHtml() { return CLOUD_BTN_IDLE + (matchdayDirty ? ' <span style="color:#fcd34d" title="You have changes that are not saved to the cloud yet">&#9679;</span>' : ''); }
+    function markMatchdayDirty(e) {
+      if (!window.matchdayLoaded) return;
+      if (!(e.target && e.target.closest && e.target.closest('#tabContentLineup, #tabContentResult'))) return;
+      if (e.target.closest('#lockBanner')) return;
+      matchdayDirty = true;
+      const b = document.getElementById('cloudSaveBtn');
+      if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml();
     }
-    ['input', 'change'].forEach(ev => document.addEventListener(ev, e => {
-      if (e.target && e.target.closest && e.target.closest('#tabContentLeague')) return;
-      scheduleMatchdayAutosave();
-    }));
-    document.addEventListener('click', e => {
-      if (e.target && e.target.closest && e.target.closest('#tabContentLineup, #tabContentResult')) scheduleMatchdayAutosave();
-    });
+    ['input', 'change'].forEach(ev => document.addEventListener(ev, markMatchdayDirty));
 
     function copyWhatsAppPost() {
       const ws = getSides();
@@ -1857,6 +1856,24 @@ function lgDestroyChart(k) { if (lg.charts[k]) { lg.charts[k].destroy(); delete 
 
 // ---------- TABLE ----------
 const lgDot = r => `<span title="${lgEsc(r.res + ' ' + r.gf + '-' + r.ga + ' v ' + r.opp)}" class="inline-block w-3.5 h-3.5 rounded-full mx-0.5 ${r.res === 'W' ? 'bg-emerald-500' : r.res === 'D' ? 'bg-amber-400' : 'bg-red-500'}"></span>`;
+const LG_FORM_STYLE = {
+  'Elite':   { c1: '#fb923c', c2: '#dc2626', bars: 5 },
+  'Great':   { c1: '#34d399', c2: '#047857', bars: 4 },
+  'Good':    { c1: '#38bdf8', c2: '#1d4ed8', bars: 3 },
+  'Poor':    { c1: '#fbbf24', c2: '#b45309', bars: 2 },
+  'Dire':    { c1: '#f87171', c2: '#7f1d1d', bars: 1 },
+  'No Form': { c1: '#64748b', c2: '#334155', bars: 0 }
+};
+function lgFormBadge(r) {
+  const parts = String(r.formLevel).split(' '), ico = parts.shift(), name = parts.join(' ');
+  const st = LG_FORM_STYLE[name] || LG_FORM_STYLE['No Form'];
+  const tip = r.mp < 5 ? 'Needs 5 games played to show form' : `Form: ${r.formPts} of 15 points from the last 5 games`;
+  const heights = [6, 9, 12, 14, 16];
+  const bars = heights.map((h, i) => `<span style="display:inline-block;width:4px;height:${h}px;border-radius:2px;background:${i < st.bars ? st.c1 : '#334155'}"></span>`).join('');
+  return `<span title="${lgEsc(tip)}" style="display:inline-flex;align-items:center;gap:8px;">
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 10px 2px 7px;border-radius:999px;background:linear-gradient(135deg,${st.c1},${st.c2});color:#fff;font-weight:800;font-size:12px;letter-spacing:.03em;box-shadow:0 1px 3px rgba(0,0,0,.45)"><span style="font-size:13px">${ico}</span>${lgEsc(name)}</span>
+    <span style="display:inline-flex;align-items:flex-end;gap:2px;height:16px">${bars}</span></span>`;
+}
 function lgRenderTable() {
   const cur = lgTable(lg.matches, lgAllTeams());
   const prev = lgPrevTable();
@@ -1881,7 +1898,7 @@ function lgRenderTable() {
       <td class="px-2 text-center ${r.gd > 0 ? 'text-emerald-400' : r.gd < 0 ? 'text-red-400' : ''}">${r.gd > 0 ? '+' : ''}${r.gd}</td>
       <td class="px-2 text-center font-extrabold text-white">${r.pts}</td>
       <td class="px-2 whitespace-nowrap">${dots}</td>
-      <td class="px-2 whitespace-nowrap text-sm">${lgEsc(r.formLevel)}</td>
+      <td class="px-2 whitespace-nowrap">${lgFormBadge(r)}</td>
       <td class="px-2 text-center">${mover}</td></tr>`;
   }).join('');
   document.getElementById('lgPanel-table').innerHTML = `
