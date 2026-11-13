@@ -81,7 +81,7 @@
       </div>
 
       <!-- Tab Navigation Switcher -->
-      <div class="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800">
+      <div class="flex flex-wrap justify-center items-center bg-slate-950 p-1 rounded-lg border border-slate-800 gap-1">
         <button onclick="switchTab('league')" id="tabBtnLeague" class="px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 bg-red-600 text-white shadow">
           <i class="fa-solid fa-ranking-star"></i> League
         </button>
@@ -90,6 +90,9 @@
         </button>
         <button onclick="switchTab('result')" id="tabBtnResult" class="px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 text-slate-400 hover:text-white">
           <i class="fa-solid fa-bullhorn"></i> Result &amp; Match Report <i class="fa-solid fa-lock text-[10px] lock-ic"></i>
+        </button>
+        <button onclick="switchTab('recorder')" id="tabBtnRecorder" class="px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-stopwatch"></i> Match Recorder <i class="fa-solid fa-lock text-[10px] lock-ic"></i>
         </button>
       </div>
 
@@ -479,7 +482,7 @@
           </div>
 
           <p id="goalsNote" class="text-[11px] mb-2 text-slate-400"></p>
-          <div id="goalEventsContainer" class="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+          <div id="goalEventsContainer" class="space-y-2.5 pr-1">
             <!-- Dynamic goal rows -->
           </div>
         </div>
@@ -533,14 +536,14 @@
                     <div id="resScoreLeftBox" class="flex items-center justify-center rounded-lg border border-red-500/30 bg-slate-950/80 text-red-500" style="width:72px;height:80px;">
                       <span id="resDisplayHomeScore" style="display:block;font-size:52px;line-height:1;letter-spacing:0;text-align:center;">3</span>
                     </div>
-                    <div id="resGoalsLeft" class="absolute left-1/2 top-full mt-1.5 text-center whitespace-nowrap font-sans font-semibold text-slate-300 uppercase" style="transform:translateX(-50%);font-size:10px;line-height:1.35;"></div>
+                    <div id="resGoalsLeft" class="absolute left-1/2 top-full mt-1.5 text-center whitespace-normal font-sans font-semibold text-slate-300 uppercase" style="transform:translateX(-50%);width:112px;font-size:10px;line-height:1.35;"></div>
                   </div>
                   <span class="text-slate-600 flex items-center justify-center" style="width:14px;height:80px;font-size:40px;line-height:1;">-</span>
                   <div class="relative">
                     <div id="resScoreRightBox" class="flex items-center justify-center rounded-lg border border-slate-700 bg-slate-950/80 text-white" style="width:72px;height:80px;">
                       <span id="resDisplayAwayScore" style="display:block;font-size:52px;line-height:1;letter-spacing:0;text-align:center;">1</span>
                     </div>
-                    <div id="resGoalsRight" class="absolute left-1/2 top-full mt-1.5 text-center whitespace-nowrap font-sans font-semibold text-slate-300 uppercase" style="transform:translateX(-50%);font-size:10px;line-height:1.35;"></div>
+                    <div id="resGoalsRight" class="absolute left-1/2 top-full mt-1.5 text-center whitespace-normal font-sans font-semibold text-slate-300 uppercase" style="transform:translateX(-50%);width:112px;font-size:10px;line-height:1.35;"></div>
                   </div>
                 </div>
 
@@ -582,7 +585,95 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- TAB 3: LEAGUE & DIAGNOSTICS -->
+    <!-- TAB 3: MATCH-DAY RECORDER -->
+    <!-- ========================================== -->
+    <section id="tabContentRecorder" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h2 class="font-sports font-extrabold text-lg text-white">MATCH DAY RECORDER</h2>
+          <p class="text-xs text-slate-400">Live score, half timer and goal log</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <label for="mrMatchDate" class="text-xs text-slate-300 font-semibold">Match date</label>
+          <input id="mrMatchDate" type="date" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-white text-xs" onchange="mrChangeMatchDate(this.value)">
+          <label for="mrHalfLength" class="text-xs text-slate-300 font-semibold">Half length (minutes)</label>
+          <input id="mrHalfLength" type="number" min="1" max="120" value="40" class="w-20 bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-center text-white font-bold focus:outline-none focus:border-red-500" onchange="mrChangeHalfLength(this.value)">
+          <button type="button" onclick="mrPushToMatchReport()" class="px-3 py-2 text-xs font-extrabold rounded-lg bg-emerald-700 border border-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-900/30"><i class="fa-solid fa-file-import mr-1"></i> Push details to Match Report</button>
+          <button type="button" onclick="mrNewMatch()" class="px-3 py-2 text-xs font-bold rounded-lg bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700">New match</button>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-5 shadow-xl">
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6">
+          <button type="button" onclick="mrTapGoal('kildrum')" aria-label="Record a Kildrum Utd goal" class="min-w-0 flex flex-col items-center justify-center gap-2 rounded-xl border border-red-500/40 bg-red-950/30 hover:bg-red-900/40 active:scale-[.99] p-3 sm:p-6 min-h-44 sm:min-h-52 focus:outline-none focus:ring-2 focus:ring-red-400">
+            <img id="mrHomeBadge" alt="Kildrum Utd badge" class="h-20 w-20 sm:h-28 sm:w-28 object-contain drop-shadow-lg">
+            <span class="text-xs sm:text-sm font-extrabold text-white text-center">KILDRUM UTD</span>
+            <span class="text-[10px] sm:text-xs text-red-300 font-bold">TAP TO ADD GOAL</span>
+          </button>
+          <div class="text-center min-w-[92px] sm:min-w-[180px]">
+            <div class="font-sports font-black text-4xl sm:text-6xl text-white tabular-nums"><span id="mrHomeScore">0</span><span class="text-slate-500 mx-1">:</span><span id="mrAwayScore">0</span></div>
+            <div id="mrPhase" class="text-[10px] sm:text-xs font-extrabold tracking-widest text-red-400 uppercase mt-2">PRE-MATCH</div>
+            <div id="mrClock" class="font-sports font-black text-5xl sm:text-7xl md:text-8xl leading-none text-amber-300 tabular-nums mt-3 drop-shadow-[0_0_14px_rgba(252,211,77,0.28)]">40:00</div>
+            <div id="mrHalfLabel" class="text-[10px] text-slate-400 mt-1">FIRST HALF</div>
+          </div>
+          <button type="button" onclick="mrTapGoal('opposition')" aria-label="Record an opposition goal" class="min-w-0 flex flex-col items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-800/70 hover:bg-slate-700 active:scale-[.99] p-3 sm:p-6 min-h-44 sm:min-h-52 focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <img id="mrAwayBadge" alt="Opposition badge" class="h-20 w-20 sm:h-28 sm:w-28 object-contain drop-shadow-lg">
+            <span id="mrOppName" class="text-xs sm:text-sm font-extrabold text-white text-center break-words">OPPOSITION</span>
+            <span class="text-[10px] sm:text-xs text-slate-300 font-bold">TAP TO ADD GOAL</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+          <button type="button" onclick="mrStartHalf(1)" id="mrStartFirst" class="rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm py-3 px-2">Start first half</button>
+          <button type="button" onclick="mrStopHalf(1)" id="mrStopFirst" class="rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs sm:text-sm py-3 px-2">Stop first half</button>
+          <button type="button" onclick="mrStartHalf(2)" id="mrStartSecond" class="rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm py-3 px-2">Start second half</button>
+          <button type="button" onclick="mrStopHalf(2)" id="mrStopSecond" class="rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs sm:text-sm py-3 px-2">Stop second half</button>
+        </div>
+        <p id="mrNotice" role="status" aria-live="polite" class="text-xs text-slate-400 mt-3">Set the match squad and opposition in the Lineup Generator before kick-off.</p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4">
+        <div class="flex items-center justify-between gap-2 mb-3">
+          <h3 class="font-sports text-sm font-extrabold text-white">GOAL LOG</h3>
+          <button type="button" onclick="mrOpenEditor(null)" class="rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3 py-2"><i class="fa-solid fa-plus mr-1"></i> Add missed goal</button>
+        </div>
+        <div id="mrGoalLog" class="space-y-2">
+          <p class="text-xs text-slate-500">No goals recorded yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Goal scorer / correction dialog -->
+    <div id="mrDialog" class="hidden fixed inset-0 z-[80] bg-black/80 p-3 sm:p-6 items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="mrDialogTitle">
+      <div class="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl p-4">
+        <h3 id="mrDialogTitle" class="font-sports font-extrabold text-white text-lg mb-1">Select scorer</h3>
+        <p id="mrDialogHelp" class="text-xs text-slate-400 mb-3">Choose the Kildrum player who scored.</p>
+        <div class="space-y-3">
+          <label class="block text-xs font-semibold text-slate-300">Team
+            <select id="mrEditTeam" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white">
+              <option value="kildrum">Kildrum Utd</option><option value="opposition">Opposition</option>
+            </select>
+          </label>
+          <label id="mrScorerWrap" class="block text-xs font-semibold text-slate-300">Scorer
+            <select id="mrEditScorer" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white"></select>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="block text-xs font-semibold text-slate-300">Half
+              <select id="mrEditHalf" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white"><option value="1">First half</option><option value="2">Second half</option></select>
+            </label>
+            <label class="block text-xs font-semibold text-slate-300">Elapsed time (MM:SS)
+              <input id="mrEditElapsed" inputmode="numeric" placeholder="12:34" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white">
+            </label>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button type="button" onclick="mrCloseDialog()" class="flex-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-bold py-3">Cancel</button>
+          <button type="button" onclick="mrSaveDialog()" class="flex-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold py-3">Save goal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: LEAGUE & DIAGNOSTICS -->
     <!-- ========================================== -->
     <div id="tabContentLeague" class="space-y-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -711,8 +802,12 @@
       try {
         const res = await window.cloud.get('matchday');
         window.fbState = 'ready';
-        if (res.exists) {
-          const data = res.data;
+        let reportData = res.exists ? res.data : null;
+        if (!reportData) {
+          try { reportData = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); } catch (e) {}
+        }
+        if (reportData) {
+          const data = reportData;
           if (data.compName) document.getElementById('compName').value = data.compName;
           if (data.oppName) document.getElementById('oppName').value = data.oppName;
           if (data.matchDate) document.getElementById('matchDate').value = data.matchDate;
@@ -729,7 +824,8 @@
           if (data.motm != null) document.getElementById('motmInput').value = data.motm;
           if (data.commentary != null) document.getElementById('matchCommentaryInput').value = data.commentary;
           if (data.squad) squad = data.squad;
-          if (data.goalEvents) goalEvents = data.goalEvents;
+          if (Array.isArray(data.goalEvents)) goalEvents = normaliseGoalEvents(data.goalEvents);
+          if (data.matchRecorder && window.loadMatchRecorderData) window.loadMatchRecorderData(data.matchRecorder);
           if (data.leagueMatchId != null) leagueMatchId = data.leagueMatchId;
           if (data.homeBadgeSrc) homeBadgeSrc = data.homeBadgeSrc;
           if (data.awayBadgeSrc) awayBadgeSrc = data.awayBadgeSrc;
@@ -741,10 +837,27 @@
           updateResultGraphic();
         }
       } catch (e) {
-        console.log("Cloud load note:", e);
+        console.log('Cloud load note:', e);
         window.fbState = 'failed';
+        // Keep a previously saved local report available if GitHub is unreachable.
+        try {
+          const localReport = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null');
+          if (localReport) {
+            if (localReport.compName) document.getElementById('compName').value = localReport.compName;
+            if (localReport.oppName) document.getElementById('oppName').value = localReport.oppName;
+            if (localReport.matchDate) document.getElementById('matchDate').value = localReport.matchDate;
+            if (localReport.homeScore != null) document.getElementById('homeScoreInput').value = localReport.homeScore;
+            if (localReport.awayScore != null) document.getElementById('awayScoreInput').value = localReport.awayScore;
+            if (Array.isArray(localReport.goalEvents)) goalEvents = normaliseGoalEvents(localReport.goalEvents);
+            if (localReport.squad) squad = localReport.squad;
+            if (localReport.matchRecorder && window.loadMatchRecorderData) window.loadMatchRecorderData(localReport.matchRecorder);
+            if (typeof localReport.playingAway === 'boolean') setSide(localReport.playingAway ? 'away' : 'home');
+            renderSquadInputs(); renderGoalEventsInputs(); updateGraphic(); updateResultGraphic();
+          }
+        } catch (restoreError) { console.warn('Local match report restore failed:', restoreError); }
       }
       window.matchdayLoaded = true;
+      try { persistMatchdayLocal(buildMatchdaySnapshot()); } catch (e) {}
       if (typeof lgMatchInit === 'function') lgMatchInit();
       window.dispatchEvent(new Event('fb-state'));
     };
@@ -892,6 +1005,26 @@
     function switchTab(tabName) {
       const on = "px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 bg-red-600 text-white shadow";
       const off = "px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 text-slate-400 hover:text-white";
+      const recorder = document.getElementById('tabContentRecorder');
+      const recorderBtn = document.getElementById('tabBtnRecorder');
+      if (tabName === 'recorder') {
+        ['Lineup', 'Result'].forEach(n => {
+          const c = document.getElementById('tabContent' + n);
+          c.classList.remove('grid'); c.classList.add('hidden');
+          document.getElementById('tabBtn' + n).className = off;
+        });
+        document.getElementById('tabContentLeague').classList.add('hidden');
+        document.getElementById('tabBtnLeague').className = off;
+        recorder.classList.remove('hidden');
+        recorderBtn.className = on;
+        const actions = document.getElementById('headerActions');
+        if (actions) actions.style.visibility = '';
+        if (typeof mrRender === 'function') mrRender();
+        if (typeof applyLock === 'function') applyLock();
+        return;
+      }
+      recorder.classList.add('hidden');
+      recorderBtn.className = off;
       const league = document.getElementById('tabContentLeague');
       const leagueBtn = document.getElementById('tabBtnLeague');
       const actions = document.getElementById('headerActions');
@@ -1242,6 +1375,7 @@
       goalEvents.push({ scorer: "", assist: "", minute: "" });
       renderGoalEventsInputs();
       updateResultGraphic();
+      touchMatchdayState();
     }
 
     function updateGoalEvent(index, key, value) {
@@ -1250,12 +1384,14 @@
       if (key === 'minute') goalEvents[index].minute = value;
       updateResultGraphic();
       updateGoalsNote();
+      touchMatchdayState();
     }
 
     function removeGoalEvent(index) {
       goalEvents.splice(index, 1);
       renderGoalEventsInputs();
       updateResultGraphic();
+      touchMatchdayState();
     }
 
     const OUR_NAME = 'Kildrum Utd';
@@ -1282,6 +1418,7 @@
       }
       updateGraphic();
       updateResultGraphic();
+      touchMatchdayState();
     }
 
     // Home side is shown on the left, away side on the right.
@@ -1455,16 +1592,11 @@
       const goalsLeft = document.getElementById('resGoalsLeft');
       const goalsRight = document.getElementById('resGoalsRight');
       if (goalsLeft && goalsRight) {
-        const byScorer = {};
-        goalEvents.forEach(g => {
-          const name = (g.scorer || '').trim();
-          if (!name) return;
-          byScorer[name] = byScorer[name] || [];
-          if (String(g.minute || '').trim()) byScorer[name].push(String(g.minute).trim());
-        });
-        const html = Object.keys(byScorer).map(n =>
-          `<div>${n} <span style="color:#fbbf24">${byScorer[n].join(', ')}</span></div>`
-        ).join('');
+        const html = goalEvents
+          .map((g, index) => ({ ...g, _index: index }))
+          .filter(g => String(g.scorer || '').trim())
+          .map(g => `<div>${gEsc(String(g.scorer).trim())}${String(g.minute || '').trim() ? ` <span style="color:#fbbf24">${gEsc(String(g.minute).trim())}</span>` : ''}</div>`)
+          .join('');
         goalsLeft.innerHTML = playingAway ? '' : html;
         goalsRight.innerHTML = playingAway ? html : '';
       }
@@ -1532,11 +1664,52 @@
       }
     }
 
-    function matchdayPayload() {
+    // -----------------------------------------------------------------
+    // SINGLE MATCH-REPORT STATE PIPELINE
+    // goalEvents is the canonical scorer list; Match Recorder events are
+    // included in the same versioned report snapshot. All save paths use
+    // this normaliser/snapshot so scorer rows cannot be silently truncated.
+    // -----------------------------------------------------------------
+    const MATCHDAY_LOCAL_KEY = 'kildrum-matchday-report-v2';
+    function normaliseGoalEvents(items) {
+      if (!Array.isArray(items)) return [];
+      return items.map(g => ({
+        scorer: String(g && g.scorer || '').trim().toUpperCase(),
+        assist: String(g && g.assist || '').trim().toUpperCase(),
+        minute: String(g && g.minute || '').trim()
+      }));
+    }
+    function matchdayStatistics(goals, recorder) {
+      const scored = goals.filter(g => g.scorer);
+      const assists = scored.filter(g => g.assist);
+      const recorderEvents = recorder && Array.isArray(recorder.events) ? recorder.events : [];
+      const kildrumScore = Number(document.getElementById('homeScoreInput')?.value || 0);
+      const oppositionScore = Number(document.getElementById('awayScoreInput')?.value || 0);
       return {
+        // Inputs are stored as Kildrum/opposition; expose true fixture home/away too.
+        homeScore: playingAway ? oppositionScore : kildrumScore,
+        awayScore: playingAway ? kildrumScore : oppositionScore,
+        kildrumScore,
+        oppositionScore,
+        playingAway,
+        kildrumGoalsEntered: scored.length,
+        scorerEntries: scored.length,
+        assistEntries: assists.length,
+        recorderGoalEvents: recorderEvents.length,
+        scorers: scored.map(g => ({ scorer: g.scorer, assist: g.assist, minute: g.minute }))
+      };
+    }
+    function buildMatchdaySnapshot() {
+      const goals = normaliseGoalEvents(goalEvents);
+      const recorder = (typeof window.getMatchRecorderData === 'function')
+        ? window.getMatchRecorderData() : null;
+      return {
+        schemaVersion: 2,
         compName: document.getElementById('compName').value,
-        playingAway: playingAway,
+        playingAway,
         oppName: document.getElementById('oppName').value,
+        homeTeam: playingAway ? document.getElementById('oppName').value : OUR_NAME,
+        awayTeam: playingAway ? OUR_NAME : document.getElementById('oppName').value,
         matchDate: document.getElementById('matchDate').value,
         venueName: document.getElementById('venueName').value,
         formation: document.getElementById('formationSelect').value,
@@ -1550,33 +1723,75 @@
         matchStatus: document.getElementById('matchStatusSelect').value,
         motm: document.getElementById('motmInput').value,
         commentary: document.getElementById('matchCommentaryInput').value,
-        squad: squad,
-        goalEvents: goalEvents,
-        leagueMatchId: leagueMatchId,
-        homeBadgeSrc: homeBadgeSrc,
-        awayBadgeSrc: awayBadgeSrc,
+        squad: JSON.parse(JSON.stringify(squad)),
+        goalEvents: goals,
+        matchStatistics: matchdayStatistics(goals, recorder),
+        matchRecorder: recorder,
+        leagueMatchId,
+        homeBadgeSrc,
+        awayBadgeSrc,
         updatedAt: new Date().toISOString()
       };
+    }
+    function persistMatchdayLocal(snapshot) {
+      try { localStorage.setItem(MATCHDAY_LOCAL_KEY, JSON.stringify(snapshot)); }
+      catch (e) { console.warn('Match report local backup unavailable:', e); }
+    }
+    function touchMatchdayState() {
+      if (!window.matchdayLoaded) return;
+      matchdayDirty = true;
+      try { persistMatchdayLocal(buildMatchdaySnapshot()); } catch (e) {}
+      const b = document.getElementById('cloudSaveBtn');
+      if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml();
+    }
+    window.matchReportStore = {
+      snapshot: buildMatchdaySnapshot,
+      normaliseGoals: normaliseGoalEvents,
+      restoreGoals(items) { goalEvents = normaliseGoalEvents(items); },
+      persistLocal: persistMatchdayLocal,
+      touch: touchMatchdayState
+    };
+
+    function matchdayPayload() {
+      return buildMatchdaySnapshot();
     }
 
     function setCloudBtn(html) { const b = document.getElementById('cloudSaveBtn'); if (b) b.innerHTML = html; }
     const CLOUD_BTN_IDLE = '<i class="fa-solid fa-cloud-arrow-up"></i> Save to Cloud';
 
+    let matchdaySaveInFlight = false;
     async function saveMatchToCloud(opts = {}) {
+      if (matchdaySaveInFlight) return;
+      matchdaySaveInFlight = true;
+      let snapshot = null;
       try {
-        if (!window.cloud) throw new Error("Cloud saving not ready yet.");
+        snapshot = matchdayPayload();
+        persistMatchdayLocal(snapshot); // durable device copy before any network request
+        if (!window.cloud) throw new Error('Cloud saving not ready yet.');
         if (!(await window.cloud.ensurePassword())) return;
         setCloudBtn('<i class="fa-solid fa-spinner animate-spin"></i> Saving...');
-        await window.cloud.put('matchday', matchdayPayload());
-        matchdayDirty = false;
-        const sc = (typeof saveScorersToLeague === 'function') ? await saveScorersToLeague() : null;
-        setCloudBtn(sc && sc.ok === false ? '<i class="fa-solid fa-triangle-exclamation"></i> Saved (scorers NOT saved)' : '<i class="fa-solid fa-check"></i> Saved!');
-        setTimeout(() => setCloudBtn(cloudIdleHtml()), 2500);
+        await window.cloud.put('matchday', snapshot);
+
+        // Mirror the same canonical scorer array into the linked league result.
+        const sc = (typeof saveScorersToLeague === 'function')
+          ? await saveScorersToLeague(snapshot.goalEvents) : { skipped: true };
+        if (sc && sc.ok === false) {
+          matchdayDirty = true; // report JSON saved; league scorer mirror needs retry
+          setCloudBtn('<i class="fa-solid fa-triangle-exclamation"></i> Report saved · league sync needs retry');
+        } else {
+          matchdayDirty = false;
+          setCloudBtn('<i class="fa-solid fa-check"></i> Saved!');
+        }
+        setTimeout(() => setCloudBtn(cloudIdleHtml()), 3500);
       } catch (err) {
-        console.error("Cloud save error:", err);
+        console.error('Cloud save error:', err);
+        matchdayDirty = true;
+        if (snapshot) persistMatchdayLocal(snapshot);
         setCloudBtn('<i class="fa-solid fa-triangle-exclamation"></i> Save Failed');
         setTimeout(() => setCloudBtn(cloudIdleHtml()), 3000);
-        alert('Could not save online: ' + err.message);
+        alert('Could not complete the cloud save. Your latest match report has been kept on this device. ' + err.message);
+      } finally {
+        matchdaySaveInFlight = false;
       }
     }
 
@@ -1586,11 +1801,9 @@
     function cloudIdleHtml() { return CLOUD_BTN_IDLE + (matchdayDirty ? ' <span style="color:#fcd34d" title="You have changes that are not saved to the cloud yet">&#9679;</span>' : ''); }
     function markMatchdayDirty(e) {
       if (!window.matchdayLoaded) return;
-      if (!(e.target && e.target.closest && e.target.closest('#tabContentLineup, #tabContentResult'))) return;
+      if (!(e.target && e.target.closest && e.target.closest('#tabContentLineup, #tabContentResult, #tabContentRecorder'))) return;
       if (e.target.closest('#lockBanner')) return;
-      matchdayDirty = true;
-      const b = document.getElementById('cloudSaveBtn');
-      if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml();
+      touchMatchdayState();
     }
     ['input', 'change'].forEach(ev => document.addEventListener(ev, markMatchdayDirty));
 
@@ -1753,6 +1966,7 @@
       renderGoalEventsInputs();
       updateGraphic();
       updateResultGraphic();
+      touchMatchdayState();
     }
 
     window.onload = function() {
@@ -1790,8 +2004,8 @@ const LG_SEED_TEAMS = ["AC Rovers", "Armadale CFC", "Blantyre SA Black", "Calder
 // Kildrum Utd scorers to date, from the "Scorers" sheet of the spreadsheet (one name per goal)
 const LG_SEED_SCORERS = [{"date": "2026-08-29", "opp": "Scotland Boys", "scorers": ["ROBBIE", "FINLAY", "CHRIS", "DERRY"]}, {"date": "2026-09-05", "opp": "St Patricks SA", "scorers": ["ASHTON", "DERRY", "FINLAY", "ROBBIE"]}, {"date": "2026-09-12", "opp": "Villa Park Black", "scorers": ["ROBBIE", "ASHTON"]}, {"date": "2026-10-24", "opp": "Armadale CFC", "scorers": ["ROBBIE"]}, {"date": "2026-10-31", "opp": "Calderbraes", "scorers": ["CHARLIE", "CHRIS", "WOJTEK", "ROBBIE"]}, {"date": "2026-11-07", "opp": "EK Colts Yellow", "scorers": ["ROBBIE", "ROBBIE", "CHARLIE"]}];
 
-const lg = { matches: [], teams: [], tab: 'table', mode: 'local', admin: false, loaded: false,
-             charts: {}, progX: 'date', progShow: null, h2hA: LG_OWN_TEAM, h2hB: '', diagTeam: LG_OWN_TEAM, editId: null };
+const lg = { matches: [], fixtures: [], teams: [], tab: 'table', mode: 'local', admin: false, loaded: false,
+             charts: {}, progX: 'date', progShow: null, h2hA: LG_OWN_TEAM, h2hB: '', diagTeam: LG_OWN_TEAM, editId: null, editFixtureId: null };
 
 // ---------- helpers ----------
 const lgEsc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1848,7 +2062,7 @@ function lgHistory() {
 }
 
 // ---------- persistence ----------
-function lgPayload() { return { matches: lg.matches, teams: lgAllTeams(), updatedAt: new Date().toISOString() }; }
+function lgPayload() { return { matches: lg.matches, fixtures: lg.fixtures || [], teams: lgAllTeams(), updatedAt: new Date().toISOString() }; }
 async function lgSave() {
   try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(lgPayload())); } catch (e) {} // backup copy on this device
   if (lg.mode === 'online') {
@@ -1884,6 +2098,7 @@ function lgApply(data) {
     return r;
   });
   lgAttachScorers(lg.matches, LG_SEED_SCORERS);   // fill in the history from the spreadsheet
+  lg.fixtures = Array.isArray(data.fixtures) ? data.fixtures.map(f => ({ id: +f.id, date: String(f.date || ''), home: String(f.home || ''), away: String(f.away || '') })).filter(f => f.date && f.home && f.away) : [];
   lg.teams = data.teams || [];
 }
 function lgLocalData() { try { const raw = localStorage.getItem(LG_LOCAL_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
@@ -2240,12 +2455,15 @@ function lgRenderDiag() {
 
 // ---------- MANAGE RESULTS ----------
 function lgRenderManage() {
-  const all = lgAllTeams(), canEdit = lg.mode === 'local' || lg.admin;
+  const all = [...new Set([...lgAllTeams(), ...(lg.fixtures || []).flatMap(f => [f.home, f.away])])].sort((a, b) => a.localeCompare(b)), canEdit = lg.mode === 'local' || lg.admin;
   const e = lg.editId ? lg.matches.find(m => m.id === lg.editId) : null;
-  const opt = (v) => all.map(t => `<option ${t === v ? 'selected' : ''}>${lgEsc(t)}</option>`).join('');
+  const f = lg.editFixtureId ? (lg.fixtures || []).find(x => x.id === lg.editFixtureId) : null;
+  const editingFixture = !!f;
+  const opt = (v) => all.map(t => `<option value="${lgEsc(t)}" ${t === v ? 'selected' : ''}>${lgEsc(t)}</option>`).join('');
   const cls = 'bg-slate-950 border border-slate-700 rounded px-2 py-1.5 text-white text-sm w-full';
   const today = new Date().toISOString().slice(0, 10);
   const sorted = [...lg.matches].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+  const fixtures = [...(lg.fixtures || [])].sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
   const login = lg.mode === 'online' && !lg.admin ? `
     <div class="bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 space-y-2">
       <p class="text-sm text-amber-200"><i class="fa-solid fa-lock"></i> Results are published online. Everyone can view; only the admin can edit.</p>
@@ -2259,47 +2477,98 @@ function lgRenderManage() {
     <div class="space-y-4">${login}
       <div class="grid lg:grid-cols-3 gap-4 ${canEdit ? '' : 'opacity-50 pointer-events-none'}">
         <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-2">
-          <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">${e ? 'Edit result #' + e.id : 'Add a result'}</h3>
-          <label class="text-[11px] text-slate-400">Date</label><input id="lgfDate" type="date" value="${e ? e.date : today}" class="${cls}">
-          <label class="text-[11px] text-slate-400">Home team</label><select id="lgfHome" class="${cls}">${opt(e ? e.home : LG_OWN_TEAM)}</select>
-          <label class="text-[11px] text-slate-400">Away team</label><select id="lgfAway" class="${cls}">${opt(e ? e.away : all.find(t => t !== LG_OWN_TEAM))}</select>
-          <div class="grid grid-cols-2 gap-2"><div><label class="text-[11px] text-slate-400">Home goals</label><input id="lgfHG" type="number" min="0" value="${e ? e.hg : ''}" class="${cls}"></div>
+          <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">${e ? 'Edit result #' + e.id : f ? 'Edit fixture #' + f.id : 'Add fixture or result'}</h3>
+          <label class="text-[11px] text-slate-400">Entry type</label>
+          <select id="lgfType" onchange="lgToggleMatchType()" class="${cls}">
+            <option value="fixture" ${(editingFixture || (!e && !lg.editId)) ? 'selected' : ''}>Upcoming fixture (does not affect table)</option>
+            <option value="result" ${e ? 'selected' : ''}>Completed result (updates league table)</option>
+          </select>
+          <label class="text-[11px] text-slate-400">Date</label><input id="lgfDate" type="date" value="${e ? e.date : f ? f.date : today}" class="${cls}">
+          <label class="text-[11px] text-slate-400">Home team</label><select id="lgfHome" class="${cls}">${opt(e ? e.home : f ? f.home : LG_OWN_TEAM)}</select>
+          <label class="text-[11px] text-slate-400">Away team</label><select id="lgfAway" class="${cls}">${opt(e ? e.away : f ? f.away : all.find(t => t !== LG_OWN_TEAM))}</select>
+          <div id="lgScoreFields" class="grid grid-cols-2 gap-2 ${e ? '' : 'hidden'}"><div><label class="text-[11px] text-slate-400">Home goals</label><input id="lgfHG" type="number" min="0" value="${e ? e.hg : ''}" class="${cls}"></div>
             <div><label class="text-[11px] text-slate-400">Away goals</label><input id="lgfAG" type="number" min="0" value="${e ? e.ag : ''}" class="${cls}"></div></div>
-          <div class="flex gap-2 pt-1"><button onclick="lgSubmitMatch()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">${e ? 'Update result' : 'Add result'}</button>
-            ${e ? '<button onclick="lg.editId=null;lgRenderManage()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Cancel</button>' : ''}</div>
+          <div class="flex gap-2 pt-1"><button id="lgSubmitBtn" onclick="lgSubmitMatch()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">${e ? 'Update result' : f ? 'Update fixture' : 'Save entry'}</button>
+            ${(e || f) ? '<button onclick="lg.editId=null;lg.editFixtureId=null;lgRenderManage()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Cancel</button>' : ''}</div>
+          <p class="text-[10px] text-slate-500">Fixtures are stored separately. They are excluded from played matches, points, goal difference, form and statistics until you record a result.</p>
           <hr class="border-slate-800 my-2">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Teams</h3>
           <div class="flex gap-2"><input id="lgNewTeam" placeholder="Add a team name" class="${cls}"><button onclick="lgAddTeam()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-200 rounded-md border border-slate-700">Add</button></div>
           <label class="text-[11px] text-slate-400">Remove a team</label>
-          <div class="flex gap-2"><select id="lgRemoveSel" onchange="lg.removeSel=this.value;lg.removePending=null;lg.removeMsg='';lgRenderManage()" class="${cls}"><option value="">Select a team...</option>${all.filter(t => t !== LG_OWN_TEAM).map(t => { const n = lg.matches.filter(m => m.home === t || m.away === t).length; return `<option value="${lgEsc(t)}" ${t === lg.removeSel ? 'selected' : ''}>${lgEsc(t)} (${n} result${n === 1 ? '' : 's'})</option>`; }).join('')}</select>
+          <div class="flex gap-2"><select id="lgRemoveSel" onchange="lg.removeSel=this.value;lg.removePending=null;lg.removeMsg='';lgRenderManage()" class="${cls}"><option value="">Select a team...</option>${all.filter(t => t !== LG_OWN_TEAM).map(t => { const n = lg.matches.filter(m => m.home === t || m.away === t).length, q = (lg.fixtures || []).filter(m => m.home === t || m.away === t).length; return `<option value="${lgEsc(t)}" ${t === lg.removeSel ? 'selected' : ''}>${lgEsc(t)} (${n} results, ${q} fixtures)</option>`; }).join('')}</select>
             <button onclick="lgRemoveSelected()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-red-400 hover:text-red-300 rounded-md border border-slate-700 whitespace-nowrap"><i class="fa-solid fa-trash"></i> Remove</button></div>
-          ${lg.removePending ? (() => { const t = lg.removePending, n = lg.matches.filter(m => m.home === t || m.away === t).length; return `<div class="bg-red-900/20 border border-red-700/40 rounded p-2 space-y-2"><p class="text-xs text-red-200">Remove <b>${lgEsc(t)}</b> from the league? ${n ? `This also deletes their ${n} result${n === 1 ? '' : 's'} and changes the other teams' points.` : 'It has no results.'}</p><div class="flex gap-2"><button onclick="lgRemoveConfirm()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Yes, remove it</button><button onclick="lg.removePending=null;lgRenderManage()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Cancel</button></div></div>`; })() : ''}
+          ${lg.removePending ? (() => { const t = lg.removePending, n = lg.matches.filter(m => m.home === t || m.away === t).length, q = (lg.fixtures || []).filter(m => m.home === t || m.away === t).length; return `<div class="bg-red-900/20 border border-red-700/40 rounded p-2 space-y-2"><p class="text-xs text-red-200">Remove <b>${lgEsc(t)}</b> from the league? This also deletes ${n} result${n === 1 ? '' : 's'} and ${q} fixture${q === 1 ? '' : 's'}.</p><div class="flex gap-2"><button onclick="lgRemoveConfirm()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Yes, remove it</button><button onclick="lg.removePending=null;lgRenderManage()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Cancel</button></div></div>`; })() : ''}
           ${lg.removeMsg ? `<p class="text-xs text-amber-300">${lgEsc(lg.removeMsg)}</p>` : ''}
           <hr class="border-slate-800 my-2">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Import from spreadsheet</h3>
-          <p class="text-[11px] text-slate-400">Choose your league .xlsx. It reads the <b>Matches</b> tab (MatchID, Date, HomeTeam, AwayTeam, HomeGoals, AwayGoals) and replaces the current results.</p>
-          <input type="file" accept=".xlsx,.xls" onchange="lgImportXlsx(this)" class="text-xs text-slate-300">
-          <p id="lgImportMsg" class="text-xs text-slate-400"></p>
-          <button onclick="lgExportJson()" class="text-[11px] text-slate-400 underline">Download a backup (JSON)</button>
+          <p class="text-[11px] text-slate-400">Choose your league .xlsx. It reads the <b>Matches</b> tab and imports completed results only.</p>
+          <input type="file" accept=".xlsx,.xls" onchange="lgImportXlsx(this)" class="text-xs text-slate-300"><p id="lgImportMsg" class="text-xs text-slate-400"></p>
+          <div class="flex flex-wrap items-center gap-3"><button onclick="lgExportJson()" class="text-[11px] text-slate-400 underline">Download a backup (JSON)</button><button onclick="lgUndoScorerEdit()" class="text-[11px] text-amber-300 underline">Undo last scorer change</button></div>
         </div>
-        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-lg p-3">
-          <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-2">All results (${lg.matches.length})</h3>
-          <div class="overflow-auto max-h-[560px]"><table class="w-full text-sm"><thead class="text-[10px] uppercase text-slate-400 sticky top-0 bg-slate-900"><tr><th class="px-2 text-left">#</th><th class="px-2 text-left">Date</th><th class="px-2 text-right">Home</th><th class="px-2">Score</th><th class="px-2 text-left">Away</th><th></th></tr></thead><tbody>
-            ${sorted.map(m => `<tr class="border-b border-slate-800 ${lg.editId === m.id ? 'bg-red-600/15' : ''}"><td class="px-2 text-slate-500">${m.id}</td><td class="px-2 text-slate-400 whitespace-nowrap">${lgFmtDate(m.date)}</td><td class="px-2 text-right">${lgEsc(m.home)}</td><td class="px-2 text-center font-bold whitespace-nowrap">${m.hg} - ${m.ag}</td><td class="px-2">${lgEsc(m.away)}${lgScorersRecorded(m) ? ` <span title="Scorers recorded" class="text-emerald-400 text-[10px] whitespace-nowrap">&#9917; ${m.scorers.length}</span>` : ''}</td>
-              <td class="px-2 whitespace-nowrap text-right"><button onclick="lg.editId=${m.id};lgRenderManage();window.scrollTo({top:0,behavior:'smooth'})" class="text-slate-400 hover:text-white px-1"><i class="fa-solid fa-pen"></i></button><button onclick="lgDeleteMatch(${m.id})" class="text-slate-400 hover:text-red-400 px-1"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}
-          </tbody></table></div></div>
+        <div class="lg:col-span-2 space-y-4">
+          <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+            <h3 class="font-sports font-bold text-xs text-amber-300 uppercase tracking-wider mb-2">Upcoming fixtures (${fixtures.length}) · excluded from league table</h3>
+            ${fixtures.length ? `<div class="overflow-auto max-h-[300px]"><table class="w-full text-sm"><thead class="text-[10px] uppercase text-slate-400 sticky top-0 bg-slate-900"><tr><th class="px-2 text-left">Date</th><th class="px-2 text-right">Home</th><th class="px-2">Fixture</th><th class="px-2 text-left">Away</th><th></th></tr></thead><tbody>${fixtures.map(x => `<tr class="border-b border-slate-800"><td class="px-2 text-slate-400 whitespace-nowrap">${lgFmtDate(x.date)}</td><td class="px-2 text-right">${lgEsc(x.home)}</td><td class="px-2 text-center text-slate-500">v</td><td class="px-2">${lgEsc(x.away)}</td><td class="px-2 whitespace-nowrap text-right"><button onclick="lgPromoteFixture(${x.id})" class="text-emerald-300 text-[10px] font-bold px-1">ENTER RESULT</button><button onclick="lg.editFixtureId=${x.id};lg.editId=null;lgRenderManage()" class="text-slate-400 px-1"><i class="fa-solid fa-pen"></i></button><button onclick="lgDeleteFixture(${x.id})" class="text-slate-400 hover:text-red-400 px-1"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}</tbody></table></div>` : '<p class="text-xs text-slate-500">No upcoming fixtures entered.</p>'}
+          </div>
+          <div class="bg-slate-900 border border-slate-800 rounded-lg p-3">
+            <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider mb-2">Completed results (${lg.matches.length}) · included in league table</h3>
+            <div class="overflow-auto max-h-[560px]"><table class="w-full text-sm"><thead class="text-[10px] uppercase text-slate-400 sticky top-0 bg-slate-900"><tr><th class="px-2 text-left">#</th><th class="px-2 text-left">Date</th><th class="px-2 text-right">Home</th><th class="px-2">Score</th><th class="px-2 text-left">Away</th><th></th></tr></thead><tbody>
+              ${sorted.map(m => `<tr class="border-b border-slate-800 ${lg.editId === m.id ? 'bg-red-600/15' : ''}"><td class="px-2 text-slate-500">${m.id}</td><td class="px-2 text-slate-400 whitespace-nowrap">${lgFmtDate(m.date)}</td><td class="px-2 text-right">${lgEsc(m.home)}</td><td class="px-2 text-center font-bold whitespace-nowrap">${m.hg} - ${m.ag}</td><td class="px-2">${lgEsc(m.away)}${lgScorersRecorded(m) ? ` <span title="Scorers recorded" class="text-emerald-400 text-[10px] whitespace-nowrap">&#9917; ${m.scorers.length}</span>` : ''}</td>
+                <td class="px-2 whitespace-nowrap text-right"><button title="Edit scorers" onclick="lgEditScorers(${m.id})" class="text-amber-300 hover:text-amber-200 px-1 text-[10px] font-bold">SCORERS</button><button title="Edit result" onclick="lg.editId=${m.id};lg.editFixtureId=null;lgRenderManage();window.scrollTo({top:0,behavior:'smooth'})" class="text-slate-400 hover:text-white px-1"><i class="fa-solid fa-pen"></i></button><button onclick="lgDeleteMatch(${m.id})" class="text-slate-400 hover:text-red-400 px-1"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('')}
+            </tbody></table></div>
+          </div>
+        </div>
       </div></div>`;
+  lgToggleMatchType();
+}
+function lgToggleMatchType() {
+  const type = document.getElementById('lgfType')?.value || 'fixture';
+  const scores = document.getElementById('lgScoreFields');
+  if (scores) scores.classList.toggle('hidden', type !== 'result');
+  const submit = document.getElementById('lgSubmitBtn');
+  if (submit) submit.textContent = type === 'result' ? (lg.editId ? 'Update result' : 'Save result · update table') : (lg.editFixtureId ? 'Update fixture' : 'Save fixture · no table change');
 }
 async function lgSubmitMatch() {
   const g = id => document.getElementById(id).value;
-  const m = { date: g('lgfDate'), home: g('lgfHome'), away: g('lgfAway'), hg: parseInt(g('lgfHG'), 10), ag: parseInt(g('lgfAG'), 10) };
-  if (!m.date || isNaN(m.hg) || isNaN(m.ag) || m.hg < 0 || m.ag < 0) return alert('Please enter a date and both scores.');
-  if (m.home === m.away) return alert('Home and away team must be different.');
+  const type = g('lgfType');
+  const base = { date: g('lgfDate'), home: g('lgfHome'), away: g('lgfAway') };
+  if (!base.date) return alert('Please enter a date.');
+  if (!base.home || !base.away || base.home === base.away) return alert('Choose two different teams for the fixture.');
+  if (type === 'fixture') {
+    if (lg.editId) { alert('A completed result cannot be changed back into a fixture here.'); return; }
+    let rec;
+    if (lg.editFixtureId) { rec = (lg.fixtures || []).find(x => x.id === lg.editFixtureId); if (!rec) return; Object.assign(rec, base); lg.editFixtureId = null; }
+    else { rec = { id: Math.max(0, ...lg.matches.map(x => x.id), ...(lg.fixtures || []).map(x => x.id)) + 1, ...base }; (lg.fixtures ||= []).push(rec); }
+    await lgSave(); lgRenderManage();
+    return;
+  }
+  const hg = parseInt(g('lgfHG'), 10), ag = parseInt(g('lgfAG'), 10);
+  if (isNaN(hg) || isNaN(ag) || hg < 0 || ag < 0) return alert('Please enter both scores.');
+  const m = { ...base, hg, ag };
   let rec, isNew = false;
   if (lg.editId) { rec = lg.matches.find(x => x.id === lg.editId); Object.assign(rec, m); lg.editId = null; }
-  else { rec = { id: Math.max(0, ...lg.matches.map(x => x.id)) + 1, ...m }; lg.matches.push(rec); isNew = true; }
+  else {
+    if (lg.editFixtureId) {
+      const fixture = (lg.fixtures || []).find(x => x.id === lg.editFixtureId);
+      if (fixture) { lg.fixtures = lg.fixtures.filter(x => x.id !== fixture.id); rec = { id: fixture.id, ...m }; }
+    }
+    if (!rec) rec = { id: Math.max(0, ...lg.matches.map(x => x.id), ...(lg.fixtures || []).map(x => x.id)) + 1, ...m };
+    lg.matches.push(rec); isNew = true; lg.editFixtureId = null;
+  }
   await lgSave(); lgRenderManage();
   lgAfterResultChange(rec, isNew);
+}
+async function lgPromoteFixture(id) {
+  const f = (lg.fixtures || []).find(x => x.id === id); if (!f) return;
+  lg.editFixtureId = id; lg.editId = null; lgRenderManage();
+  const type = document.getElementById('lgfType'); if (type) { type.value = 'result'; lgToggleMatchType(); }
+  document.getElementById('lgfHG')?.focus();
+}
+async function lgDeleteFixture(id) {
+  if (!confirm('Delete this upcoming fixture?')) return;
+  lg.fixtures = (lg.fixtures || []).filter(x => x.id !== id);
+  if (lg.editFixtureId === id) lg.editFixtureId = null;
+  await lgSave(); lgRenderManage();
 }
 async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); if (leagueMatchId === id) leagueMatchId = null; await lgSave(); lgRenderManage(); lgMatchPickerRefresh(); }
 async function lgAddTeam() { const el = document.getElementById('lgNewTeam'), n = el.value.trim(); if (!n) return; if (!lg.teams.includes(n)) lg.teams.push(n); await lgSave(); lgRenderManage(); }
@@ -2314,9 +2583,10 @@ function lgRemoveSelected() {
 async function lgRemoveConfirm() {
   const t = lg.removePending;
   if (!t || t === LG_OWN_TEAM) { lg.removePending = null; lgRenderManage(); return; }
-  const backup = { teams: [...lg.teams], matches: [...lg.matches] };
+  const backup = { teams: [...lg.teams], matches: [...lg.matches], fixtures: [...(lg.fixtures || [])] };
   lg.teams = lg.teams.filter(x => x !== t);
   lg.matches = lg.matches.filter(m => m.home !== t && m.away !== t);
+  lg.fixtures = (lg.fixtures || []).filter(m => m.home !== t && m.away !== t);
   if (lg.h2hA === t) lg.h2hA = LG_OWN_TEAM;
   if (lg.h2hB === t) lg.h2hB = '';
   if (lg.diagTeam === t) lg.diagTeam = LG_OWN_TEAM;
@@ -2325,7 +2595,7 @@ async function lgRemoveConfirm() {
   lg.removePending = null; lg.removeSel = ''; lg.removeMsg = 'Removing ' + t + ' and saving...';
   lgRenderManage();
   const ok = await lgSave();
-  if (ok === false) { lg.teams = backup.teams; lg.matches = backup.matches; lg.removeMsg = t + ' was NOT removed because the save failed. Check you are unlocked with your access token and try again.'; }
+  if (ok === false) { lg.teams = backup.teams; lg.matches = backup.matches; lg.fixtures = backup.fixtures; lg.removeMsg = t + ' was NOT removed because the save failed. Check you are unlocked with your access token and try again.'; }
   else lg.removeMsg = t + ' has been removed.';
   lgRenderManage();
   if (typeof lgRenderAll === 'function') lgRenderAll();
@@ -2384,9 +2654,20 @@ async function lgSignOut() { window.cloud.setPassword(''); lg.admin = false; lgR
 // ---------- League match <-> match report link, and scorers ----------
 let leagueMatchId = null;          // league match the match report is linked to
 const goalDrafts = {};             // unsaved goal lists per match (this visit only)
+const LG_SCORER_UNDO_KEY = 'kildrum-league-scorer-undo-v1';
+function saveScorerUndo(matchId) {
+  const m = lg.matches.find(x => x.id === matchId);
+  if (!m) return;
+  try { localStorage.setItem(LG_SCORER_UNDO_KEY, JSON.stringify({ matchId, scorers: Array.isArray(m.scorers) ? m.scorers : null, savedAt: new Date().toISOString() })); }
+  catch (e) { console.warn('Could not save scorer undo point:', e); }
+}
+function scorerUndoAvailable() {
+  try { return !!JSON.parse(localStorage.getItem(LG_SCORER_UNDO_KEY) || 'null'); } catch (e) { return false; }
+}
 let matchLinkDone = false;
 const normName = v => String(v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 function longDate(iso) { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'short' }) + ' ' + d.getFullYear(); }
+window.getUpcomingLeagueFixtures = () => (lg.fixtures || []).map(f => ({ ...f }));
 function kildrumMatches() { return lg.matches.filter(m => m.home === LG_OWN_TEAM || m.away === LG_OWN_TEAM).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); }
 function kInfo(m) { const home = m.home === LG_OWN_TEAM; return { away: !home, opp: home ? m.away : m.home, k: home ? m.hg : m.ag, o: home ? m.ag : m.hg }; }
 function lgScorersRecorded(m) { if (m.home !== LG_OWN_TEAM && m.away !== LG_OWN_TEAM) return false; return Array.isArray(m.scorers) && (m.scorers.length > 0 || kInfo(m).k === 0); }
@@ -2462,11 +2743,13 @@ function lgAfterResultChange(rec, isNew) {
 }
 
 // Called by "Save to Cloud": the scorers go onto the linked league match
-async function saveScorersToLeague() {
+async function saveScorersToLeague(snapshotGoals) {
   if (leagueMatchId == null || !lg.loaded) return { skipped: true };
   const m = lg.matches.find(x => x.id === leagueMatchId); if (!m) return { skipped: true };
   if (lg.mode !== 'online') { window.lastScorerMsg = 'Scorers were not saved to the league because it is offline.'; lgMatchNote(); return { ok: false }; }
-  const events = goalEvents.map(g => ({ scorer: String(g.scorer || '').trim().toUpperCase(), assist: String(g.assist || '').trim().toUpperCase(), minute: String(g.minute || '').trim() })).filter(g => g.scorer);
+  const sourceGoals = Array.isArray(snapshotGoals) ? snapshotGoals : goalEvents;
+  const events = normaliseGoalEvents(sourceGoals).filter(g => g.scorer);
+  saveScorerUndo(m.id);
   if (!events.length && kInfo(m).k > 0) { window.lastScorerMsg = ''; lgMatchNote(); return { skipped: true }; }
   m.scorers = events;
   lg.admin = true;
@@ -2475,6 +2758,62 @@ async function saveScorersToLeague() {
   else window.lastScorerMsg = 'The scorers could not be saved to the league.';
   lgMatchNote();
   return { ok };
+}
+
+// Manual recovery/editing: one goal per line, formatted as SCORER | ASSIST | MINUTE.
+async function lgEditScorers(matchId) {
+  const m = lg.matches.find(x => x.id === matchId);
+  if (!m) return;
+  if (lg.mode === 'online' && !lg.admin) return alert('Sign in as the league admin before editing scorers.');
+  const current = Array.isArray(m.scorers) ? m.scorers : [];
+  const initial = current.map(g => [g.scorer || '', g.assist || '', g.minute || ''].join(' | ')).join('\n');
+  const entered = prompt(`Edit scorers for ${m.home} ${m.hg}-${m.ag} ${m.away}\n\nEnter ONE goal per line as: SCORER | ASSIST | MINUTE\nLeave ASSIST or MINUTE blank if unknown. Leave the box empty to clear scorers.`, initial);
+  if (entered === null) return;
+  const lines = entered.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  const events = lines.map(line => {
+    const parts = line.split('|').map(x => x.trim());
+    return { scorer: String(parts[0] || '').toUpperCase(), assist: String(parts[1] || '').toUpperCase(), minute: String(parts[2] || '') };
+  }).filter(g => g.scorer);
+  const k = kInfo(m).k;
+  if (events.length !== k && !confirm(`This result has ${k} Kildrum goal(s), but you entered ${events.length} scorer row(s). Save anyway?`)) return;
+  saveScorerUndo(matchId);
+  const previous = Array.isArray(m.scorers) ? JSON.parse(JSON.stringify(m.scorers)) : undefined;
+  m.scorers = events;
+  const ok = await lgSave();
+  if (ok === false) {
+    if (previous === undefined) delete m.scorers; else m.scorers = previous;
+    alert('Scorers were not saved. Your previous scorer list has been restored in this browser.');
+    return;
+  }
+  if (leagueMatchId === matchId) {
+    goalEvents = normaliseGoalEvents(events);
+    renderGoalEventsInputs(); updateResultGraphic(); touchMatchdayState();
+  }
+  window.lastScorerMsg = `Manually updated ${events.length} scorer row${events.length === 1 ? '' : 's'}.`;
+  lgRenderAll(); lgRenderManage(); lgMatchPickerRefresh();
+}
+async function lgUndoScorerEdit() {
+  let backup;
+  try { backup = JSON.parse(localStorage.getItem(LG_SCORER_UNDO_KEY) || 'null'); } catch (e) {}
+  if (!backup || !Number.isInteger(Number(backup.matchId))) return alert('There is no saved scorer change to undo on this device.');
+  const m = lg.matches.find(x => x.id === Number(backup.matchId));
+  if (!m) return alert('The match for the saved scorer backup could not be found.');
+  if (lg.mode === 'online' && !lg.admin) return alert('Sign in as the league admin before restoring scorers.');
+  const current = Array.isArray(m.scorers) ? JSON.parse(JSON.stringify(m.scorers)) : undefined;
+  if (backup.scorers === null) delete m.scorers;
+  else m.scorers = JSON.parse(JSON.stringify(backup.scorers || []));
+  const ok = await lgSave();
+  if (ok === false) {
+    if (current === undefined) delete m.scorers; else m.scorers = current;
+    return alert('Undo could not be saved. The current scorer list has been kept.');
+  }
+  if (leagueMatchId === m.id) {
+    goalEvents = normaliseGoalEvents(m.scorers || []);
+    renderGoalEventsInputs(); updateResultGraphic(); touchMatchdayState();
+  }
+  try { localStorage.removeItem(LG_SCORER_UNDO_KEY); } catch (e) {}
+  window.lastScorerMsg = 'Previous scorer list restored.';
+  lgRenderAll(); lgRenderManage(); lgMatchPickerRefresh();
 }
 
 // ---------- SCORERS (diagnostics) ----------
@@ -2577,11 +2916,11 @@ function lgRenderScorers() {
     </div></div>`;
 }
 
-// ---------- lock the coach tabs (Lineup + Result) ----------
+// ---------- lock the coach tabs (Lineup + Result + Recorder) ----------
 function isUnlocked() { try { return !!localStorage.getItem('kildrum-github-token'); } catch (e) { return false; } }
 function applyLock() {
   const locked = !isUnlocked();
-  ['Lineup', 'Result'].forEach(n => {
+  ['Lineup', 'Result', 'Recorder'].forEach(n => {
     const c = document.getElementById('tabContent' + n); if (!c) return;
     c.classList.toggle('opacity-50', locked); c.classList.toggle('select-none', locked);
     if (locked) c.setAttribute('inert', ''); else c.removeAttribute('inert');
@@ -2613,11 +2952,327 @@ switchTab('league'); // League is the opening tab
 // Share link for parents: add ?view=league to the web address to hide the coach tools
 if (new URLSearchParams(location.search).get('view') === 'league') {
   window.addEventListener('load', () => {
-    ['tabBtnLineup', 'tabBtnResult', 'headerActions'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    ['tabBtnLineup', 'tabBtnResult', 'tabBtnRecorder', 'headerActions'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     switchTab('league');
   });
 }
 
   </script>
+
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'kildrum-match-recorder-v1';
+  const freshState = () => ({
+    halfLength: 40, matchDate: new Date().toISOString().slice(0,10), phase: 'pre', activeHalf: null, startedAt: null,
+    elapsedMs: { 1: 0, 2: 0 }, events: [], pending: null, editingId: null
+  });
+  let mrState = freshState();
+  let mrTick = null;
+
+  const mrEl = id => document.getElementById(id);
+  const mrEsc = value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const mrNotice = message => { const el = mrEl('mrNotice'); if (el) el.textContent = message; };
+  const mrSaveLocal = () => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(mrState)); } catch (e) { console.warn('Match Recorder local save unavailable:', e); }
+  };
+  const mrMarkDirty = () => {
+    try {
+      if (typeof matchdayDirty !== 'undefined') matchdayDirty = true;
+      const b = mrEl('cloudSaveBtn');
+      if (b && typeof cloudIdleHtml === 'function' && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml();
+    } catch (e) {}
+  };
+  const mrPersist = () => {
+    mrSaveLocal();
+    mrMarkDirty();
+    if (window.matchReportStore) window.matchReportStore.touch();
+    mrRender();
+  };
+  const mrGetElapsed = half => {
+    const saved = Number(mrState.elapsedMs[half] || 0);
+    if (mrState.activeHalf === half && mrState.startedAt) return saved + Math.max(0, Date.now() - mrState.startedAt);
+    return saved;
+  };
+  const mrClockText = ms => {
+    const total = Math.floor(Math.abs(ms) / 1000);
+    const text = String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+    return ms < 0 ? '-' + text : text;
+  };
+  const mrMinute = (half, elapsedMs) => {
+    const H = mrState.halfLength;
+    const secs = Math.max(1, Math.ceil(Math.max(0, elapsedMs) / 1000));
+    const regulation = H * 60;
+    if (half === 1) {
+      if (secs <= regulation) return Math.ceil(secs / 60) + "'";
+      return H + ' + ' + Math.ceil((secs - regulation) / 60) + "'";
+    }
+    if (secs <= regulation) return (H + Math.ceil(secs / 60)) + "'";
+    return (2 * H) + ' + ' + Math.ceil((secs - regulation) / 60) + "'";
+  };
+  const mrTeamName = team => team === 'kildrum' ? 'Kildrum Utd' : (mrEl('oppName')?.value || 'Opposition');
+  const mrSquad = () => {
+    if (typeof getMatchdaySquad !== 'function') return [];
+    const { xi, subs } = getMatchdaySquad();
+    return [...xi, ...subs].filter(p => p && p.name);
+  };
+  const mrScores = () => mrState.events.reduce((out, ev) => { if (ev.team === 'kildrum') out.home++; else out.away++; return out; }, {home:0,away:0});
+  const mrImageSources = () => ({
+    home: (typeof homeBadgeSrc !== 'undefined' && homeBadgeSrc) ? homeBadgeSrc : '',
+    away: (typeof awayBadgeSrc !== 'undefined' && awayBadgeSrc) ? awayBadgeSrc : ''
+  });
+  const mrRefreshTeams = () => {
+    const imgs = mrImageSources();
+    if (mrEl('mrHomeBadge')) mrEl('mrHomeBadge').src = imgs.home;
+    if (mrEl('mrAwayBadge')) mrEl('mrAwayBadge').src = imgs.away;
+    if (mrEl('mrOppName')) mrEl('mrOppName').textContent = mrEl('oppName')?.value || 'OPPOSITION';
+  };
+  const mrFormatEvent = ev => {
+    const half = ev.half === 1 ? '1st half' : '2nd half';
+    const scorer = ev.team === 'kildrum' ? ' · ' + (ev.scorerName || 'Scorer not set') : '';
+    return `<div class="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg bg-slate-950 border border-slate-800 p-3">
+      <div class="min-w-0 flex-1"><div class="font-bold text-sm text-white">${mrEsc(mrTeamName(ev.team))}${scorer}</div>
+      <div class="text-[11px] text-slate-400">${half} · ${mrEsc(ev.minuteLabel || mrMinute(ev.half, ev.elapsedMs))}</div></div>
+      <div class="flex gap-2 shrink-0"><button type="button" onclick="mrOpenEditor('${mrEsc(ev.id)}')" class="rounded-md bg-slate-700 hover:bg-slate-600 px-3 py-2 text-xs font-bold text-white">Edit</button>
+      <button type="button" onclick="mrDeleteGoal('${mrEsc(ev.id)}')" class="rounded-md bg-red-950 hover:bg-red-900 border border-red-900 px-3 py-2 text-xs font-bold text-red-200">Delete</button></div>
+    </div>`;
+  };
+
+  function mrRender() {
+    if (!mrEl('tabContentRecorder')) return;
+    const scores = mrScores();
+    mrEl('mrHomeScore').textContent = scores.home;
+    mrEl('mrAwayScore').textContent = scores.away;
+    mrEl('mrPhase').textContent = ({pre:'PRE-MATCH',first:'FIRST HALF',halftime:'HALF-TIME',second:'SECOND HALF',fulltime:'FULL-TIME'})[mrState.phase] || 'PRE-MATCH';
+    const half = mrState.activeHalf || (mrState.phase === 'second' || mrState.phase === 'fulltime' ? 2 : 1);
+    const remaining = mrState.halfLength * 60000 - mrGetElapsed(half);
+    mrEl('mrClock').textContent = mrClockText(remaining);
+    mrEl('mrHalfLabel').textContent = half === 1 ? 'FIRST HALF' : 'SECOND HALF';
+    mrEl('mrHalfLength').value = mrState.halfLength;
+    if (mrEl('mrMatchDate')) mrEl('mrMatchDate').value = mrState.matchDate || new Date().toISOString().slice(0,10);
+    const running = !!mrState.activeHalf;
+    mrEl('mrStartFirst').disabled = running || mrState.phase !== 'pre';
+    mrEl('mrStopFirst').disabled = mrState.phase !== 'first';
+    mrEl('mrStartSecond').disabled = running || mrState.phase !== 'halftime';
+    mrEl('mrStopSecond').disabled = mrState.phase !== 'second';
+    ['mrStartFirst','mrStartSecond'].forEach(id => mrEl(id).classList.toggle('opacity-40', mrEl(id).disabled));
+    ['mrStopFirst','mrStopSecond'].forEach(id => mrEl(id).classList.toggle('opacity-40', mrEl(id).disabled));
+    mrRefreshTeams();
+    const log = mrEl('mrGoalLog');
+    log.innerHTML = mrState.events.length ? [...mrState.events].sort((a,b) => a.createdAt - b.createdAt).map(mrFormatEvent).join('') : '<p class="text-xs text-slate-500">No goals recorded yet.</p>';
+  }
+
+  function mrChangeMatchDate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) { mrRender(); mrNotice('Choose a valid match date.'); return; }
+    mrState.matchDate = value; mrPersist(); mrNotice('Match date set to ' + value + '.');
+  }
+  function mrChangeHalfLength(value) {
+    const n = Number(value);
+    if (mrState.phase !== 'pre' || mrState.activeHalf) { mrEl('mrHalfLength').value = mrState.halfLength; mrNotice('Half length can only be changed before kick-off.'); return; }
+    if (!Number.isFinite(n) || n <= 0 || n > 120) { mrEl('mrHalfLength').value = mrState.halfLength; mrNotice('Enter a valid half length between 1 and 120 minutes.'); return; }
+    mrState.halfLength = Math.round(n);
+    mrPersist();
+    mrNotice('Each half is now ' + mrState.halfLength + ' minutes.');
+  }
+  function mrStartHalf(half) {
+    if (mrState.activeHalf) return;
+    if (half === 1 && mrState.phase !== 'pre') return;
+    if (half === 2 && mrState.phase !== 'halftime') return;
+    if (!Number.isFinite(mrState.halfLength) || mrState.halfLength <= 0) { mrNotice('Set a valid half length first.'); return; }
+    mrState.activeHalf = half;
+    mrState.startedAt = Date.now();
+    mrState.phase = half === 1 ? 'first' : 'second';
+    mrPersist();
+    mrNotice(half === 1 ? 'First half started.' : 'Second half started.');
+  }
+  function mrStopHalf(half) {
+    if (mrState.activeHalf !== half || !mrState.startedAt) return;
+    mrState.elapsedMs[half] = mrGetElapsed(half);
+    mrState.activeHalf = null;
+    mrState.startedAt = null;
+    mrState.phase = half === 1 ? 'halftime' : 'fulltime';
+    mrPersist();
+    mrNotice(half === 1 ? 'First half stopped. Half-time.' : 'Full-time. You can still edit the goal log.');
+  }
+  function mrTapGoal(team) {
+    if (mrState.pending) return;
+    if (!mrState.activeHalf) { mrNotice('Goals can only be recorded while a half is running. Use “Add missed goal” for corrections.'); return; }
+    const half = mrState.activeHalf;
+    const elapsedMs = mrGetElapsed(half);
+    const event = { id: 'mr-' + Date.now() + '-' + Math.random().toString(36).slice(2,8), team, half, elapsedMs, minuteLabel: mrMinute(half, elapsedMs), createdAt: Date.now() };
+    if (team === 'opposition') {
+      mrState.events.push(event);
+      mrPersist();
+      mrNotice('Opposition goal recorded at ' + event.minuteLabel + '.');
+      return;
+    }
+    const players = mrSquad();
+    if (!players.length) { mrNotice('No match squad selected. Select XI/SUB players in the Lineup Generator first.'); return; }
+    mrState.pending = event;
+    mrOpenDialogForPending(players);
+  }
+  function mrOpenDialogForPending(players) {
+    mrEl('mrDialogTitle').textContent = 'Select Kildrum scorer';
+    mrEl('mrDialogHelp').textContent = 'Goal time captured at badge tap: ' + mrState.pending.minuteLabel + '.';
+    mrEl('mrEditTeam').value = 'kildrum';
+    mrEl('mrEditTeam').disabled = true;
+    mrEl('mrScorerWrap').classList.remove('hidden');
+    mrEl('mrEditScorer').innerHTML = '<option value="">Choose scorer...</option>' + players.map(p => `<option value="${mrEsc(p.id)}">${mrEsc(p.number)} · ${mrEsc(p.name)}</option>`).join('');
+    mrEl('mrEditHalf').value = mrState.pending.half;
+    mrEl('mrEditElapsed').value = mrClockText(mrState.pending.elapsedMs);
+    mrEl('mrDialog').classList.remove('hidden'); mrEl('mrDialog').classList.add('flex');
+  }
+  function mrCloseDialog() {
+    mrEl('mrDialog').classList.add('hidden'); mrEl('mrDialog').classList.remove('flex');
+    mrEl('mrEditTeam').disabled = false;
+    mrState.pending = null; mrState.editingId = null;
+  }
+  function mrParseElapsed(value) {
+    const m = String(value || '').trim().match(/^(\d{1,3}):([0-5]\d)$/);
+    if (!m) return null;
+    return (Number(m[1]) * 60 + Number(m[2])) * 1000;
+  }
+  function mrOpenEditor(id) {
+    const existing = id ? mrState.events.find(e => e.id === id) : null;
+    mrState.editingId = existing ? id : null;
+    mrState.pending = null;
+    mrEl('mrDialogTitle').textContent = existing ? 'Correct goal' : 'Add missed goal';
+    mrEl('mrDialogHelp').textContent = existing ? 'Edit the team, scorer, half or elapsed time.' : 'Enter the missed goal details. Time is elapsed within that half.';
+    mrEl('mrEditTeam').disabled = false;
+    mrEl('mrEditTeam').value = existing?.team || 'kildrum';
+    mrEl('mrEditHalf').value = existing?.half || 1;
+    mrEl('mrEditElapsed').value = existing ? mrClockText(existing.elapsedMs).replace(/^-/, '') : '';
+    mrFillScorers(existing?.playerId || '');
+    mrEl('mrDialog').classList.remove('hidden'); mrEl('mrDialog').classList.add('flex');
+  }
+  function mrFillScorers(selectedId) {
+    const players = mrSquad();
+    mrEl('mrEditScorer').innerHTML = '<option value="">Choose scorer...</option>' + players.map(p => `<option value="${mrEsc(p.id)}" ${String(p.id)===String(selectedId)?'selected':''}>${mrEsc(p.number)} · ${mrEsc(p.name)}</option>`).join('');
+    mrEl('mrScorerWrap').classList.toggle('hidden', mrEl('mrEditTeam').value !== 'kildrum');
+  }
+  function mrSaveDialog() {
+    const team = mrEl('mrEditTeam').value;
+    const half = Number(mrEl('mrEditHalf').value);
+    const elapsedMs = mrParseElapsed(mrEl('mrEditElapsed').value);
+    if (elapsedMs == null) { mrNotice('Enter elapsed time in MM:SS format.'); return; }
+    let player = null;
+    if (team === 'kildrum') {
+      const id = mrEl('mrEditScorer').value;
+      player = mrSquad().find(p => String(p.id) === String(id));
+      if (!player) { mrNotice('Choose a scorer from the current match squad.'); return; }
+    }
+    const existing = mrState.editingId ? mrState.events.find(e => e.id === mrState.editingId) : null;
+    const ev = {
+      ...(existing || mrState.pending || {}),
+      id: existing?.id || mrState.pending?.id || ('mr-' + Date.now() + '-' + Math.random().toString(36).slice(2,8)),
+      team, half, elapsedMs, minuteLabel: mrMinute(half, elapsedMs), createdAt: existing?.createdAt || Date.now(),
+      ...(team === 'kildrum' ? { playerId: player.id, scorerName: player.name } : { playerId: null, scorerName: '' })
+    };
+    if (existing) Object.assign(existing, ev);
+    else mrState.events.push(ev);
+    mrCloseDialog();
+    mrPersist();
+    mrNotice('Goal saved at ' + ev.minuteLabel + '.');
+  }
+  function mrDeleteGoal(id) {
+    const index = mrState.events.findIndex(e => e.id === id);
+    if (index < 0) return;
+    if (!confirm('Delete this goal?')) return;
+    mrState.events.splice(index, 1);
+    mrPersist();
+    mrNotice('Goal deleted. Score recalculated.');
+  }
+  function mrNewMatch() {
+    if (!confirm('Start a new match recorder session? This clears the current recorder goal log.')) return;
+    const keepDate = mrState.matchDate || new Date().toISOString().slice(0,10);
+    mrState = freshState(); mrState.matchDate = keepDate;
+    mrSaveLocal(); mrMarkDirty();
+    if (window.matchReportStore) window.matchReportStore.touch();
+    mrRender();
+    mrNotice('New match recorder session ready.');
+  }
+
+  // Deliberate coach action: copy the recorder score and Kildrum goal log into the Match Report.
+  function mrPushToMatchReport() {
+    const scores = mrScores();
+    const kildrumGoals = [...mrState.events]
+      .filter(ev => ev.team === 'kildrum')
+      .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+    const opposition = String(mrEl('oppName')?.value || 'Opposition').trim() || 'Opposition';
+    const summary = `This will replace the current Match Report score (${mrEl('homeScoreInput')?.value || 0}-${mrEl('awayScoreInput')?.value || 0}) and Goals & Assists entries with the Match Recorder result: Kildrum Utd ${scores.home}-${scores.away} ${opposition}. Kildrum scorer names and goal minutes will be copied. Assists are not recorded in the Match Recorder and will need to be added manually. Continue?`;
+    if (!confirm(summary)) return;
+
+    const homeScore = mrEl('homeScoreInput');
+    const awayScore = mrEl('awayScoreInput');
+    const status = mrEl('matchStatusSelect');
+    // The report inputs are Kildrum score / opposition score. setSide()
+    // positions those scores on the correct home/away side of the graphic.
+    if (homeScore) homeScore.value = scores.home;
+    if (awayScore) awayScore.value = scores.away;
+    if (status) status.value = 'FULL TIME';
+    const reportDate = mrEl('matchDate');
+    if (reportDate && mrState.matchDate) reportDate.value = new Date(mrState.matchDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + new Date(mrState.matchDate + 'T00:00:00').getDate() + ' ' + new Date(mrState.matchDate + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short' }) + ' ' + new Date(mrState.matchDate + 'T00:00:00').getFullYear();
+    // Team names, badge and home/away orientation are sourced from the Lineup Generator.
+    // Do not swap the Kildrum/opposition score inputs: setSide() controls graphic orientation.
+    if (typeof updateGraphic === 'function') updateGraphic();
+    if (typeof goalEvents !== 'undefined') {
+      goalEvents = kildrumGoals.map(ev => ({
+        scorer: String(ev.scorerName || '').trim().toUpperCase(),
+        assist: '',
+        minute: String(ev.minuteLabel || mrMinute(ev.half, ev.elapsedMs))
+      }));
+    }
+    if (typeof renderGoalEventsInputs === 'function') renderGoalEventsInputs();
+    if (typeof updateResultGraphic === 'function') updateResultGraphic();
+    if (typeof lgMatchPickerRefresh === 'function') lgMatchPickerRefresh();
+    if (window.matchReportStore) window.matchReportStore.touch();
+    mrMarkDirty();
+    mrNotice(`Pushed ${scores.home}-${scores.away} and ${kildrumGoals.length} Kildrum scorer entr${kildrumGoals.length === 1 ? 'y' : 'ies'} to the Match Report. Add assists there if required.`);
+    const resultTab = document.getElementById('tabBtnResult');
+    if (resultTab) resultTab.classList.add('ring-2', 'ring-emerald-400');
+    setTimeout(() => { if (resultTab) resultTab.classList.remove('ring-2', 'ring-emerald-400'); }, 1800);
+  }
+
+  window.mrChangeMatchDate = mrChangeMatchDate;
+  window.mrChangeHalfLength = mrChangeHalfLength;
+  window.mrStartHalf = mrStartHalf;
+  window.mrStopHalf = mrStopHalf;
+  window.mrTapGoal = mrTapGoal;
+  window.mrCloseDialog = mrCloseDialog;
+  window.mrOpenEditor = mrOpenEditor;
+  window.mrSaveDialog = mrSaveDialog;
+  window.mrDeleteGoal = mrDeleteGoal;
+  window.mrNewMatch = mrNewMatch;
+  window.mrPushToMatchReport = mrPushToMatchReport;
+  window.getMatchRecorderData = () => JSON.parse(JSON.stringify(mrState));
+  window.loadMatchRecorderData = data => {
+    if (!data || typeof data !== 'object') return;
+    mrState = { ...freshState(), ...data, elapsedMs: {1:0,2:0,...(data.elapsedMs || {})}, events: Array.isArray(data.events) ? data.events : [] };
+    mrSaveLocal(); mrRender();
+  };
+
+  // Restore this device's unsynced recorder session immediately; cloud data supersedes it when available.
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object') mrState = { ...freshState(), ...parsed, elapsedMs: {1:0,2:0,...(parsed.elapsedMs || {})}, events: Array.isArray(parsed.events) ? parsed.events : [] };
+    }
+  } catch (e) { console.warn('Could not restore Match Recorder session:', e); }
+
+  mrEl('mrEditTeam').addEventListener('change', () => mrFillScorers(''));
+  mrRender();
+  mrTick = setInterval(() => {
+    if (mrState.activeHalf) {
+      const clock = mrEl('mrClock');
+      if (clock) {
+        const remaining = mrState.halfLength * 60000 - mrGetElapsed(mrState.activeHalf);
+        clock.textContent = mrClockText(remaining);
+      }
+    }
+  }, 250);
+})();
+</script>
 </body>
 </html>
