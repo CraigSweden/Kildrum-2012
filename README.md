@@ -1,6 +1,6 @@
 Kildrum – League & Match Information
 
-Welcome to the Kildrum football information page.
+Welcome to the Kildrum football information page for the 2012 team.
 
 This application provides parents, players and supporters with an easy way to keep up to date with league standings, team performances, match results and upcoming fixtures.
 
@@ -109,5 +109,7 @@ Please remember that fixture dates and other match arrangements can change durin
 We hope this page makes it easier for everyone to follow the teams, check upcoming matches and celebrate the players' performances.
 
 Thank you for your continued support of the players and the club.
+
+Cheers Craig
 
 Come on Kildrum!
