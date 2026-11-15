@@ -97,8 +97,8 @@
       </div>
 
       <div id="headerActions" class="flex items-center gap-2" style="visibility:hidden">
-        <button onclick="saveMatchToCloud()" id="cloudSaveBtn" class="px-3 py-1.5 text-xs font-semibold bg-emerald-700 hover:bg-emerald-600 text-white rounded-md transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Save to Cloud
+        <button onclick="saveMatchLocally()" id="cloudSaveBtn" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-floppy-disk"></i> Save Locally
         </button>
         <button onclick="resetToDefaults()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md transition flex items-center gap-1.5 border border-slate-700">
           <i class="fa-solid fa-rotate-left"></i> Reset
@@ -404,7 +404,7 @@
           <select id="leagueMatchSelect" onchange="applyLeagueMatch(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-md px-3 py-2 text-white text-sm font-semibold focus:outline-none focus:border-red-500 transition">
             <option value="">Choose a league match...</option>
           </select>
-          <p class="text-[11px] text-slate-400 mt-2">The score, opposition, home/away and date fill in from the league result. Scorers you add below are saved to this match when you press <b>Save to Cloud</b> and feed the Scorers tab.</p>
+          <p class="text-[11px] text-slate-400 mt-2">Choose a completed result or upcoming fixture to link this report to the exact match. Saving this report stores the graphic data only. Scores, league standings and scorers are changed online only when you press <b>Push current data online</b> in League &gt; Manage Results.</p>
           <p id="leagueMatchNote" class="text-[11px] mt-1 text-slate-400"></p>
         </div>
 
@@ -591,7 +591,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h2 class="font-sports font-extrabold text-lg text-white">MATCH DAY RECORDER</h2>
-          <p class="text-xs text-slate-400">Live score, half timer and goal log</p>
+          <p class="text-xs text-slate-400">Record goals and the match date here. Save Locally keeps this recorder on this device; Push details sends it to the linked Result &amp; Match Report. It does not publish the league result or scorers.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <label for="mrMatchDate" class="text-xs text-slate-300 font-semibold">Match date</label>
@@ -700,6 +700,13 @@
 
   </main>
 
+  <!-- Team results and upcoming fixtures panel. Styling uses existing utility classes only. -->
+  <div id="lgTeamPanel" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 p-3" role="dialog" aria-modal="true" aria-labelledby="lgTeamPanelTitle" onclick="if(event.target===this)lgCloseTeamPanel()">
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 p-4" onclick="event.stopPropagation()">
+      <div id="lgTeamPanelContent"></div>
+    </div>
+  </div>
+
   <!-- Firebase SDK Imports -->
   <script type="module">
     // ============================================================
@@ -802,10 +809,12 @@
       try {
         const res = await window.cloud.get('matchday');
         window.fbState = 'ready';
+        let localReport = null;
+        try { localReport = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); } catch (e) {}
         let reportData = res.exists ? res.data : null;
-        if (!reportData) {
-          try { reportData = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); } catch (e) {}
-        }
+        const cloudStamp = Date.parse(reportData?.updatedAt || res.updatedAt || 0) || 0;
+        const localStamp = Date.parse(localReport?.updatedAt || 0) || 0;
+        if (localReport && (!reportData || localStamp > cloudStamp)) reportData = localReport;
         if (reportData) {
           const data = reportData;
           if (data.compName) document.getElementById('compName').value = data.compName;
@@ -826,7 +835,9 @@
           if (data.squad) squad = data.squad;
           if (Array.isArray(data.goalEvents)) goalEvents = normaliseGoalEvents(data.goalEvents);
           if (data.matchRecorder && window.loadMatchRecorderData) window.loadMatchRecorderData(data.matchRecorder);
-          if (data.leagueMatchId != null) leagueMatchId = data.leagueMatchId;
+          if (data.leagueMatchId != null) leagueMatchId = Number(data.leagueMatchId); else if (typeof leagueMatchId !== 'undefined') leagueMatchId = null;
+          if (typeof data.leagueFixtureId !== 'undefined') leagueFixtureId = data.leagueFixtureId == null ? null : Number(data.leagueFixtureId);
+          if (typeof data.resultStaged === 'boolean') matchdayResultStaged = data.resultStaged;
           if (data.homeBadgeSrc) homeBadgeSrc = data.homeBadgeSrc;
           if (data.awayBadgeSrc) awayBadgeSrc = data.awayBadgeSrc;
           if (typeof data.playingAway === 'boolean') setSide(data.playingAway ? 'away' : 'home');
@@ -849,6 +860,9 @@
             if (localReport.homeScore != null) document.getElementById('homeScoreInput').value = localReport.homeScore;
             if (localReport.awayScore != null) document.getElementById('awayScoreInput').value = localReport.awayScore;
             if (Array.isArray(localReport.goalEvents)) goalEvents = normaliseGoalEvents(localReport.goalEvents);
+            if (localReport.leagueMatchId != null) leagueMatchId = Number(localReport.leagueMatchId);
+            if (typeof localReport.leagueFixtureId !== 'undefined') leagueFixtureId = localReport.leagueFixtureId == null ? null : Number(localReport.leagueFixtureId);
+            if (typeof localReport.resultStaged === 'boolean') matchdayResultStaged = localReport.resultStaged;
             if (localReport.squad) squad = localReport.squad;
             if (localReport.matchRecorder && window.loadMatchRecorderData) window.loadMatchRecorderData(localReport.matchRecorder);
             if (typeof localReport.playingAway === 'boolean') setSide(localReport.playingAway ? 'away' : 'home');
@@ -975,7 +989,23 @@
     };
 
     // Tab Switcher Controller
+    function setHeaderSaveMode(mode) {
+      const b = document.getElementById('cloudSaveBtn');
+      if (!b) return;
+      headerSaveMode = mode === 'report-cloud' ? 'report-cloud' : 'local';
+      if (mode === 'report-cloud') {
+        b.onclick = saveMatchToCloud;
+        b.className = 'px-3 py-1.5 text-xs font-semibold bg-emerald-700 hover:bg-emerald-600 text-white rounded-md transition flex items-center gap-1.5 shadow';
+        b.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save Report to Cloud';
+      } else {
+        b.onclick = saveMatchLocally;
+        b.className = 'px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md transition flex items-center gap-1.5 shadow';
+        b.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Locally';
+      }
+    }
+
     function switchTabOrig(tabName) {
+      setHeaderSaveMode(tabName === 'result' ? 'report-cloud' : 'local');
       const btnLineup = document.getElementById('tabBtnLineup');
       const btnResult = document.getElementById('tabBtnResult');
       const contentLineup = document.getElementById('tabContentLineup');
@@ -1008,6 +1038,7 @@
       const recorder = document.getElementById('tabContentRecorder');
       const recorderBtn = document.getElementById('tabBtnRecorder');
       if (tabName === 'recorder') {
+        setHeaderSaveMode('local');
         ['Lineup', 'Result'].forEach(n => {
           const c = document.getElementById('tabContent' + n);
           c.classList.remove('grid'); c.classList.add('hidden');
@@ -1728,6 +1759,11 @@
         matchStatistics: matchdayStatistics(goals, recorder),
         matchRecorder: recorder,
         leagueMatchId,
+        leagueFixtureId: (typeof leagueFixtureId !== 'undefined' ? leagueFixtureId : null),
+        resultStaged: (typeof matchdayResultStaged !== 'undefined' ? matchdayResultStaged : false),
+        leagueTargetDate: (typeof getLinkedLeagueTarget === 'function' ? (getLinkedLeagueTarget()?.date || '') : ''),
+        leagueTargetHome: (typeof getLinkedLeagueTarget === 'function' ? (getLinkedLeagueTarget()?.home || '') : ''),
+        leagueTargetAway: (typeof getLinkedLeagueTarget === 'function' ? (getLinkedLeagueTarget()?.away || '') : ''),
         homeBadgeSrc,
         awayBadgeSrc,
         updatedAt: new Date().toISOString()
@@ -1748,6 +1784,9 @@
       snapshot: buildMatchdaySnapshot,
       normaliseGoals: normaliseGoalEvents,
       restoreGoals(items) { goalEvents = normaliseGoalEvents(items); },
+      setStaged(value) { matchdayResultStaged = !!value; },
+      clearLeagueTarget() { leagueMatchId = null; leagueFixtureId = null; matchdayResultStaged = false; },
+      markPublished() { matchdayResultStaged = false; touchMatchdayState(); },
       persistLocal: persistMatchdayLocal,
       touch: touchMatchdayState
     };
@@ -1757,48 +1796,65 @@
     }
 
     function setCloudBtn(html) { const b = document.getElementById('cloudSaveBtn'); if (b) b.innerHTML = html; }
-    const CLOUD_BTN_IDLE = '<i class="fa-solid fa-cloud-arrow-up"></i> Save to Cloud';
+    let headerSaveMode = 'local';
+    const CLOUD_BTN_IDLE = '<i class="fa-solid fa-floppy-disk"></i> Save Locally';
 
     let matchdaySaveInFlight = false;
-    async function saveMatchToCloud(opts = {}) {
+    async function saveMatchToCloud() {
       if (matchdaySaveInFlight) return;
       matchdaySaveInFlight = true;
       let snapshot = null;
       try {
         snapshot = matchdayPayload();
+        const linkCheck = (typeof window.validateMatchdayLink === 'function')
+          ? window.validateMatchdayLink(snapshot) : { ok: true };
+        if (linkCheck && linkCheck.ok === false) throw new Error(linkCheck.message || 'The selected league match could not be verified.');
         persistMatchdayLocal(snapshot); // durable device copy before any network request
         if (!window.cloud) throw new Error('Cloud saving not ready yet.');
         if (!(await window.cloud.ensurePassword())) return;
-        setCloudBtn('<i class="fa-solid fa-spinner animate-spin"></i> Saving...');
+        setCloudBtn('<i class="fa-solid fa-spinner animate-spin"></i> Saving report...');
+        // This writes ONLY the match-report document and its exact league-match reference.
+        // League scores, standings and scorer records are published only by lgPublish().
         await window.cloud.put('matchday', snapshot);
-
-        // Mirror the same canonical scorer array into the linked league result.
-        const sc = (typeof saveScorersToLeague === 'function')
-          ? await saveScorersToLeague(snapshot.goalEvents) : { skipped: true };
-        if (sc && sc.ok === false) {
-          matchdayDirty = true; // report JSON saved; league scorer mirror needs retry
-          setCloudBtn('<i class="fa-solid fa-triangle-exclamation"></i> Report saved · league sync needs retry');
-        } else {
-          matchdayDirty = false;
-          setCloudBtn('<i class="fa-solid fa-check"></i> Saved!');
-        }
+        matchdayDirty = false;
+        setCloudBtn('<i class="fa-solid fa-check"></i> Report saved · league unchanged');
         setTimeout(() => setCloudBtn(cloudIdleHtml()), 3500);
       } catch (err) {
-        console.error('Cloud save error:', err);
+        console.error('Report cloud save error:', err);
         matchdayDirty = true;
         if (snapshot) persistMatchdayLocal(snapshot);
         setCloudBtn('<i class="fa-solid fa-triangle-exclamation"></i> Save Failed');
         setTimeout(() => setCloudBtn(cloudIdleHtml()), 3000);
-        alert('Could not complete the cloud save. Your latest match report has been kept on this device. ' + err.message);
+        alert('The report was kept on this device, but could not be saved to the cloud. ' + err.message);
       } finally {
         matchdaySaveInFlight = false;
       }
     }
 
-    // No autosave: nothing is written to the cloud until you press "Save to Cloud".
+    function saveMatchLocally() {
+      try {
+        const snapshot = matchdayPayload();
+        persistMatchdayLocal(snapshot);
+        if (typeof window.saveMatchRecorderLocal === 'function') window.saveMatchRecorderLocal();
+        matchdayDirty = false;
+        setCloudBtn('<i class="fa-solid fa-check"></i> Saved locally');
+        setTimeout(() => setCloudBtn(cloudIdleHtml()), 1800);
+      } catch (err) {
+        console.error('Local save error:', err);
+        alert('Could not save the current screen on this device: ' + err.message);
+      }
+    }
+
+    // The report button stores the report document only. League publication is a separate Manage Results action.
     // We only flag unsaved edits with a small amber dot on the button.
     let matchdayDirty = false;
-    function cloudIdleHtml() { return CLOUD_BTN_IDLE + (matchdayDirty ? ' <span style="color:#fcd34d" title="You have changes that are not saved to the cloud yet">&#9679;</span>' : ''); }
+    let matchdayResultStaged = false;
+    function cloudIdleHtml() {
+      const base = headerSaveMode === 'report-cloud'
+        ? '<i class="fa-solid fa-cloud-arrow-up"></i> Save Report to Cloud'
+        : '<i class="fa-solid fa-floppy-disk"></i> Save Locally';
+      return base + (matchdayDirty ? ' <span style="color:#fcd34d" title="You have unsaved screen changes">&#9679;</span>' : '');
+    }
     function markMatchdayDirty(e) {
       if (!window.matchdayLoaded) return;
       if (!(e.target && e.target.closest && e.target.closest('#tabContentLineup, #tabContentResult, #tabContentRecorder'))) return;
@@ -2022,7 +2078,8 @@ function lgBadge(team, size = 22) {
 function lgAllTeams() {
   const set = new Set([...lg.teams]);
   lg.matches.forEach(m => { set.add(m.home); set.add(m.away); });
-  return [...set].sort((a, b) => a.localeCompare(b));
+  (lg.fixtures || []).forEach(f => { set.add(f.home); set.add(f.away); });
+  return [...set].filter(Boolean).sort((a, b) => a.localeCompare(b));
 }
 const lgResult = (gf, ga) => gf > ga ? 'W' : gf < ga ? 'L' : 'D';
 
@@ -2064,21 +2121,15 @@ function lgHistory() {
 // ---------- persistence ----------
 function lgPayload() { return { matches: lg.matches, fixtures: lg.fixtures || [], teams: lgAllTeams(), updatedAt: new Date().toISOString() }; }
 async function lgSave() {
-  try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(lgPayload())); } catch (e) {} // backup copy on this device
-  if (lg.mode === 'online') {
-    if (!lg.admin) { alert('Please sign in (Manage Results tab) to save changes online.'); return false; }
-    try {
-      await window.cloud.put('league', lgPayload());
-      lgSetStatus(`Online · saved ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`);
-      return true;
-    } catch (e) {
-      console.error(e);
-      if (!window.cloud.password()) { lg.admin = false; lgRenderManage(); }
-      alert('Could not save online: ' + e.message);
-      return false;
-    }
-  }
-  lgSetStatus('Offline · saved in this browser only');
+  // All ordinary Manage Results edits are drafts on this device. This function
+  // deliberately has NO cloud write; lgPublish() is the only league publisher.
+  const payload = lgPayload();
+  try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(payload)); }
+  catch (e) { console.warn('League local save unavailable:', e); return false; }
+  lg.hasUnpublishedChanges = true;
+  lgSetStatus(lg.mode === 'online'
+    ? 'Local draft saved · not published online'
+    : 'Offline · saved in this browser only');
   return true;
 }
 function lgSetStatus(txt) { const el = document.getElementById('lgStatus'); if (el) el.textContent = txt; }
@@ -2108,11 +2159,23 @@ async function lgLoad() {
     const res = await window.cloud.get('league');
     lg.mode = 'online';
     lg.admin = !!window.cloud.password();
-    if (res.exists) { lgApply(res.data); lgSetStatus('Online · updated ' + new Date(res.updatedAt).toLocaleString('en-GB')); }
-    else {
-      const local = lgLocalData(); // keep any results already entered on this device
-      if (local) lgApply(local);
-      lgSetStatus('Online · nothing published yet (sign in on Manage Results, then press "Publish")');
+    const local = lgLocalData();
+    if (res.exists) {
+      const remoteStamp = Date.parse(res.data?.updatedAt || res.updatedAt || 0) || 0;
+      const localStamp = Date.parse(local?.updatedAt || 0) || 0;
+      if (local && localStamp > remoteStamp) {
+        lgApply(local);
+        lg.hasUnpublishedChanges = true;
+        lgSetStatus('Online · newer local draft loaded · press Push current data online to publish');
+      } else {
+        lgApply(res.data);
+        lg.hasUnpublishedChanges = false;
+        try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(res.data)); } catch (e) {}
+        lgSetStatus('Online · updated ' + new Date(res.updatedAt).toLocaleString('en-GB'));
+      }
+    } else {
+      if (local) { lgApply(local); lg.hasUnpublishedChanges = true; }
+      lgSetStatus('Online · no published league data yet (sign in, then press Push current data online)');
     }
   } catch (e) {
     console.warn(e);
@@ -2185,7 +2248,7 @@ function lgRenderTable() {
     return `<tr class="${own ? 'bg-red-600/15' : 'odd:bg-slate-900 even:bg-slate-900/60'} border-b border-slate-800">
       <td class="px-2 py-1.5 text-center font-bold ${own ? 'text-red-400' : 'text-slate-300'}">${r.pos}</td>
       <td class="px-1 py-1.5">${lgBadge(r.team, 24)}</td>
-      <td class="px-2 py-1.5 font-semibold whitespace-nowrap ${own ? 'text-white' : 'text-slate-100'}">${lgEsc(r.team)}</td>
+      <td class="px-2 py-1.5"><button type="button" data-team="${lgEsc(r.team)}" onclick="lgOpenTeamPanel(this.dataset.team)" title="View ${lgEsc(r.team)} results and fixtures" class="font-semibold whitespace-nowrap text-left ${own ? 'text-white' : 'text-slate-100'} hover:text-red-400 focus:outline-none focus:underline">${lgEsc(r.team)}</button></td>
       <td class="px-2 text-center">${r.mp}</td><td class="px-2 text-center">${r.w}</td><td class="px-2 text-center">${r.d}</td><td class="px-2 text-center">${r.l}</td>
       <td class="px-2 text-center">${r.gf}</td><td class="px-2 text-center">${r.ga}</td>
       <td class="px-2 text-center ${r.gd > 0 ? 'text-emerald-400' : r.gd < 0 ? 'text-red-400' : ''}">${r.gd > 0 ? '+' : ''}${r.gd}</td>
@@ -2222,6 +2285,94 @@ async function lgDownloadTable() {
     const a = document.createElement('a'); a.download = `Kildrum-League-Table-${Date.now()}.png`; a.href = url; a.click();
   } catch (e) { console.error(e); alert('Could not create the image.'); }
   btn.innerHTML = orig;
+}
+
+// ---------- TEAM RESULTS + UPCOMING FIXTURES PANEL ----------
+// Opened from a team name in the public league table. This is read-only and
+// uses the same completed results and separate upcoming-fixture records as
+// the Team Focus diagnostics panel.
+function lgOpenTeamPanel(team) {
+  const selected = String(team || '');
+  if (!selected || !lgAllTeams().includes(selected)) return;
+  const panel = document.getElementById('lgTeamPanel');
+  const content = document.getElementById('lgTeamPanelContent');
+  if (!panel || !content) return;
+
+  const standings = lgTable(lg.matches, lgAllTeams()).find(r => r.team === selected);
+  // Results: newest match first. Fixtures: furthest date in the future first,
+  // as requested, so both lists are consistently date-sorted in descending order.
+  const results = lg.matches
+    .filter(m => m.home === selected || m.away === selected)
+    .sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id));
+  const fixtures = (lg.fixtures || [])
+    .filter(f => f.home === selected || f.away === selected)
+    .sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id));
+
+  const stats = standings ? `<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 text-center">
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="text-[10px] uppercase text-slate-400">Position</div><div class="font-sports font-extrabold text-lg text-white">${standings.pos}</div></div>
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="text-[10px] uppercase text-slate-400">Points</div><div class="font-sports font-extrabold text-lg text-white">${standings.pts}</div></div>
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="text-[10px] uppercase text-slate-400">W-D-L</div><div class="font-sports font-extrabold text-lg text-white">${standings.w}-${standings.d}-${standings.l}</div></div>
+      <div class="bg-slate-950 border border-slate-800 rounded p-2"><div class="text-[10px] uppercase text-slate-400">Goals</div><div class="font-sports font-extrabold text-lg text-white">${standings.gf}:${standings.ga}</div></div>
+    </div><p class="text-xs text-slate-400 mb-4">Played ${standings.mp} · goal difference ${standings.gd > 0 ? '+' : ''}${standings.gd} · form: ${lgEsc(standings.formLevel)}</p>` : '';
+
+  const resultRows = results.length ? results.map(m => {
+    const home = m.home === selected;
+    const gf = home ? m.hg : m.ag;
+    const ga = home ? m.ag : m.hg;
+    const outcome = lgResult(gf, ga);
+    return `<tr class="border-b border-slate-800">
+      <td class="px-2 py-2 text-slate-400 whitespace-nowrap">${lgFmtDate(m.date)}</td>
+      <td class="px-2 py-2 text-slate-300">${home ? 'Home' : 'Away'}</td>
+      <td class="px-2 py-2 text-slate-100">${lgEsc(home ? m.away : m.home)}</td>
+      <td class="px-2 py-2 text-center font-bold text-white whitespace-nowrap">${gf} - ${ga}</td>
+      <td class="px-2 py-2 text-right">${lgDot({ res: outcome, gf, ga, opp: home ? m.away : m.home })}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="5" class="px-2 py-3 text-sm text-slate-400">No completed results recorded yet.</td></tr>';
+
+  const fixtureRows = fixtures.length ? fixtures.map(f => {
+    const home = f.home === selected;
+    return `<tr class="border-b border-slate-800">
+      <td class="px-2 py-2 text-slate-400 whitespace-nowrap">${lgFmtDate(f.date)}</td>
+      <td class="px-2 py-2 text-slate-300">${home ? 'Home' : 'Away'}</td>
+      <td class="px-2 py-2 text-slate-100">${lgEsc(home ? f.away : f.home)}</td>
+      <td class="px-2 py-2 text-right text-amber-300 font-semibold">Upcoming</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="4" class="px-2 py-3 text-sm text-slate-400">No upcoming fixtures recorded.</td></tr>';
+
+  content.innerHTML = `<div class="flex items-start justify-between gap-3 mb-4">
+      <div class="flex items-center gap-3 min-w-0">${lgBadge(selected, 42)}<div class="min-w-0"><h2 id="lgTeamPanelTitle" class="font-sports font-extrabold text-xl text-white break-words">${lgEsc(selected)}</h2><p class="text-xs text-slate-400">Team position, previous results and upcoming fixtures</p></div></div>
+      <button type="button" onclick="lgCloseTeamPanel()" class="shrink-0 px-3 py-2 rounded-md border border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-800 text-sm font-semibold" aria-label="Close team results panel"><i class="fa-solid fa-xmark"></i> Close</button>
+    </div>
+    ${stats}
+    <section class="bg-slate-950 border border-slate-800 rounded-lg p-3 mb-3">
+      <div class="flex items-center justify-between gap-2 mb-2"><h3 class="font-sports font-bold text-xs text-amber-300 uppercase tracking-wider">Upcoming fixtures</h3><span class="text-[10px] text-slate-500">${fixtures.length} scheduled · furthest date first</span></div>
+      ${fixtures.length ? `<div class="overflow-x-auto"><table class="w-full text-sm min-w-[350px]"><thead class="text-[10px] uppercase text-slate-400"><tr><th class="px-2 text-left">Date</th><th class="px-2 text-left">H/A</th><th class="px-2 text-left">Opponent</th><th class="px-2 text-right">Status</th></tr></thead><tbody>${fixtureRows}</tbody></table></div>` : '<p class="text-sm text-slate-400 py-2">There are no upcoming fixtures scheduled for this team.</p>'}
+    </section>
+    <section class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+      <div class="flex items-center justify-between gap-2 mb-2"><h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Previous results</h3><span class="text-[10px] text-slate-500">${results.length} played · most recent first</span></div>
+      <div class="overflow-x-auto"><table class="w-full text-sm min-w-[390px]"><thead class="text-[10px] uppercase text-slate-400"><tr><th class="px-2 text-left">Date</th><th class="px-2 text-left">H/A</th><th class="px-2 text-left">Opponent</th><th class="px-2 text-center">Score</th><th class="px-2 text-right">Result</th></tr></thead><tbody>${resultRows}</tbody></table></div>
+    </section>`;
+
+  window.__lgTeamPanelReturnFocus = document.activeElement;
+  panel.classList.remove('hidden');
+  panel.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+  const close = content.querySelector('button[aria-label="Close team results panel"]');
+  if (close) close.focus();
+  if (!window.__lgTeamPanelEscapeBound) {
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') lgCloseTeamPanel();
+    });
+    window.__lgTeamPanelEscapeBound = true;
+  }
+}
+function lgCloseTeamPanel() {
+  const panel = document.getElementById('lgTeamPanel');
+  if (panel) { panel.classList.add('hidden'); panel.classList.remove('flex'); }
+  document.body.style.overflow = '';
+  const previous = window.__lgTeamPanelReturnFocus;
+  if (previous && typeof previous.focus === 'function') previous.focus();
+  window.__lgTeamPanelReturnFocus = null;
 }
 
 // ---------- PROGRESSION CHART ----------
@@ -2471,10 +2622,11 @@ function lgRenderManage() {
         <button onclick="lgSignIn()" class="px-3 py-1.5 text-xs font-bold bg-red-600 hover:bg-red-500 text-white rounded-md">Sign in</button></div>
       <p id="lgAuthMsg" class="text-xs text-red-400"></p></div>` :
     lg.mode === 'online' ? `<div class="flex items-center justify-between bg-emerald-900/20 border border-emerald-700/40 rounded-lg p-2 text-sm text-emerald-200"><span><i class="fa-solid fa-circle-check"></i> Signed in as admin on this device</span>
-        <span class="flex gap-2"><button onclick="lgPublish()" class="px-3 py-1 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded-md">Publish current data online</button><button onclick="lgSignOut()" class="px-3 py-1 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Sign out</button></span></div>` :
+        <span class="flex gap-2"><button onclick="lgPublish()" class="px-3 py-1 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white rounded-md">Push current data online</button><button onclick="lgSignOut()" class="px-3 py-1 text-xs font-bold bg-slate-800 text-slate-300 rounded-md border border-slate-700">Sign out</button></span></div>` :
     `<div class="bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-400"><i class="fa-solid fa-circle-info"></i> Offline: the server couldn't be reached, so changes are saved only in this browser for now.</div>`;
   document.getElementById('lgPanel-manage').innerHTML = `
     <div class="space-y-4">${login}
+      <p class="text-[11px] text-slate-400">Changes made below are local drafts until you press <b>Push current data online</b>. That single action publishes fixtures, completed scores and scorer records, and updates the online league table. Saving in Line-up Generator, Match Recorder or Result &amp; Match Report does not publish league data.</p>
       <div class="grid lg:grid-cols-3 gap-4 ${canEdit ? '' : 'opacity-50 pointer-events-none'}">
         <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-2">
           <h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">${e ? 'Edit result #' + e.id : f ? 'Edit fixture #' + f.id : 'Add fixture or result'}</h3>
@@ -2567,10 +2719,11 @@ async function lgPromoteFixture(id) {
 async function lgDeleteFixture(id) {
   if (!confirm('Delete this upcoming fixture?')) return;
   lg.fixtures = (lg.fixtures || []).filter(x => x.id !== id);
+  if (Number(leagueFixtureId) === Number(id)) { leagueFixtureId = null; matchdayResultStaged = false; }
   if (lg.editFixtureId === id) lg.editFixtureId = null;
   await lgSave(); lgRenderManage();
 }
-async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); if (leagueMatchId === id) leagueMatchId = null; await lgSave(); lgRenderManage(); lgMatchPickerRefresh(); }
+async function lgDeleteMatch(id) { if (!confirm('Delete this result?')) return; lg.matches = lg.matches.filter(m => m.id !== id); if (Number(leagueMatchId) === Number(id)) { leagueMatchId = null; matchdayResultStaged = false; } await lgSave(); lgRenderManage(); lgMatchPickerRefresh(); }
 async function lgAddTeam() { const el = document.getElementById('lgNewTeam'), n = el.value.trim(); if (!n) return; if (!lg.teams.includes(n)) lg.teams.push(n); await lgSave(); lgRenderManage(); }
 function lgRemoveSelected() {
   const sel = document.getElementById('lgRemoveSel');
@@ -2600,7 +2753,107 @@ async function lgRemoveConfirm() {
   lgRenderManage();
   if (typeof lgRenderAll === 'function') lgRenderAll();
 }
-async function lgPublish() { if (await lgSave()) alert('Published. Anyone with the link now sees these results.'); }
+async function lgPublish() {
+  if (lg.mode !== 'online' || !lg.admin || !window.cloud?.password()) {
+    alert('Please sign in as the league admin before pushing current data online.');
+    return;
+  }
+  let payload = lgPayload();
+  let stagedSnapshot = null;
+  let stagedTargetId = null;
+  let stagedSummary = '';
+  try {
+    // Stable numeric IDs must be unique across both fixtures and results. This
+    // prevents a fixture from overwriting an unrelated historical result.
+    const seenLeagueIds = new Set();
+    for (const record of [...(payload.matches || []), ...(payload.fixtures || [])]) {
+      const recordId = Number(record.id);
+      if (!Number.isSafeInteger(recordId) || recordId <= 0) throw new Error('A fixture or result has an invalid match ID. Correct it in Manage Results before publishing.');
+      if (seenLeagueIds.has(recordId)) throw new Error(`Match ID ${recordId} is used more than once across fixtures/results. Correct the duplicate in Manage Results before publishing.`);
+      seenLeagueIds.add(recordId);
+    }
+    try { stagedSnapshot = window.matchReportStore?.snapshot?.() || JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); }
+    catch (e) { stagedSnapshot = null; }
+    if (stagedSnapshot?.resultStaged) {
+      const check = validateMatchdayLink(stagedSnapshot);
+      if (!check.ok || !check.target) throw new Error(check.message || 'The staged result is not linked to a valid fixture or result.');
+      const target = check.target;
+      stagedTargetId = Number(target.id);
+      const stats = stagedSnapshot.matchStatistics || {};
+      const homeScore = Number(stats.homeScore);
+      const awayScore = Number(stats.awayScore);
+      const kildrumScore = Number(stats.kildrumScore);
+      if (![homeScore, awayScore, kildrumScore].every(Number.isInteger) || homeScore < 0 || awayScore < 0 || kildrumScore < 0) {
+        throw new Error('The staged match score is incomplete or invalid. Return to Result & Match Report and check the score.');
+      }
+      const targetHasKildrumAway = normName(target.away) === normName(LG_OWN_TEAM);
+      if (typeof stats.playingAway === 'boolean' && stats.playingAway !== targetHasKildrumAway) {
+        throw new Error('The Match Report home/away setting does not match the linked fixture. Re-select the correct fixture and push the Match Recorder details again.');
+      }
+      const scorers = normaliseGoalEvents(stagedSnapshot.goalEvents).filter(g => g.scorer);
+      if (scorers.length !== kildrumScore) {
+        throw new Error(`Kildrum scored ${kildrumScore}, but ${scorers.length} named scorer entries are present. Please correct Goals & Assists before publishing. The league has not been changed.`);
+      }
+      const expectedHome = String(stagedSnapshot.leagueTargetHome || '');
+      const expectedAway = String(stagedSnapshot.leagueTargetAway || '');
+      if (normName(expectedHome) !== normName(target.home) || normName(expectedAway) !== normName(target.away) || stagedSnapshot.leagueTargetDate !== target.date) {
+        throw new Error('The staged report date or teams no longer match its linked league record. Select the correct fixture again.');
+      }
+      const resultRecord = { id: target.id, date: target.date, home: target.home, away: target.away, hg: homeScore, ag: awayScore, scorers };
+      const existingIndex = payload.matches.findIndex(m => Number(m.id) === Number(target.id));
+      const fixtureIndex = (payload.fixtures || []).findIndex(f => Number(f.id) === Number(target.id));
+      if (check.type === 'fixture' && existingIndex >= 0) throw new Error('The selected fixture ID is already assigned to a different completed result. The league was not changed.');
+      if (check.type === 'result' && existingIndex < 0) throw new Error('The selected completed result is missing from the current Manage Results draft. Reload the league and select it again.');
+      if (check.type === 'result' && fixtureIndex >= 0) throw new Error('The selected result ID is also being used by an upcoming fixture. Resolve the duplicate ID before publishing.');
+      if (existingIndex >= 0) payload.matches[existingIndex] = resultRecord;
+      else payload.matches.push(resultRecord);
+      payload.fixtures = (payload.fixtures || []).filter(f => Number(f.id) !== Number(target.id));
+      stagedSummary = `\n\nStaged match: ${target.home} ${homeScore}-${awayScore} ${target.away} (${lgFmtDateLong(target.date)}). ${scorers.length} Kildrum scorer entries will be published.`;
+    }
+    payload.teams = [...new Set([...(payload.teams || []), ...payload.matches.flatMap(m => [m.home, m.away]), ...(payload.fixtures || []).flatMap(f => [f.home, f.away])])].sort((a,b) => a.localeCompare(b));
+    payload.updatedAt = new Date().toISOString();
+    const summary = `Push ${payload.matches.length} completed results and ${payload.fixtures.length} upcoming fixtures to the online league?${stagedSummary}\n\nThis is the only action that changes the published league table and scorer records.`;
+    if (!confirm(summary)) return;
+    await window.cloud.put('league', payload);
+    lgApply(payload);
+    lg.hasUnpublishedChanges = false;
+    try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(payload)); } catch (e) {}
+    let reportStageClearWarning = false;
+    if (stagedSnapshot?.resultStaged) {
+      // The fixture is now a completed result with the same stable ID. Re-link
+      // the report to that result so it never points at a fixture that no longer exists.
+      leagueMatchId = stagedTargetId;
+      leagueFixtureId = null;
+      matchdayResultStaged = false;
+      const cleared = {
+        ...stagedSnapshot,
+        leagueMatchId: stagedTargetId,
+        leagueFixtureId: null,
+        leagueTargetDate: stagedSnapshot.leagueTargetDate || '',
+        leagueTargetHome: stagedSnapshot.leagueTargetHome || stagedSnapshot.homeTeam || '',
+        leagueTargetAway: stagedSnapshot.leagueTargetAway || stagedSnapshot.awayTeam || '',
+        resultStaged: false,
+        resultPublishedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      persistMatchdayLocal(cleared);
+      try { await window.cloud.put('matchday', cleared); }
+      catch (clearErr) {
+        reportStageClearWarning = true;
+        console.warn('League result published, but report stage marker could not be cleared online:', clearErr);
+      }
+    }
+    lgSetStatus(`Online · pushed ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`);
+    lgRenderAll(); lgMatchPickerRefresh();
+    alert(reportStageClearWarning
+      ? 'The league result, table and scorers have been updated successfully. However, the report cloud copy could not be updated with the published status. This device is safe; on another device, refresh the report before attempting another publish.'
+      : 'Current data has been pushed online. The league table and scorer records are now updated. The Match Report is now linked to the completed result.');
+  } catch (e) {
+    console.error('League publish failed:', e);
+    lgSetStatus('Push failed · local draft retained');
+    alert('Nothing was published to the league. Your local draft has been kept. ' + e.message);
+  }
+}
 function lgExportJson() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(lgPayload(), null, 2)], { type: 'application/json' })); a.download = 'kildrum-league-backup.json'; a.click(); }
 async function lgImportXlsx(input) {
   const f = input.files[0], msg = document.getElementById('lgImportMsg'); if (!f) return;
@@ -2652,7 +2905,8 @@ async function lgSignIn() {
 async function lgSignOut() { window.cloud.setPassword(''); lg.admin = false; lgRenderManage(); }
 
 // ---------- League match <-> match report link, and scorers ----------
-let leagueMatchId = null;          // league match the match report is linked to
+let leagueMatchId = null;          // completed league result linked to the report
+let leagueFixtureId = null;        // upcoming fixture linked to the report
 const goalDrafts = {};             // unsaved goal lists per match (this visit only)
 const LG_SCORER_UNDO_KEY = 'kildrum-league-scorer-undo-v1';
 function saveScorerUndo(matchId) {
@@ -2673,32 +2927,93 @@ function kInfo(m) { const home = m.home === LG_OWN_TEAM; return { away: !home, o
 function lgScorersRecorded(m) { if (m.home !== LG_OWN_TEAM && m.away !== LG_OWN_TEAM) return false; return Array.isArray(m.scorers) && (m.scorers.length > 0 || kInfo(m).k === 0); }
 function flagMatchdayDirty() { try { matchdayDirty = true; const b = document.getElementById('cloudSaveBtn'); if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml(); } catch (e) {} }
 
+function getLinkedLeagueTarget() {
+  if (leagueFixtureId != null) return (lg.fixtures || []).find(x => Number(x.id) === Number(leagueFixtureId)) || null;
+  if (leagueMatchId != null) return lg.matches.find(x => Number(x.id) === Number(leagueMatchId)) || null;
+  return null;
+}
+function validateMatchdayLink(snapshot) {
+  const fixtureId = snapshot?.leagueFixtureId == null ? null : Number(snapshot.leagueFixtureId);
+  const matchId = snapshot?.leagueMatchId == null ? null : Number(snapshot.leagueMatchId);
+  if (fixtureId == null && matchId == null) {
+    return snapshot?.resultStaged ? { ok: false, message: 'This result has not been linked to a specific league fixture. Select the exact fixture before saving or publishing it.' } : { ok: true, unlinked: true };
+  }
+  if (fixtureId != null && matchId != null) return { ok: false, message: 'The report has two league links. Select one match again before saving.' };
+  const target = fixtureId != null
+    ? (lg.fixtures || []).find(x => Number(x.id) === fixtureId)
+    : lg.matches.find(x => Number(x.id) === matchId);
+  if (!target) return { ok: false, message: 'The linked league match no longer exists. Select the correct fixture or result again.' };
+  if (snapshot.leagueTargetDate && snapshot.leagueTargetDate !== target.date) return { ok: false, message: 'The linked match date does not match the league fixture date. The report has not been uploaded.' };
+  if (snapshot.leagueTargetHome && normName(snapshot.leagueTargetHome) !== normName(target.home)) return { ok: false, message: 'The linked home team does not match the selected league match.' };
+  if (snapshot.leagueTargetAway && normName(snapshot.leagueTargetAway) !== normName(target.away)) return { ok: false, message: 'The linked away team does not match the selected league match.' };
+  // Validate the actual report teams too, not just the stored link. This stops a
+  // report with a changed home/away selection being saved against another fixture.
+  if (snapshot.homeTeam && normName(snapshot.homeTeam) !== normName(target.home)) return { ok: false, message: 'The report home team does not match the linked league match. Re-select the correct fixture before saving.' };
+  if (snapshot.awayTeam && normName(snapshot.awayTeam) !== normName(target.away)) return { ok: false, message: 'The report away team does not match the linked league match. Re-select the correct fixture before saving.' };
+  if (snapshot.matchDate && snapshot.matchDate !== longDate(target.date)) return { ok: false, message: 'The date displayed on the Match Report does not match the linked league fixture. Re-select the correct fixture before saving.' };
+  return { ok: true, target, type: fixtureId != null ? 'fixture' : 'result' };
+}
+window.validateMatchdayLink = validateMatchdayLink;
+window.getLinkedLeagueTarget = getLinkedLeagueTarget;
+window.getUpcomingLeagueFixtures = () => (lg.fixtures || []).map(f => ({ ...f }));
+function kildrumMatches() { return lg.matches.filter(m => m.home === LG_OWN_TEAM || m.away === LG_OWN_TEAM).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); }
+function kildrumFixtures() { return (lg.fixtures || []).filter(f => f.home === LG_OWN_TEAM || f.away === LG_OWN_TEAM).sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id); }
+function kInfo(m) { const home = m.home === LG_OWN_TEAM; return { away: !home, opp: home ? m.away : m.home, k: home ? m.hg : m.ag, o: home ? m.ag : m.hg }; }
+function lgScorersRecorded(m) { if (m.home !== LG_OWN_TEAM && m.away !== LG_OWN_TEAM) return false; return Array.isArray(m.scorers) && (m.scorers.length > 0 || kInfo(m).k === 0); }
+function flagMatchdayDirty() { try { matchdayDirty = true; const b = document.getElementById('cloudSaveBtn'); if (b && !/Saving|Saved|Failed/.test(b.textContent)) b.innerHTML = cloudIdleHtml(); } catch (e) {} }
+
+// Resolve by the complete key (date + home team + away team), never by "latest match".
+function resolveLeagueMatchTarget(date, home, away) {
+  const d = String(date || ''), h = normName(home), a = normName(away);
+  return [
+    ...(lg.fixtures || []).filter(x => x.date === d && normName(x.home) === h && normName(x.away) === a).map(x => ({ ...x, type: 'fixture' })),
+    ...lg.matches.filter(x => x.date === d && normName(x.home) === h && normName(x.away) === a).map(x => ({ ...x, type: 'result' }))
+  ];
+}
+window.resolveLeagueMatchTarget = resolveLeagueMatchTarget;
+
 function lgMatchPickerRefresh() {
   const sel = document.getElementById('leagueMatchSelect'); if (!sel || !lg.loaded) return;
-  sel.innerHTML = '<option value="">Choose a league match...</option>' + kildrumMatches().map(m =>
-    `<option value="${m.id}" ${m.id === leagueMatchId ? 'selected' : ''}>${lgFmtDate(m.date)} · ${lgEsc(m.home)} ${m.hg}-${m.ag} ${lgEsc(m.away)}${lgScorersRecorded(m) ? '  (scorers saved)' : ''}</option>`).join('');
+  const results = kildrumMatches().map(m =>
+    `<option value="result:${m.id}" ${m.id === leagueMatchId && leagueFixtureId == null ? 'selected' : ''}>${lgFmtDate(m.date)} · ${lgEsc(m.home)} ${m.hg}-${m.ag} ${lgEsc(m.away)}${lgScorersRecorded(m) ? '  (scorers saved)' : ''}</option>`).join('');
+  const fixtures = kildrumFixtures().map(f =>
+    `<option value="fixture:${f.id}" ${f.id === leagueFixtureId ? 'selected' : ''}>UPCOMING · ${lgFmtDate(f.date)} · ${lgEsc(f.home)} v ${lgEsc(f.away)}</option>`).join('');
+  sel.innerHTML = '<option value="">Choose a league match or upcoming fixture...</option>' +
+    (results ? `<optgroup label="Completed results">${results}</optgroup>` : '') +
+    (fixtures ? `<optgroup label="Upcoming fixtures · not in table">${fixtures}</optgroup>` : '');
   lgMatchNote();
 }
 function lgMatchNote() {
   const el = document.getElementById('leagueMatchNote'); if (!el || !lg.loaded) return;
-  const m = leagueMatchId == null ? null : lg.matches.find(x => x.id === leagueMatchId);
-  if (!m) { el.className = 'text-[11px] mt-1 text-slate-400'; el.textContent = kildrumMatches().length ? '' : 'No Kildrum Utd results in the league yet. Add one under League > Manage Results.'; return; }
+  if (leagueFixtureId != null) {
+    const f = (lg.fixtures || []).find(x => Number(x.id) === Number(leagueFixtureId));
+    if (!f) { el.className = 'text-[11px] mt-1 text-amber-300'; el.textContent = 'The selected upcoming fixture is no longer available. Choose another fixture.'; return; }
+    el.className = 'text-[11px] mt-1 text-amber-300';
+    el.textContent = `Linked to upcoming fixture: ${f.home} v ${f.away} on ${lgFmtDateLong(f.date)}. This stays a fixture until Push current data online is pressed in Manage Results.`;
+    return;
+  }
+  const m = leagueMatchId == null ? null : lg.matches.find(x => Number(x.id) === Number(leagueMatchId));
+  if (!m) { el.className = 'text-[11px] mt-1 text-slate-400'; el.textContent = 'No match linked. Select the exact completed result or upcoming fixture before saving a league match report.'; return; }
   const i = kInfo(m);
   const k = parseInt(document.getElementById('homeScoreInput').value, 10), o = parseInt(document.getElementById('awayScoreInput').value, 10);
   if (k !== i.k || o !== i.o) {
     el.className = 'text-[11px] mt-1 text-amber-300';
-    el.textContent = `The league result is ${i.k}-${i.o}, but this report shows ${isNaN(k) ? '?' : k}-${isNaN(o) ? '?' : o}.`;
+    el.textContent = `The published result is ${m.home} ${m.hg}-${m.ag} ${m.away}, but this report shows Kildrum ${isNaN(k) ? '?' : k}-${isNaN(o) ? '?' : o}. It will not change the league until Manage Results is published.`;
   } else {
     el.className = 'text-[11px] mt-1 text-emerald-400';
-    el.textContent = `Matches the league result: ${m.home} ${m.hg}-${m.ag} ${m.away}. ` + (lgScorersRecorded(m) ? `Scorers saved: ${m.scorers.length}. ` : 'Scorers not saved yet. ') + (window.lastScorerMsg || '');
+    el.textContent = `Linked to completed result: ${m.home} ${m.hg}-${m.ag} ${m.away}. Report saves do not change the league.`;
   }
 }
 
-// Fill the match report from a league result (score, opposition, home/away, date, badge, goal rows)
+// Select an already-completed result for a graphic/report draft.
 function applyLeagueMatch(idVal, opts = {}) {
-  const id = (idVal === '' || idVal == null) ? null : +idVal;
+  const raw = String(idVal == null ? '' : idVal);
+  if (raw.startsWith('fixture:')) return applyLeagueFixture(Number(raw.slice(8)), opts);
+  const id = raw.startsWith('result:') ? Number(raw.slice(7)) : (raw === '' ? null : +raw);
   if (leagueMatchId != null && leagueMatchId !== id) goalDrafts[leagueMatchId] = JSON.parse(JSON.stringify(goalEvents));
   leagueMatchId = id;
+  leagueFixtureId = null;
+  matchdayResultStaged = false;
   window.lastScorerMsg = '';
   const m = id == null ? null : lg.matches.find(x => x.id === id);
   if (!m) { lgMatchPickerRefresh(); return; }
@@ -2713,28 +3028,43 @@ function applyLeagueMatch(idVal, opts = {}) {
   const idx = opponentBadges.findIndex(c => normName(c.name) === normName(i.opp));
   if (idx >= 0) { awayBadgeSrc = opponentBadges[idx].src; set('oppSelect', idx); } else { awayBadgeSrc = DEFAULT_AWAY_BADGE; set('oppSelect', ''); }
   renderGoalEventsInputs();
-  setSide(i.away ? 'away' : 'home');   // also redraws both graphics
+  setSide(i.away ? 'away' : 'home');
   lgMatchPickerRefresh();
   if (!opts.quiet) flagMatchdayDirty();
 }
 
-// On first load: link the report to the latest Kildrum result unless it is already linked
+// Select an upcoming fixture. It remains a fixture and does not affect the table.
+function applyLeagueFixture(idVal, opts = {}) {
+  const id = Number(idVal);
+  const f = (lg.fixtures || []).find(x => Number(x.id) === id);
+  if (!f) { alert('That upcoming fixture could not be found.'); return false; }
+  leagueMatchId = null; leagueFixtureId = f.id; matchdayResultStaged = false;
+  const playingAwayForFixture = f.away === LG_OWN_TEAM;
+  const opponent = playingAwayForFixture ? f.home : f.away;
+  const set = (eid, v) => { const e = document.getElementById(eid); if (e) e.value = v; };
+  set('oppName', opponent); set('homeScoreInput', 0); set('awayScoreInput', 0); set('matchDate', longDate(f.date));
+  set('oppSelect', '');
+  const idx = opponentBadges.findIndex(c => normName(c.name) === normName(opponent));
+  if (idx >= 0) { awayBadgeSrc = opponentBadges[idx].src; set('oppSelect', idx); } else awayBadgeSrc = DEFAULT_AWAY_BADGE;
+  goalEvents = [];
+  setSide(playingAwayForFixture ? 'away' : 'home');
+  renderGoalEventsInputs(); updateResultGraphic(); lgMatchPickerRefresh();
+  if (!opts.quiet) flagMatchdayDirty();
+  return true;
+}
+window.applyLeagueFixture = applyLeagueFixture;
+
+// Restore only explicit saved links. Never auto-link a new report to the latest old result.
 function lgMatchInit() {
   if (matchLinkDone || !window.matchdayLoaded || !lg.loaded) return;
   matchLinkDone = true;
-  if (leagueMatchId != null && !lg.matches.some(x => x.id === leagueMatchId)) leagueMatchId = null;
-  const list = kildrumMatches();
-  if (leagueMatchId == null && list.length) {
-    const m = list[0], i = kInfo(m);
-    const sameOpp = normName(document.getElementById('oppName').value) === normName(i.opp);
-    const sameScore = parseInt(document.getElementById('homeScoreInput').value, 10) === i.k && parseInt(document.getElementById('awayScoreInput').value, 10) === i.o;
-    if (sameOpp && sameScore) { leagueMatchId = m.id; }                 // report is already for this match: just link it
-    else applyLeagueMatch(m.id);                                         // otherwise pre-populate from the league
-  }
+  if (leagueMatchId != null && !lg.matches.some(x => Number(x.id) === Number(leagueMatchId))) leagueMatchId = null;
+  if (leagueFixtureId != null && !(lg.fixtures || []).some(x => Number(x.id) === Number(leagueFixtureId))) leagueFixtureId = null;
+  if (leagueMatchId != null && leagueFixtureId != null) leagueFixtureId = null;
   lgMatchPickerRefresh();
 }
 
-// A result was added or edited in Manage Results
+// Manage Results additions update the on-device draft and report link only.
 function lgAfterResultChange(rec, isNew) {
   const ours = rec.home === LG_OWN_TEAM || rec.away === LG_OWN_TEAM;
   if (ours && isNew) applyLeagueMatch(rec.id);
@@ -2742,24 +3072,7 @@ function lgAfterResultChange(rec, isNew) {
   else lgMatchPickerRefresh();
 }
 
-// Called by "Save to Cloud": the scorers go onto the linked league match
-async function saveScorersToLeague(snapshotGoals) {
-  if (leagueMatchId == null || !lg.loaded) return { skipped: true };
-  const m = lg.matches.find(x => x.id === leagueMatchId); if (!m) return { skipped: true };
-  if (lg.mode !== 'online') { window.lastScorerMsg = 'Scorers were not saved to the league because it is offline.'; lgMatchNote(); return { ok: false }; }
-  const sourceGoals = Array.isArray(snapshotGoals) ? snapshotGoals : goalEvents;
-  const events = normaliseGoalEvents(sourceGoals).filter(g => g.scorer);
-  saveScorerUndo(m.id);
-  if (!events.length && kInfo(m).k > 0) { window.lastScorerMsg = ''; lgMatchNote(); return { skipped: true }; }
-  m.scorers = events;
-  lg.admin = true;
-  const ok = await lgSave();
-  if (ok) { delete goalDrafts[m.id]; window.lastScorerMsg = `Saved ${events.length} scorer${events.length === 1 ? '' : 's'} to the league.`; lgRenderAll(); lgMatchPickerRefresh(); }
-  else window.lastScorerMsg = 'The scorers could not be saved to the league.';
-  lgMatchNote();
-  return { ok };
-}
-
+// Manual report save validates the exact ID/date/home/away tuple before cloud storage.
 // Manual recovery/editing: one goal per line, formatted as SCORER | ASSIST | MINUTE.
 async function lgEditScorers(matchId) {
   const m = lg.matches.find(x => x.id === matchId);
@@ -2789,7 +3102,7 @@ async function lgEditScorers(matchId) {
     goalEvents = normaliseGoalEvents(events);
     renderGoalEventsInputs(); updateResultGraphic(); touchMatchdayState();
   }
-  window.lastScorerMsg = `Manually updated ${events.length} scorer row${events.length === 1 ? '' : 's'}.`;
+  window.lastScorerMsg = `Manually updated ${events.length} scorer row${events.length === 1 ? '' : 's'} locally. Press Push current data online in Manage Results to publish.`;
   lgRenderAll(); lgRenderManage(); lgMatchPickerRefresh();
 }
 async function lgUndoScorerEdit() {
@@ -2986,7 +3299,10 @@ if (new URLSearchParams(location.search).get('view') === 'league') {
   const mrPersist = () => {
     mrSaveLocal();
     mrMarkDirty();
-    if (window.matchReportStore) window.matchReportStore.touch();
+    if (window.matchReportStore) {
+      window.matchReportStore.setStaged(false);
+      window.matchReportStore.touch();
+    }
     mrRender();
   };
   const mrGetElapsed = half => {
@@ -3187,34 +3503,65 @@ if (new URLSearchParams(location.search).get('view') === 'league') {
     const keepDate = mrState.matchDate || new Date().toISOString().slice(0,10);
     mrState = freshState(); mrState.matchDate = keepDate;
     mrSaveLocal(); mrMarkDirty();
-    if (window.matchReportStore) window.matchReportStore.touch();
+    if (window.matchReportStore) {
+      window.matchReportStore.clearLeagueTarget();
+      window.matchReportStore.touch();
+    }
     mrRender();
     mrNotice('New match recorder session ready.');
   }
 
-  // Deliberate coach action: copy the recorder score and Kildrum goal log into the Match Report.
+  // Deliberate coach action: stage the recorder result against the exact league fixture.
+  // This does NOT publish the result or alter the league table/scorers.
   function mrPushToMatchReport() {
     const scores = mrScores();
     const kildrumGoals = [...mrState.events]
       .filter(ev => ev.team === 'kildrum')
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-
     const opposition = String(mrEl('oppName')?.value || 'Opposition').trim() || 'Opposition';
-    const summary = `This will replace the current Match Report score (${mrEl('homeScoreInput')?.value || 0}-${mrEl('awayScoreInput')?.value || 0}) and Goals & Assists entries with the Match Recorder result: Kildrum Utd ${scores.home}-${scores.away} ${opposition}. Kildrum scorer names and goal minutes will be copied. Assists are not recorded in the Match Recorder and will need to be added manually. Continue?`;
+    const playingAwayNow = !!playingAway;
+    const fixtureHome = playingAwayNow ? opposition : 'Kildrum Utd';
+    const fixtureAway = playingAwayNow ? 'Kildrum Utd' : opposition;
+    const matchDate = String(mrState.matchDate || mrEl('mrMatchDate')?.value || '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(matchDate)) {
+      mrNotice('Choose a valid match date before pushing to the Match Report.');
+      return;
+    }
+    if (!opposition || normName(opposition) === normName('Opposition')) {
+      mrNotice('Choose the opposition team in Lineup Generator before pushing this match.');
+      return;
+    }
+    const candidates = window.resolveLeagueMatchTarget
+      ? window.resolveLeagueMatchTarget(matchDate, fixtureHome, fixtureAway) : [];
+    if (candidates.length !== 1) {
+      const msg = candidates.length === 0
+        ? `No exact Manage Results fixture/result was found for ${fixtureHome} v ${fixtureAway} on ${matchDate}. Add that fixture first in League > Manage Results. Nothing has been pushed.`
+        : `More than one league record matches ${fixtureHome} v ${fixtureAway} on ${matchDate}. Remove the duplicate or resolve it in Manage Results before pushing. Nothing has been pushed.`;
+      mrNotice(msg);
+      alert(msg);
+      return;
+    }
+    const target = candidates[0];
+    const summary = `This will stage the Match Recorder data against this exact ${target.type}:\n\n${target.home} v ${target.away}\n${matchDate}\nKildrum score: ${scores.home}-${scores.away} ${opposition}\nKildrum scorers: ${kildrumGoals.length}\n\nThe Result & Match Report will receive the score, teams, date and scorers. The online league table and scorer records will NOT change until you press Push current data online in League > Manage Results. Continue?`;
     if (!confirm(summary)) return;
 
+    // Link first, using the exact date + home + away fixture key.
+    if (target.type === 'fixture') {
+      if (!window.applyLeagueFixture(target.id, { quiet: true })) return;
+    } else {
+      applyLeagueMatch('result:' + target.id, { quiet: true });
+    }
+
+    // The Match Report score inputs are Kildrum/opposition values; setSide()
+    // converts them to the correct fixture home/away display orientation.
     const homeScore = mrEl('homeScoreInput');
     const awayScore = mrEl('awayScoreInput');
     const status = mrEl('matchStatusSelect');
-    // The report inputs are Kildrum score / opposition score. setSide()
-    // positions those scores on the correct home/away side of the graphic.
     if (homeScore) homeScore.value = scores.home;
     if (awayScore) awayScore.value = scores.away;
     if (status) status.value = 'FULL TIME';
     const reportDate = mrEl('matchDate');
-    if (reportDate && mrState.matchDate) reportDate.value = new Date(mrState.matchDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + new Date(mrState.matchDate + 'T00:00:00').getDate() + ' ' + new Date(mrState.matchDate + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short' }) + ' ' + new Date(mrState.matchDate + 'T00:00:00').getFullYear();
-    // Team names, badge and home/away orientation are sourced from the Lineup Generator.
-    // Do not swap the Kildrum/opposition score inputs: setSide() controls graphic orientation.
+    if (reportDate) reportDate.value = new Date(matchDate + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + new Date(matchDate + 'T00:00:00').getDate() + ' ' + new Date(matchDate + 'T00:00:00').toLocaleDateString('en-GB', { month: 'short' }) + ' ' + new Date(matchDate + 'T00:00:00').getFullYear();
     if (typeof updateGraphic === 'function') updateGraphic();
     if (typeof goalEvents !== 'undefined') {
       goalEvents = kildrumGoals.map(ev => ({
@@ -3225,10 +3572,13 @@ if (new URLSearchParams(location.search).get('view') === 'league') {
     }
     if (typeof renderGoalEventsInputs === 'function') renderGoalEventsInputs();
     if (typeof updateResultGraphic === 'function') updateResultGraphic();
-    if (typeof lgMatchPickerRefresh === 'function') lgMatchPickerRefresh();
-    if (window.matchReportStore) window.matchReportStore.touch();
+    if (window.matchReportStore) {
+      window.matchReportStore.setStaged(true);
+      window.matchReportStore.touch();
+    }
     mrMarkDirty();
-    mrNotice(`Pushed ${scores.home}-${scores.away} and ${kildrumGoals.length} Kildrum scorer entr${kildrumGoals.length === 1 ? 'y' : 'ies'} to the Match Report. Add assists there if required.`);
+    if (typeof lgMatchPickerRefresh === 'function') lgMatchPickerRefresh();
+    mrNotice(`Staged ${fixtureHome} ${playingAwayNow ? scores.away : scores.home}-${playingAwayNow ? scores.home : scores.away} ${fixtureAway} for ${matchDate}. The league is unchanged until Manage Results is pushed online.`);
     const resultTab = document.getElementById('tabBtnResult');
     if (resultTab) resultTab.classList.add('ring-2', 'ring-emerald-400');
     setTimeout(() => { if (resultTab) resultTab.classList.remove('ring-2', 'ring-emerald-400'); }, 1800);
@@ -3246,6 +3596,7 @@ if (new URLSearchParams(location.search).get('view') === 'league') {
   window.mrNewMatch = mrNewMatch;
   window.mrPushToMatchReport = mrPushToMatchReport;
   window.getMatchRecorderData = () => JSON.parse(JSON.stringify(mrState));
+  window.saveMatchRecorderLocal = mrSaveLocal;
   window.loadMatchRecorderData = data => {
     if (!data || typeof data !== 'object') return;
     mrState = { ...freshState(), ...data, elapsedMs: {1:0,2:0,...(data.elapsedMs || {})}, events: Array.isArray(data.events) ? data.events : [] };
