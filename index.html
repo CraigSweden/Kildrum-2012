@@ -94,6 +94,9 @@
         <button onclick="switchTab('recorder')" id="tabBtnRecorder" class="px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 text-slate-400 hover:text-white">
           <i class="fa-solid fa-stopwatch"></i> Match Recorder <i class="fa-solid fa-lock text-[10px] lock-ic"></i>
         </button>
+        <button onclick="openHelpPanel()" id="helpBtn" type="button" aria-haspopup="dialog" aria-controls="helpPanel" class="px-3 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 min-h-[40px] border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700">
+          <i class="fa-regular fa-circle-question"></i> Help
+        </button>
       </div>
 
       <div id="headerActions" class="flex items-center gap-2" style="visibility:hidden">
@@ -707,6 +710,30 @@
     </div>
   </div>
 
+  <!-- Parent Help: reads the public README from the repository default branch. -->
+  <div id="helpPanel" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/80 p-2 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="helpPanelTitle" aria-hidden="true" onclick="if(event.target===this)closeHelpPanel()">
+    <div class="w-full max-w-3xl max-h-[calc(100vh-1rem)] overflow-hidden rounded-xl border border-slate-700 bg-slate-900 flex flex-col" onclick="event.stopPropagation()">
+      <div class="shrink-0 flex items-center justify-between gap-3 p-3 sm:p-4 border-b border-slate-800 bg-slate-900">
+        <div class="min-w-0">
+          <h2 id="helpPanelTitle" class="font-sports font-bold text-sm sm:text-base text-white flex items-center gap-2"><i class="fa-regular fa-circle-question text-red-500"></i> Kildrum Information &amp; Help</h2>
+          <p class="text-[11px] text-slate-400 mt-1">Guidance for parents, players and supporters</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" onclick="refreshHelpReadme()" class="min-h-[44px] min-w-[44px] px-3 rounded-md border border-slate-700 bg-slate-800 text-slate-200 text-xs font-semibold" aria-label="Refresh help information" title="Refresh help information"><i class="fa-solid fa-rotate-right"></i><span class="hidden sm:inline ml-1">Refresh</span></button>
+          <button type="button" onclick="closeHelpPanel()" class="min-h-[44px] min-w-[44px] px-3 rounded-md border border-slate-700 bg-slate-800 text-white text-sm font-semibold" aria-label="Close help panel"><i class="fa-solid fa-xmark"></i><span class="hidden sm:inline ml-1">Close</span></button>
+        </div>
+      </div>
+      <div class="shrink-0 px-3 sm:px-4 py-2 border-b border-slate-800 flex items-center justify-between gap-2">
+        <p id="helpReadmeStatus" class="text-[11px] text-slate-400" aria-live="polite">Loading information from GitHub...</p>
+        <a id="helpReadmeGithubLink" href="https://github.com/craigsweden/Kildrum-2012/blob/HEAD/README.md" target="_blank" rel="noopener noreferrer" class="text-[11px] font-semibold text-red-400 underline whitespace-nowrap">View on GitHub</a>
+      </div>
+      <div id="helpReadmeContent" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5 text-sm text-slate-200 leading-relaxed" tabindex="0">
+        <p class="text-slate-400">Loading the latest Kildrum information...</p>
+      </div>
+      <div class="shrink-0 px-4 py-3 border-t border-slate-800 text-center text-[10px] text-slate-500">Information is loaded directly from the Kildrum GitHub README.</div>
+    </div>
+  </div>
+
   <!-- Firebase SDK Imports -->
   <script type="module">
     // ============================================================
@@ -802,6 +829,41 @@
         }
         throw new Error('Save conflict. Please try again.');
       }
+    };
+
+    // Read the parent-facing README from the repository's current default branch.
+    // No GitHub token is required because this is public information.
+    window.fetchKildrumReadme = async function() {
+      const rawUrl = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/HEAD/README.md';
+      const readmePageUrl = 'https://github.com/' + GH_OWNER + '/' + GH_REPO + '/blob/HEAD/README.md';
+      let rawResponse;
+      try {
+        rawResponse = await fetch(rawUrl + '?_=' + Date.now(), { cache: 'no-store', headers: { 'Accept': 'text/plain' } });
+        if (rawResponse.ok) {
+          const markdown = await rawResponse.text();
+          if (markdown.trim()) return { markdown, url: readmePageUrl };
+        }
+      } catch (rawError) {
+        console.warn('Raw GitHub README request failed; trying the GitHub API.', rawError);
+      }
+
+      // API fallback if the raw-file host is temporarily unavailable.
+      const apiResponse = await fetch(GH_API + '/readme', { cache: 'no-store', headers: ghHead('', 'application/vnd.github+json') });
+      if (!apiResponse.ok) {
+        const status = rawResponse ? rawResponse.status : 'network error';
+        throw new Error('GitHub could not load README.md (raw file: ' + status + ', API: ' + apiResponse.status + '). Please try Refresh again.');
+      }
+      const readmeFile = await apiResponse.json();
+      let markdown = '';
+      if (readmeFile.encoding === 'base64' && readmeFile.content) {
+        const binary = atob(readmeFile.content.replace(/\s/g, ''));
+        const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+        markdown = new TextDecoder('utf-8').decode(bytes);
+      } else if (typeof readmeFile.content === 'string') {
+        markdown = readmeFile.content;
+      }
+      if (!markdown.trim()) throw new Error('README.md is empty or could not be decoded.');
+      return { markdown, url: readmeFile.html_url || readmePageUrl };
     };
 
     window.matchdayLoaded = false;
@@ -3623,6 +3685,162 @@ if (new URLSearchParams(location.search).get('view') === 'league') {
       }
     }
   }, 250);
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  let helpRequestNumber = 0;
+  let helpPreviousFocus = null;
+  let helpPreviousOverflow = '';
+
+  function helpEscapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+
+  function helpInlineMarkdown(value) {
+    let html = helpEscapeHtml(value);
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:#f87171;text-decoration:underline;overflow-wrap:anywhere">$1</a>');
+    html = html.replace(/`([^`]+)`/g, '<code style="background:#020617;color:#e2e8f0;padding:2px 5px;border-radius:4px">$1</code>');
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:700;color:#fff">$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return html;
+  }
+
+  function helpMarkdownToHtml(markdown) {
+    const lines = String(markdown || '').replace(/\r\n?/g, '\n').split('\n');
+    const out = [];
+    let paragraph = [];
+    let listType = '';
+    const closeList = () => {
+      if (!listType) return;
+      out.push(listType === 'ol' ? '</ol>' : '</ul>');
+      listType = '';
+    };
+    const flushParagraph = () => {
+      if (!paragraph.length) return;
+      out.push('<p style="margin:0 0 13px;line-height:1.7">' + paragraph.map(helpInlineMarkdown).join(' ') + '</p>');
+      paragraph = [];
+    };
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line) { flushParagraph(); closeList(); continue; }
+      const heading = line.match(/^(#{1,4})\s+(.+)$/);
+      if (heading) {
+        flushParagraph(); closeList();
+        const level = heading[1].length;
+        const styles = {
+          1: 'font-size:1.35rem;line-height:1.25;margin:0 0 16px;color:#fff;font-weight:800',
+          2: 'font-size:1.05rem;line-height:1.35;margin:22px 0 10px;color:#f87171;font-weight:800',
+          3: 'font-size:.95rem;line-height:1.35;margin:16px 0 8px;color:#fbbf24;font-weight:700',
+          4: 'font-size:.9rem;line-height:1.35;margin:14px 0 7px;color:#e2e8f0;font-weight:700'
+        };
+        out.push('<h' + level + ' style="' + styles[level] + '">' + helpInlineMarkdown(heading[2]) + '</h' + level + '>');
+        continue;
+      }
+      if (/^(---|___|\*\*\*)$/.test(line)) {
+        flushParagraph(); closeList(); out.push('<hr style="border:0;border-top:1px solid #334155;margin:18px 0">'); continue;
+      }
+      const bullet = line.match(/^[-*+]\s+(.+)$/);
+      const numbered = line.match(/^\d+[.)]\s+(.+)$/);
+      if (bullet || numbered) {
+        flushParagraph();
+        const nextType = bullet ? 'ul' : 'ol';
+        if (listType && listType !== nextType) closeList();
+        if (!listType) {
+          listType = nextType;
+          out.push(nextType === 'ul'
+            ? '<ul style="margin:0 0 14px;padding-left:1.35rem;list-style:disc">'
+            : '<ol style="margin:0 0 14px;padding-left:1.35rem;list-style:decimal">');
+        }
+        out.push('<li style="padding-left:3px;margin:0 0 6px;line-height:1.6">' + helpInlineMarkdown((bullet || numbered)[1]) + '</li>');
+        continue;
+      }
+      if (line.startsWith('&gt; ') || line.startsWith('> ')) {
+        flushParagraph(); closeList();
+        out.push('<blockquote style="margin:0 0 13px;padding:9px 12px;border-left:3px solid #64748b;background:#020617;color:#cbd5e1">' + helpInlineMarkdown(line.replace(/^(&gt;|>)\s?/, '')) + '</blockquote>');
+        continue;
+      }
+      closeList();
+      paragraph.push(line);
+    }
+    flushParagraph(); closeList();
+    return out.join('');
+  }
+
+  window.openHelpPanel = function() {
+    const panel = document.getElementById('helpPanel');
+    if (!panel) return;
+    helpPreviousFocus = document.activeElement;
+    helpPreviousOverflow = document.body.style.overflow || '';
+    document.body.style.overflow = 'hidden';
+    panel.classList.remove('hidden');
+    panel.classList.add('flex');
+    panel.setAttribute('aria-hidden', 'false');
+    const helpButton = document.getElementById('helpBtn');
+    if (helpButton) helpButton.setAttribute('aria-expanded', 'true');
+    const closeButton = panel.querySelector('button[aria-label="Close help panel"]');
+    if (closeButton) closeButton.focus();
+    window.refreshHelpReadme();
+  };
+
+  window.closeHelpPanel = function() {
+    const panel = document.getElementById('helpPanel');
+    if (!panel) return;
+    helpRequestNumber++;
+    panel.classList.add('hidden');
+    panel.classList.remove('flex');
+    panel.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = helpPreviousOverflow;
+    const helpButton = document.getElementById('helpBtn');
+    if (helpButton) helpButton.setAttribute('aria-expanded', 'false');
+    if (helpPreviousFocus && typeof helpPreviousFocus.focus === 'function') helpPreviousFocus.focus();
+  };
+
+  window.refreshHelpReadme = async function() {
+    const content = document.getElementById('helpReadmeContent');
+    const status = document.getElementById('helpReadmeStatus');
+    const link = document.getElementById('helpReadmeGithubLink');
+    if (!content || !status) return;
+    const request = ++helpRequestNumber;
+    status.textContent = 'Loading the latest information from GitHub...';
+    status.className = 'text-[11px] text-slate-400';
+    content.innerHTML = '<p style="color:#94a3b8">Loading Kildrum information...</p>';
+    try {
+      if (typeof window.fetchKildrumReadme !== 'function') throw new Error('The GitHub connection is not ready yet. Please try Refresh again.');
+      const result = await window.fetchKildrumReadme();
+      if (request !== helpRequestNumber) return;
+      content.innerHTML = helpMarkdownToHtml(result.markdown);
+      status.textContent = 'Latest information loaded from GitHub';
+      status.className = 'text-[11px] text-emerald-400';
+      if (link && result.url) link.href = result.url;
+    } catch (error) {
+      if (request !== helpRequestNumber) return;
+      console.error('Could not load Kildrum README:', error);
+      status.textContent = 'Could not load the online help';
+      status.className = 'text-[11px] text-amber-400';
+      content.innerHTML = '<div style="border:1px solid #475569;border-radius:10px;padding:14px;background:#020617;color:#cbd5e1"><p style="font-weight:700;color:#fff;margin:0 0 8px">Help information is temporarily unavailable.</p><p style="margin:0 0 10px">Please check your internet connection and tap <strong>Refresh</strong> to try again.</p><p style="margin:0">You can also <a href="https://github.com/craigsweden/Kildrum-2012/blob/HEAD/README.md" target="_blank" rel="noopener noreferrer" style="color:#f87171;text-decoration:underline">read the information directly on GitHub</a>.</p><p style="margin:10px 0 0;color:#94a3b8;font-size:12px">' + helpEscapeHtml(error.message) + '</p></div>';
+    }
+  };
+
+  document.addEventListener('keydown', event => {
+    const panel = document.getElementById('helpPanel');
+    if (!panel || panel.classList.contains('hidden')) return;
+    if (event.key === 'Escape') {
+      event.preventDefault(); window.closeHelpPanel(); return;
+    }
+    if (event.key === 'Tab') {
+      const focusable = Array.from(panel.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
 })();
 </script>
 </body>
