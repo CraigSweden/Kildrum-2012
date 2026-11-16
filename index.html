@@ -686,18 +686,29 @@
         </div>
         <div class="flex flex-wrap bg-slate-900 p-1 rounded-lg border border-slate-800 gap-1 text-xs font-bold">
           <button data-lg="table"  onclick="lgShow('table')"  class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 576 512" aria-hidden="true"><path d="M321.8 54.1 298.2 6.3c-3.9-8.3-16.1-8.6-20.4 0l-23.6 47.8-52.3 7.5c-9.3 1.4-13.3 12.9-6.4 19.8l38 37-9 52.1c-1.4 9.3 8.2 16.5 16.8 12.2l46.9-24.8 46.6 24.4c8.6 4.3 18.3-2.9 16.8-12.2l-9-52.1 38-36.6c6.8-6.8 2.9-18.3-6.4-19.8l-52.3-7.5zM256 256c-26.5 0-48 21.5-48 48v160c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48V304c0-26.5-21.5-48-48-48zM48 320c-26.5 0-48 21.5-48 48v96c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48v-96c0-26.5-21.5-48-48-48zm368 112v32c0 26.5 21.5 48 48 48h64c26.5 0 48-21.5 48-48v-32c0-26.5-21.5-48-48-48h-64c-26.5 0-48 21.5-48 48"/></svg> Table</button>
+          <button data-lg="thisweek" onclick="lgShow('thisweek')" class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-calendar-days"></i> This Week's Match</button>
           <button data-lg="prog"   onclick="lgShow('prog')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64v336c0 44.2 35.8 80 80 80h400c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.3c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l73.4-73.4 57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z"/></svg> Progression</button>
           <button data-lg="h2h"    onclick="lgShow('h2h')"    class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M32 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0M0 224c0-35.3 28.7-64 64-64h64c3.2 0 6.4.2 9.5.7l-44.4 44.4c-28.1 28.1-28.1 73.7 0 101.8l56 56c3.4 3.4 7 6.4 10.9 9V464c0 26.5-21.5 48-48 48H80c-26.5 0-48-21.5-48-48V343.4c-19.1-11-32-31.7-32-55.4zM352 64a64 64 0 1 1 128 0 64 64 0 1 1-128 0m66.9 141.1-44.4-44.4c3.1-.5 6.3-.7 9.5-.7h64c35.3 0 64 28.7 64 64v64c0 23.7-12.9 44.4-32 55.4V464c0 26.5-21.5 48-48 48h-32c-26.5 0-48-21.5-48-48v-92.1c3.9-2.6 7.5-5.6 10.9-9l56-56c28.1-28.1 28.1-73.7 0-101.8m-116.1-27.3c9-3.7 19.3-1.7 26.2 5.2l56 56c9.4 9.4 9.4 24.6 0 33.9l-56 56c-6.9 6.9-17.2 8.9-26.2 5.2S288 321.7 288 312v-24h-64v24c0 9.7-5.8 18.5-14.8 22.2s-19.3 1.7-26.2-5.2l-56-56c-9.4-9.4-9.4-24.6 0-33.9l56-56c6.9-6.9 17.2-8.9 26.2-5.2S224 190.3 224 200v24h64v-24c0-9.7 5.8-18.5 14.8-22.2"/></svg> Head to Head</button>
           <button data-lg="diag"   onclick="lgShow('diag')"   class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 576 512" aria-hidden="true"><path d="M32 48C32 21.5 53.5 0 80 0h48c17.7 0 32 14.3 32 32s-14.3 32-32 32H96v128c0 53 43 96 96 96s96-43 96-96V64h-32c-17.7 0-32-14.3-32-32s14.3-32 32-32h48c26.5 0 48 21.5 48 48v144c0 77.4-55 142-128 156.8V368c0 61.9 50.1 112 112 112s112-50.1 112-112v-85.5c-37.3-13.2-64-48.7-64-90.5 0-53 43-96 96-96s96 43 96 96c0 41.8-26.7 77.4-64 90.5V368c0 97.2-78.8 176-176 176s-176-78.8-176-176v-19.2C87 334 32 269.4 32 192zm448 176a32 32 0 1 0 0-64 32 32 0 1 0 0 64"/></svg> Diagnostics</button>
           <button data-lg="scorers" onclick="lgShow('scorers')" class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="m417.3 360.1-71.6-4.8c-5.2-.3-10.3 1.1-14.5 4.2s-7.2 7.4-8.4 12.5l-17.6 69.6c-15.7 4.2-32.2 6.4-49.2 6.4s-33.5-2.2-49.2-6.4L189.2 372c-1.3-5-4.3-9.4-8.4-12.5s-9.3-4.5-14.5-4.2l-71.6 4.8c-17.6-27.2-28.5-59.2-30.4-93.6l60.7-38.2c4.4-2.8 7.6-7 9.2-11.9s1.4-10.2-.5-15L107 134.8c21-25.6 48.3-45.8 79.7-57.9l55.2 46c4 3.3 9 5.1 14.1 5.1s10.2-1.8 14.1-5.1l55.2-46c31.3 12.1 58.7 32.3 79.6 57.9l-26.7 66.6c-1.9 4.8-2.1 10.1-.5 15s4.9 9.1 9.2 11.9l60.7 38.2c-1.9 34.4-12.8 66.4-30.4 93.6zM256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512m14.1-325.7c-8.4-6.1-19.8-6.1-28.2 0L194 221c-8.4 6.1-11.9 16.9-8.7 26.8l18.3 56.3c3.2 9.9 12.4 16.6 22.8 16.6h59.2c10.4 0 19.6-6.7 22.8-16.6l18.3-56.3c3.2-9.9-.3-20.7-8.7-26.8l-47.9-34.8z"/></svg> Scorers</button>
+          <button data-lg="matrix" onclick="lgShow('matrix')" class="lgSubBtn px-3 py-1.5 rounded-md"><i class="fa-solid fa-table-cells-large"></i> League Matrix</button>
           <button data-lg="manage" onclick="lgShow('manage')" class="lgSubBtn px-3 py-1.5 rounded-md"><svg class="ico" viewBox="0 0 512 512" aria-hidden="true"><path d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L368 46.1l97.9 97.9 24.4-24.4c21.9-21.9 21.9-57.3 0-79.2zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L432 177.9 334.1 80zM96 64c-53 0-96 43-96 96v256c0 53 43 96 96 96h256c53 0 96-43 96-96v-96c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32z"/></svg> Manage Results</button>
         </div>
       </div>
       <div id="lgPanel-table"></div>
+      <div id="lgPanel-thisweek" class="hidden">
+        <!-- This Week's Match is a dedicated League sub-panel, not a shared page header. -->
+        <section id="thisWeekMatchCard" class="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 space-y-3">
+          <div id="thisWeekMatchContent">
+            <div class="flex items-center gap-2 text-slate-400 text-sm"><i class="fa-solid fa-calendar-days text-red-500"></i> Loading the next Kildrum fixture...</div>
+          </div>
+        </section>
+      </div>
       <div id="lgPanel-prog" class="hidden"></div>
       <div id="lgPanel-h2h" class="hidden"></div>
       <div id="lgPanel-diag" class="hidden"></div>
       <div id="lgPanel-scorers" class="hidden"></div>
+      <div id="lgPanel-matrix" class="hidden"></div>
       <div id="lgPanel-manage" class="hidden"></div>
     </div>
 
@@ -760,22 +771,34 @@
     let ghQueue = Promise.resolve();
     window.cloud = {
       password() { try { return localStorage.getItem(PW_KEY) || ''; } catch (e) { return ''; } },
-      setPassword(pw) { try { pw ? localStorage.setItem(PW_KEY, pw) : localStorage.removeItem(PW_KEY); } catch (e) {} if (window.applyLock) window.applyLock(); },
+      setPassword(pw) { try { pw ? localStorage.setItem(PW_KEY, pw) : localStorage.removeItem(PW_KEY); } catch (e) {} if (!pw) window.kildrumAdminUnlocked = false; if (window.applyLock) window.applyLock(); },
       // true only if the token can write to this repository
       async check(pw) {
         const r = await fetch(GH_API, { cache: 'no-store', headers: ghHead(pw) });
         if (r.status === 401) return false;
         if (!r.ok) throw new Error('GitHub answered ' + r.status);
         const j = await r.json();
-        return !j.permissions || !!(j.permissions.push || j.permissions.admin);
+        return !!(j.permissions && (j.permissions.push || j.permissions.admin));
       },
       // Asks for the token if this device doesn't have one yet
       async ensurePassword() {
-        if (this.password()) return true;
+        if (new URLSearchParams(location.search).get('view') === 'league') return false;
+        const saved = this.password();
+        if (saved) {
+          if (window.kildrumAdminUnlocked === true) return true;
+          try {
+            if (!(await this.check(saved))) { this.setPassword(''); return false; }
+            window.kildrumAdminUnlocked = true;
+            if (window.applyLock) window.applyLock();
+            return true;
+          } catch (e) { return false; }
+        }
         const pw = prompt('Paste your GitHub access token to save changes online:');
         if (!pw) return false;
         if (!(await this.check(pw.trim()))) { alert('That token was not accepted. It needs Contents: Read and write on the ' + GH_REPO + ' repository.'); return false; }
+        window.kildrumAdminUnlocked = true;
         this.setPassword(pw.trim());
+        if (window.applyLock) window.applyLock();
         return true;
       },
       async get(key) {
@@ -867,16 +890,21 @@
     };
 
     window.matchdayLoaded = false;
+    window.kildrumPublishedMatchday = null;
+    window.kildrumMatchdayDataIsPublished = false;
     window.initCloudAndLoad = async function() {
       try {
         const res = await window.cloud.get('matchday');
         window.fbState = 'ready';
+        window.kildrumPublishedMatchday = res.exists ? res.data : null;
         let localReport = null;
         try { localReport = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); } catch (e) {}
-        let reportData = res.exists ? res.data : null;
+        const parentView = new URLSearchParams(location.search).get('view') === 'league';
+        let reportData = window.kildrumPublishedMatchday;
         const cloudStamp = Date.parse(reportData?.updatedAt || res.updatedAt || 0) || 0;
         const localStamp = Date.parse(localReport?.updatedAt || 0) || 0;
-        if (localReport && (!reportData || localStamp > cloudStamp)) reportData = localReport;
+        if (!parentView && localReport && (!reportData || localStamp > cloudStamp)) reportData = localReport;
+        window.kildrumMatchdayDataIsPublished = !!(reportData && res.exists && reportData === res.data);
         if (reportData) {
           const data = reportData;
           if (data.compName) document.getElementById('compName').value = data.compName;
@@ -912,8 +940,10 @@
       } catch (e) {
         console.log('Cloud load note:', e);
         window.fbState = 'failed';
-        // Keep a previously saved local report available if GitHub is unreachable.
-        try {
+        window.kildrumPublishedMatchday = null;
+        window.kildrumMatchdayDataIsPublished = false;
+        // Local recovery is for coach use only; never expose a private local draft to parents.
+        if (new URLSearchParams(location.search).get('view') !== 'league') try {
           const localReport = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null');
           if (localReport) {
             if (localReport.compName) document.getElementById('compName').value = localReport.compName;
@@ -933,9 +963,13 @@
         } catch (restoreError) { console.warn('Local match report restore failed:', restoreError); }
       }
       window.matchdayLoaded = true;
-      try { persistMatchdayLocal(buildMatchdaySnapshot()); } catch (e) {}
+      if (new URLSearchParams(location.search).get('view') !== 'league') {
+        try { persistMatchdayLocal(buildMatchdaySnapshot()); } catch (e) {}
+      }
       if (typeof lgMatchInit === 'function') lgMatchInit();
       window.dispatchEvent(new Event('fb-state'));
+      const thisWeekPanel = document.getElementById('lgPanel-thisweek');
+      if (typeof window.lgRenderThisWeekMatch === 'function' && thisWeekPanel && !thisWeekPanel.classList.contains('hidden')) window.lgRenderThisWeekMatch();
     };
 
     window.initCloudAndLoad();
@@ -1095,6 +1129,9 @@
 
     // Three-tab switcher (Lineup / Result / League). The first two behave exactly as before.
     function switchTab(tabName) {
+      const protectedTabs = ['lineup', 'result', 'recorder'];
+      if (isParentLeagueView() && protectedTabs.includes(tabName)) tabName = 'league';
+      if (protectedTabs.includes(tabName) && !isUnlocked()) window.kildrumPendingAdminTab = tabName;
       const on = "px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 bg-red-600 text-white shadow";
       const off = "px-4 py-1.5 text-xs font-bold rounded-md transition flex items-center gap-1.5 text-slate-400 hover:text-white";
       const recorder = document.getElementById('tabContentRecorder');
@@ -2183,6 +2220,7 @@ function lgHistory() {
 // ---------- persistence ----------
 function lgPayload() { return { matches: lg.matches, fixtures: lg.fixtures || [], teams: lgAllTeams(), updatedAt: new Date().toISOString() }; }
 async function lgSave() {
+  if (!isUnlocked() || isParentLeagueView()) { lgSetStatus('Admin access required. Manage Results is locked.'); return false; }
   // All ordinary Manage Results edits are drafts on this device. This function
   // deliberately has NO cloud write; lgPublish() is the only league publisher.
   const payload = lgPayload();
@@ -2220,8 +2258,9 @@ async function lgLoad() {
   try {
     const res = await window.cloud.get('league');
     lg.mode = 'online';
-    lg.admin = !!window.cloud.password();
-    const local = lgLocalData();
+    lg.admin = isUnlocked();
+    const parentView = isParentLeagueView();
+    const local = parentView ? null : lgLocalData();
     if (res.exists) {
       const remoteStamp = Date.parse(res.data?.updatedAt || res.updatedAt || 0) || 0;
       const localStamp = Date.parse(local?.updatedAt || 0) || 0;
@@ -2242,8 +2281,10 @@ async function lgLoad() {
   } catch (e) {
     console.warn(e);
     lg.mode = 'local';
-    const local = lgLocalData(); if (local) lgApply(local);
-    lgSetStatus('Offline · could not reach the server, showing results saved in this browser');
+    const local = isParentLeagueView() ? null : lgLocalData(); if (local) lgApply(local);
+    lgSetStatus(isParentLeagueView()
+      ? 'Offline · local drafts are hidden in parent view; published league data is unavailable'
+      : 'Offline · could not reach the server, showing results saved in this browser');
   }
   lg.loaded = true;
   lgRenderAll();
@@ -2253,23 +2294,303 @@ async function lgLoad() {
 
 // ---------- navigation ----------
 function lgShow(tab) {
+  if (tab === 'manage' && (isParentLeagueView() || !isUnlocked())) {
+    tab = 'table';
+    const managePanel = document.getElementById('lgPanel-manage');
+    if (managePanel) managePanel.innerHTML = '';
+  }
   lg.tab = tab;
   document.querySelectorAll('.lgSubBtn').forEach(b => {
     const on = b.dataset.lg === tab;
     b.className = 'lgSubBtn px-3 py-1.5 rounded-md ' + (on ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white');
   });
-  ['table', 'prog', 'h2h', 'diag', 'scorers', 'manage'].forEach(t => document.getElementById('lgPanel-' + t).classList.toggle('hidden', t !== tab));
+  ['table', 'thisweek', 'prog', 'h2h', 'diag', 'scorers', 'matrix', 'manage'].forEach(t => { const panel = document.getElementById('lgPanel-' + t); if (panel) panel.classList.toggle('hidden', t !== tab); });
   lgRenderAll();
 }
 function lgRenderAll() {
   if (!lg.loaded) return;
   if (lg.tab === 'table') lgRenderTable();
+  if (lg.tab === 'thisweek') lgRenderThisWeekMatch();
   if (lg.tab === 'prog') lgRenderProg();
   if (lg.tab === 'h2h') lgRenderH2H();
   if (lg.tab === 'diag') lgRenderDiag();
   if (lg.tab === 'scorers') lgRenderScorers();
-  if (lg.tab === 'manage') lgRenderManage();
+  if (lg.tab === 'matrix') lgRenderMatrix();
+  if (lg.tab === 'manage' && isUnlocked() && !isParentLeagueView()) lgRenderManage();
 }
+// ---------- LEAGUE MATRIX ----------
+// Rows are home teams; columns are away teams. Badges only are shown for team
+// headers. Completed score cells use the same W/D/L colours as the league form
+// dots; upcoming fixtures are shown with an amber marker and do not affect stats.
+function lgRenderMatrix() {
+  const teams = lgTable(lg.matches, lgAllTeams()).map(r => r.team);
+  const matchesByPair = new Map();
+  const fixturesByPair = new Map();
+  const pairKey = (home, away) => `${home}|||${away}`;
+
+  [...lg.matches]
+    .sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id))
+    .forEach(m => {
+      const key = pairKey(m.home, m.away);
+      if (!matchesByPair.has(key)) matchesByPair.set(key, []);
+      matchesByPair.get(key).push(m);
+    });
+  [...(lg.fixtures || [])]
+    .sort((a, b) => a.date.localeCompare(b.date) || Number(a.id) - Number(b.id))
+    .forEach(f => {
+      const key = pairKey(f.home, f.away);
+      if (!fixturesByPair.has(key)) fixturesByPair.set(key, []);
+      fixturesByPair.get(key).push(f);
+    });
+
+  if (!teams.length) {
+    document.getElementById('lgPanel-matrix').innerHTML = '<div class="bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm text-slate-400">No teams are available for the league matrix yet.</div>';
+    return;
+  }
+
+  const headerBadge = team => `<th scope="col" title="Away team: ${lgEsc(team)}" class="sticky top-0 z-20 bg-slate-900 border-b border-r border-slate-700 p-1 text-center align-middle w-[58px] min-w-[58px] h-[58px]"><div class="flex items-center justify-center">${lgBadge(team, 34)}</div></th>`;
+  const rows = teams.map(home => {
+    const cells = teams.map(away => {
+      if (home === away) {
+        return '<td aria-label="Same team" class="bg-slate-800 border border-slate-800 w-[58px] min-w-[58px] h-[44px] text-center"><span class="text-slate-600">—</span></td>';
+      }
+      const pairMatches = matchesByPair.get(pairKey(home, away)) || [];
+      const pairFixtures = fixturesByPair.get(pairKey(home, away)) || [];
+      const scoreHtml = pairMatches.map(m => {
+        const result = lgResult(Number(m.hg), Number(m.ag));
+        const tone = result === 'W'
+          ? 'bg-emerald-500/20 text-emerald-300'
+          : result === 'D'
+            ? 'bg-amber-400/20 text-amber-200'
+            : 'bg-red-500/20 text-red-300';
+        const tip = `${lgFmtDateLong(m.date)} · ${m.home} ${m.hg}-${m.ag} ${m.away} · ${result === 'W' ? 'Home win' : result === 'D' ? 'Draw' : 'Away win'}`;
+        return `<div title="${lgEsc(tip)}" class="${tone} px-0.5 py-1 leading-tight font-sports font-bold text-[12px] whitespace-nowrap border-b border-slate-950/40 last:border-b-0">${m.hg}-${m.ag}</div>`;
+      }).join('');
+      const fixtureHtml = pairFixtures.map(f => `<div title="Upcoming fixture · ${lgEsc(lgFmtDateLong(f.date))} · ${lgEsc(f.home)} v ${lgEsc(f.away)}" class="bg-amber-400/10 text-amber-300 px-0.5 py-1 leading-tight text-[11px] font-bold">●</div>`).join('');
+      const content = scoreHtml + fixtureHtml;
+      const empty = '<span class="text-slate-700">·</span>';
+      const label = `${home} home v ${away} away`;
+      return `<td aria-label="${lgEsc(label)}" class="border border-slate-800 w-[58px] min-w-[58px] min-h-[44px] p-0 text-center align-middle bg-slate-950">${content || empty}</td>`;
+    }).join('');
+    return `<tr><th scope="row" title="Home team: ${lgEsc(home)}" class="sticky left-0 z-10 bg-slate-900 border-r border-b border-slate-700 p-1 w-[58px] min-w-[58px] h-[54px] text-center align-middle"><div class="flex items-center justify-center">${lgBadge(home, 34)}</div></th>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('lgPanel-matrix').innerHTML = `
+    <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 space-y-3">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <div><h3 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">League Matrix</h3>
+          <p class="text-[11px] text-slate-400 mt-1">Home teams run down the left; away teams run across the top. Team badges are used instead of names.</p></div>
+        <p class="text-[10px] text-slate-500">Swipe sideways on mobile to see every team</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-slate-400">
+        <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Home win</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Draw</span>
+        <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Away win</span>
+        <span class="inline-flex items-center gap-1.5"><span class="text-amber-300">●</span> Upcoming fixture</span>
+      </div>
+      <div class="overflow-auto max-h-[72vh] rounded-lg border border-slate-800" style="-webkit-overflow-scrolling:touch">
+        <table class="border-separate border-spacing-0 w-max min-w-full text-sm" aria-label="League results matrix; home teams in rows and away teams in columns">
+          <thead><tr><th scope="col" title="Home team / Away team" class="sticky top-0 left-0 z-30 bg-slate-900 border-b border-r border-slate-700 w-[58px] min-w-[58px] h-[58px]"></th>${teams.map(headerBadge).join('')}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <p class="text-[10px] text-slate-500">Each score is shown from the home team's perspective. Cell colours follow the same green, amber and red result coding as the league form indicators. Upcoming fixtures are marked in amber and are not counted as results.</p>
+    </div>`;
+}
+
+// ---------- PARENT MATCH PACK: next Kildrum fixture ----------
+function lgOrdinal(n) {
+  const v = Number(n) || 0;
+  const mod100 = v % 100;
+  if (mod100 >= 11 && mod100 <= 13) return v + 'th';
+  return v + ({ 1: 'st', 2: 'nd', 3: 'rd' }[v % 10] || 'th');
+}
+function lgLocalTodayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function lgMatchdayMatchesFixture(md, fixture) {
+  if (!md || !fixture || !window.kildrumMatchdayDataIsPublished) return false;
+  const exactId = Number(md.leagueFixtureId) === Number(fixture.id);
+  const exactTarget = String(md.leagueTargetDate || '') === String(fixture.date || '')
+    && normName(md.leagueTargetHome) === normName(fixture.home)
+    && normName(md.leagueTargetAway) === normName(fixture.away);
+  return exactId && exactTarget;
+}
+function lgSquadHasSelection(md) {
+  return Array.isArray(md?.squad) && md.squad.some(p => p && (p.status === 'XI' || p.status === 'SUB'));
+}
+function lgCloneSquadAnnouncement(stage) {
+  if (!stage) return;
+  const original = document.getElementById('graphicContainer');
+  if (!original) {
+    stage.innerHTML = '<p class="text-sm text-slate-400 p-3">Squad announcement graphic is not available.</p>';
+    return;
+  }
+  stage.innerHTML = '';
+  const clone = original.cloneNode(true);
+  clone.removeAttribute('id');
+  [...clone.attributes].forEach(attr => { if (/^on/i.test(attr.name)) clone.removeAttribute(attr.name); });
+  clone.querySelectorAll('*').forEach(node => {
+    if (!node.closest('svg')) node.removeAttribute('id');
+    [...node.attributes].forEach(attr => { if (/^on/i.test(attr.name)) node.removeAttribute(attr.name); });
+  });
+  clone.style.width = '680px';
+  clone.style.minWidth = '680px';
+  clone.style.maxWidth = 'none';
+  clone.style.height = 'auto';
+  clone.style.minHeight = '620px';
+  clone.style.margin = '0';
+  clone.style.pointerEvents = 'none';
+  const stageWidth = Math.max(260, stage.clientWidth || 320);
+  const scale = Math.min(0.78, (stageWidth - 8) / 680);
+  const holder = document.createElement('div');
+  holder.style.width = `${680 * scale}px`;
+  holder.style.margin = '0 auto';
+  holder.style.overflow = 'hidden';
+  const scaler = document.createElement('div');
+  scaler.style.width = '680px';
+  scaler.style.transform = `scale(${scale})`;
+  scaler.style.transformOrigin = 'top left';
+  scaler.appendChild(clone);
+  holder.appendChild(scaler);
+  stage.appendChild(holder);
+  requestAnimationFrame(() => {
+    const naturalHeight = Math.max(620, clone.scrollHeight || clone.offsetHeight || 620);
+    holder.style.height = `${naturalHeight * scale}px`;
+  });
+}
+function lgRenderThisWeekMatch() {
+  const content = document.getElementById('thisWeekMatchContent');
+  if (!content || !lg.loaded) return;
+  const today = lgLocalTodayISO();
+  const fixture = (lg.fixtures || [])
+    .filter(f => (f.home === LG_OWN_TEAM || f.away === LG_OWN_TEAM) && String(f.date || '') >= today)
+    .sort((a, b) => a.date.localeCompare(b.date) || Number(a.id) - Number(b.id))[0];
+
+  if (!fixture) {
+    content.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div><h3 class="font-sports font-extrabold text-sm text-white uppercase tracking-wider"><i class="fa-solid fa-calendar-days text-red-500 mr-1.5"></i> This Week's Match</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Kildrum United · next fixture information</p></div>
+        <span class="text-[10px] font-bold uppercase tracking-wide rounded-full bg-slate-800 text-slate-300 px-2.5 py-1">Awaiting fixture</span>
+      </div>
+      <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-300">No upcoming Kildrum fixture has been published yet.</div>
+      <div class="bg-slate-950 border border-slate-800 rounded-lg p-3"><h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider mb-2">Squad Announcement</h4><p class="text-sm font-bold text-slate-300">Squad not selected</p></div>`;
+    return;
+  }
+
+  const homeKildrum = fixture.home === LG_OWN_TEAM;
+  const opponent = homeKildrum ? fixture.away : fixture.home;
+  const where = homeKildrum ? 'at home to' : 'away to';
+  const dateText = lgFmtDateLong(fixture.date);
+  const table = lgTable(lg.matches, lgAllTeams());
+  const homeRow = table.find(r => r.team === fixture.home);
+  const awayRow = table.find(r => r.team === fixture.away);
+  const teamsLine = [homeRow, awayRow].filter(Boolean).map(r => {
+    const gd = r.gd > 0 ? '+' + r.gd : String(r.gd);
+    const form = (r.last5 || []).map(x => `<span title="${lgEsc(x.res)}" class="inline-block w-2.5 h-2.5 rounded-full ${x.res === 'W' ? 'bg-emerald-500' : x.res === 'D' ? 'bg-amber-400' : 'bg-red-500'}"></span>`).join('');
+    return `<tr class="border-b border-slate-800 last:border-0">
+      <td class="px-2 py-2 text-center font-sports font-extrabold text-white">${r.pos}</td>
+      <td class="px-2 py-2"><span class="inline-flex items-center gap-1.5 min-w-0">${lgBadge(r.team, 22)}<span class="font-semibold text-slate-100 text-[11px] leading-tight">${lgEsc(r.team)}</span></span></td>
+      <td class="px-2 py-2 text-center">${r.mp}</td><td class="px-2 py-2 text-center whitespace-nowrap">${r.w}-${r.d}-${r.l}</td>
+      <td class="px-2 py-2 text-center">${gd}</td><td class="px-2 py-2 text-center font-extrabold text-white">${r.pts}</td>
+      <td class="px-2 py-2"><span class="inline-flex items-center gap-0.5">${form || '<span class="text-slate-600">—</span>'}</span></td>
+    </tr>`;
+  }).join('');
+  const teamRows = teamsLine || '<tr><td colspan="7" class="p-3 text-center text-slate-400">League positions are not yet available.</td></tr>';
+
+  // Other fixtures are limited to the exact same published match date as Kildrum's fixture.
+  // The selected Kildrum fixture is excluded by ID (with a date/team fallback).
+  const otherFixtures = (lg.fixtures || [])
+    .filter(f => String(f.date || '') === String(fixture.date || ''))
+    .filter(f => {
+      if (f === fixture) return false;
+      const sameId = f.id != null && fixture.id != null && String(f.id) === String(fixture.id);
+      const sameMatch = normName(f.home) === normName(fixture.home) && normName(f.away) === normName(fixture.away);
+      return !sameId && !sameMatch;
+    })
+    .sort((a, b) => String(a.home).localeCompare(String(b.home)) || String(a.away).localeCompare(String(b.away)));
+  const otherFixturesHTML = otherFixtures.length
+    ? otherFixtures.map(f => `<div class="rounded-md border border-slate-800 bg-slate-900/70 px-2.5 py-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex flex-1 min-w-0 items-center gap-1.5">${lgBadge(f.home, 26)}<span class="min-w-0 text-[10px] sm:text-[11px] font-semibold text-slate-100 leading-tight">${lgEsc(f.home)}</span></div>
+          <span class="shrink-0 font-sports text-[9px] font-black text-red-400">VS</span>
+          <div class="flex flex-1 min-w-0 items-center justify-end gap-1.5 text-right"><span class="min-w-0 text-[10px] sm:text-[11px] font-semibold text-slate-100 leading-tight">${lgEsc(f.away)}</span>${lgBadge(f.away, 26)}</div>
+        </div>
+      </div>`).join('')
+    : '<div class="rounded-md border border-slate-800 bg-slate-900/70 p-3 text-center text-[11px] text-slate-400">There are no other fixtures scheduled for this matchday.</div>';
+
+  const statLine = r => {
+    if (!r) return 'position not available';
+    if (!r.mp) return 'yet to record a completed league result';
+    return `${lgOrdinal(r.pos)} on ${r.pts} point${r.pts === 1 ? '' : 's'} from ${r.mp} match${r.mp === 1 ? '' : 'es'} (${r.w} won, ${r.d} drawn, ${r.l} lost)`;
+  };
+  const kildrumRow = table.find(r => r.team === LG_OWN_TEAM);
+  const opponentRow = table.find(r => r.team === opponent);
+  const preview = `Next up, Kildrum Utd are ${where} ${opponent} in their next league fixture on ${dateText}. Kildrum currently sit ${statLine(kildrumRow)}. ${opponent} are ${statLine(opponentRow)}. This preview is based on the published fixture and current league table.`;
+
+  const md = window.kildrumPublishedMatchday || null;
+  const hasLinkedSquad = lgMatchdayMatchesFixture(md, fixture) && lgSquadHasSelection(md);
+  const canShowProgression = lg.matches.length > 0 && !!window.Chart;
+  content.innerHTML = `
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <div><h3 class="font-sports font-extrabold text-sm text-white uppercase tracking-wider"><i class="fa-solid fa-calendar-days text-red-500 mr-1.5"></i> This Week's Match</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Next scheduled Kildrum league fixture</p></div>
+      <span class="text-[10px] font-bold uppercase tracking-wide rounded-full bg-red-600/20 text-red-300 border border-red-500/30 px-2.5 py-1">${lgEsc(lgFmtDate(fixture.date))}</span>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 sm:p-4">
+      <div class="flex items-center justify-between gap-2 sm:gap-4">
+        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">${lgBadge(fixture.home, 52)}<span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.home)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Home</span></div>
+        <div class="shrink-0 text-center"><span class="font-sports font-black text-lg sm:text-xl text-red-400">VS</span><p class="text-[10px] text-slate-400 mt-1">${lgEsc(dateText)}</p></div>
+        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">${lgBadge(fixture.away, 52)}<span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.away)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Away</span></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div class="min-w-0 space-y-3">
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider mb-2">League Table Positions</h4>
+          <div class="overflow-x-auto"><table class="w-full min-w-[365px] text-[10px] sm:text-[11px]">
+            <thead class="text-[9px] uppercase text-slate-500"><tr><th class="px-2 pb-1">Pos</th><th class="px-2 pb-1 text-left">Team</th><th class="px-2 pb-1">MP</th><th class="px-2 pb-1">W-D-L</th><th class="px-2 pb-1">GD</th><th class="px-2 pb-1">Pts</th><th class="px-2 pb-1">Form</th></tr></thead>
+            <tbody>${teamRows}</tbody></table></div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider">Other Fixtures on Matchday</h4>
+            <span class="text-[9px] uppercase tracking-wide text-slate-500">${otherFixtures.length} fixture${otherFixtures.length === 1 ? '' : 's'}</span>
+          </div>
+          <div class="space-y-1.5">${otherFixturesHTML}</div>
+        </div>
+      </div>
+      <div class="min-w-0 bg-slate-950 border border-slate-800 rounded-lg p-3">
+        <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider mb-2">Squad Announcement</h4>
+        ${hasLinkedSquad
+          ? '<div id="thisWeekSquadPreview" class="overflow-hidden rounded-lg border border-slate-800 bg-slate-900" aria-label="Squad announcement graphic preview"></div>'
+          : '<div class="min-h-[120px] flex items-center justify-center rounded-lg border border-slate-800 bg-slate-900 p-4 text-center"><div><i class="fa-solid fa-users-slash text-2xl text-slate-600"></i><p class="text-sm font-bold text-slate-300 mt-2">Squad not selected</p><p class="text-[10px] text-slate-500 mt-1">The squad announcement will appear here when it has been saved for this fixture.</p></div></div>'}
+      </div>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+      <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-comment-dots mr-1"></i> Match Preview</h4>
+      <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${lgEsc(preview)}</p>
+    </div>
+    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider"><i class="fa-solid fa-chart-line mr-1"></i> League Position Progression</h4>
+        <span class="text-[10px] text-slate-500">${lgEsc(fixture.home)} v ${lgEsc(fixture.away)}</span>
+      </div>
+      ${canShowProgression
+        ? '<div class="relative w-full" style="height:300px"><canvas id="lgThisWeekProgChart" role="img" aria-label="League position progression for the two teams in the upcoming fixture"></canvas></div>'
+        : '<p class="text-xs text-slate-400 py-4 text-center">The progression graph will appear once completed league results have been published.</p>'}
+      <p class="text-[10px] text-slate-500">Position 1 is the top of the league. The graph compares both teams across the completed match dates this season.</p>
+    </div>`;
+
+  if (hasLinkedSquad) lgCloneSquadAnnouncement(document.getElementById('thisWeekSquadPreview'));
+  if (canShowProgression && document.getElementById('lgThisWeekProgChart')) {
+    lgDrawProgChart('lgThisWeekProgChart', [fixture.home, fixture.away], 'date', LG_OWN_TEAM);
+  }
+}
+window.lgRenderThisWeekMatch = lgRenderThisWeekMatch;
+
 function lgDestroyChart(k) { if (lg.charts[k]) { lg.charts[k].destroy(); delete lg.charts[k]; } }
 
 // ---------- TABLE ----------
@@ -2668,7 +2989,12 @@ function lgRenderDiag() {
 
 // ---------- MANAGE RESULTS ----------
 function lgRenderManage() {
-  const all = [...new Set([...lgAllTeams(), ...(lg.fixtures || []).flatMap(f => [f.home, f.away])])].sort((a, b) => a.localeCompare(b)), canEdit = lg.mode === 'local' || lg.admin;
+  const managePanel = document.getElementById('lgPanel-manage');
+  if (!isUnlocked() || isParentLeagueView()) {
+    if (managePanel) managePanel.innerHTML = '<div class="bg-slate-900 border border-slate-800 rounded-lg p-4 text-sm text-slate-300"><i class="fa-solid fa-lock text-amber-400 mr-2"></i>Manage Results is restricted to an authenticated administrator.</div>';
+    return;
+  }
+  const all = [...new Set([...lgAllTeams(), ...(lg.fixtures || []).flatMap(f => [f.home, f.away])])].sort((a, b) => a.localeCompare(b)), canEdit = isUnlocked();
   const e = lg.editId ? lg.matches.find(m => m.id === lg.editId) : null;
   const f = lg.editFixtureId ? (lg.fixtures || []).find(x => x.id === lg.editFixtureId) : null;
   const editingFixture = !!f;
@@ -2816,8 +3142,8 @@ async function lgRemoveConfirm() {
   if (typeof lgRenderAll === 'function') lgRenderAll();
 }
 async function lgPublish() {
-  if (lg.mode !== 'online' || !lg.admin || !window.cloud?.password()) {
-    alert('Please sign in as the league admin before pushing current data online.');
+  if (!isUnlocked() || isParentLeagueView() || lg.mode !== 'online' || !lg.admin || !window.cloud?.password()) {
+    alert('Manage Results is locked. Sign in with a valid administrator token before publishing league data.');
     return;
   }
   let payload = lgPayload();
@@ -2957,14 +3283,21 @@ async function lgImportXlsx(input) {
 
 // ---------- sign in (online mode) ----------
 async function lgSignIn() {
-  const msg = document.getElementById('lgAuthMsg'), pw = document.getElementById('lgPass').value.trim();
+  const msg = document.getElementById('lgAuthMsg'), pw = document.getElementById('lgPass')?.value.trim() || '';
   try {
-    if (!pw) { msg.textContent = 'Paste the access token.'; return; }
-    if (!(await window.cloud.check(pw))) { msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
-    window.cloud.setPassword(pw); lg.admin = true; lgRenderManage();
-  } catch (e) { msg.textContent = 'Sign in failed: ' + e.message; }
+    if (!pw) { if (msg) msg.textContent = 'Paste the access token.'; return; }
+    if (!(await window.cloud.check(pw))) { if (msg) msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
+    window.kildrumAdminUnlocked = true;
+    window.cloud.setPassword(pw); lg.admin = true; applyLock(); lgRenderManage();
+  } catch (e) { if (msg) msg.textContent = 'Sign in failed: ' + e.message; }
 }
-async function lgSignOut() { window.cloud.setPassword(''); lg.admin = false; lgRenderManage(); }
+async function lgSignOut() {
+  window.kildrumAdminUnlocked = false;
+  window.cloud.setPassword('');
+  lg.admin = false;
+  if (lg.tab === 'manage') lgShow('table');
+  applyLock();
+}
 
 // ---------- League match <-> match report link, and scorers ----------
 let leagueMatchId = null;          // completed league result linked to the report
@@ -3291,32 +3624,89 @@ function lgRenderScorers() {
     </div></div>`;
 }
 
-// ---------- lock the coach tabs (Lineup + Result + Recorder) ----------
-function isUnlocked() { try { return !!localStorage.getItem('kildrum-github-token'); } catch (e) { return false; } }
+// ---------- validated administrator access (Lineup + Result + Recorder + Manage Results) ----------
+if (typeof window.kildrumAdminUnlocked !== 'boolean') window.kildrumAdminUnlocked = false;
+function isUnlocked() { return window.kildrumAdminUnlocked === true; }
+function isParentLeagueView() { return new URLSearchParams(location.search).get('view') === 'league'; }
 function applyLock() {
-  const locked = !isUnlocked();
+  const parentView = isParentLeagueView();
+  const locked = !isUnlocked() || parentView;
   ['Lineup', 'Result', 'Recorder'].forEach(n => {
     const c = document.getElementById('tabContent' + n); if (!c) return;
-    c.classList.toggle('opacity-50', locked); c.classList.toggle('select-none', locked);
-    if (locked) c.setAttribute('inert', ''); else c.removeAttribute('inert');
+    c.classList.remove('opacity-50', 'select-none');
+    if (locked) { c.classList.add('hidden'); c.setAttribute('inert', ''); }
+    else c.removeAttribute('inert');
   });
   document.querySelectorAll('.lock-ic').forEach(i => i.classList.toggle('hidden', !locked));
+  ['tabBtnLineup', 'tabBtnResult', 'tabBtnRecorder'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = parentView ? 'none' : '';
+  });
+  const manageButton = document.querySelector('[data-lg="manage"]');
+  if (manageButton) manageButton.classList.toggle('hidden', locked);
   const onLeague = document.getElementById('tabContentLeague').classList.contains('hidden') === false;
-  const banner = document.getElementById('lockBanner'); if (banner) banner.classList.toggle('hidden', !(locked && !onLeague));
+  const banner = document.getElementById('lockBanner');
+  if (banner) banner.classList.toggle('hidden', !(locked && !onLeague && !parentView));
   const actions = document.getElementById('headerActions');
-  if (actions && !onLeague) actions.style.visibility = locked ? 'hidden' : '';
+  if (actions) {
+    actions.style.visibility = (locked || onLeague || parentView) ? 'hidden' : '';
+    actions.style.display = parentView ? 'none' : '';
+  }
 }
-async function unlockTabs() {
-  const msg = document.getElementById('unlockMsg'), pw = document.getElementById('unlockPass').value.trim();
-  msg.textContent = '';
-  try {
-    if (!pw) { msg.textContent = 'Paste the access token.'; return; }
-    if (!(await window.cloud.check(pw))) { msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
-    window.cloud.setPassword(pw); lg.admin = true;
-    document.getElementById('unlockPass').value = '';
-    if (typeof lgRenderManage === 'function') lgRenderManage();
+window.applyLock = applyLock;
+async function validateStoredAdminAccess() {
+  if (isParentLeagueView()) {
+    window.kildrumAdminUnlocked = false;
+    if (typeof lg !== 'undefined') lg.admin = false;
     applyLock();
-  } catch (e) { msg.textContent = 'Could not check the password: ' + e.message; }
+    return false;
+  }
+  const token = window.cloud?.password?.() || '';
+  if (!token) {
+    window.kildrumAdminUnlocked = false;
+    if (typeof lg !== 'undefined') lg.admin = false;
+    applyLock();
+    return false;
+  }
+  try {
+    const valid = await window.cloud.check(token);
+    window.kildrumAdminUnlocked = !!valid;
+    if (!valid) window.cloud.setPassword('');
+    if (typeof lg !== 'undefined') lg.admin = !!valid;
+    applyLock();
+    if (valid && window.kildrumPendingAdminTab && !isParentLeagueView()) {
+      const tab = window.kildrumPendingAdminTab;
+      window.kildrumPendingAdminTab = null;
+      switchTab(tab);
+    }
+    return !!valid;
+  } catch (e) {
+    // No online permission check means no admin access, even with a cached token.
+    window.kildrumAdminUnlocked = false;
+    if (typeof lg !== 'undefined') lg.admin = false;
+    applyLock();
+    return false;
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', validateStoredAdminAccess, { once: true });
+else validateStoredAdminAccess();
+async function unlockTabs() {
+  const msg = document.getElementById('unlockMsg'), input = document.getElementById('unlockPass');
+  const pw = input ? input.value.trim() : '';
+  if (msg) msg.textContent = '';
+  try {
+    if (!pw) { if (msg) msg.textContent = 'Paste the access token.'; return; }
+    if (!(await window.cloud.check(pw))) { if (msg) msg.textContent = 'That token was not accepted. It needs Contents: Read and write on the Kildrum-2012 repository.'; return; }
+    window.kildrumAdminUnlocked = true;
+    window.cloud.setPassword(pw);
+    lg.admin = true;
+    if (input) input.value = '';
+    applyLock();
+    const nextTab = window.kildrumPendingAdminTab || 'lineup';
+    window.kildrumPendingAdminTab = null;
+    if (!isParentLeagueView()) switchTab(nextTab);
+    if (typeof lgRenderManage === 'function' && lg.tab === 'manage') lgRenderManage();
+  } catch (e) { if (msg) msg.textContent = 'Could not check the password: ' + e.message; }
 }
 
 // ---------- boot ----------
@@ -3325,10 +3715,12 @@ if (window.fbState) lgBoot(); else window.addEventListener('fb-state', lgBoot, {
 setTimeout(lgBoot, 4000); // safety: if Firebase never answers, start in local mode
 switchTab('league'); // League is the opening tab
 // Share link for parents: add ?view=league to the web address to hide the coach tools
-if (new URLSearchParams(location.search).get('view') === 'league') {
+if (isParentLeagueView()) {
   window.addEventListener('load', () => {
     ['tabBtnLineup', 'tabBtnResult', 'tabBtnRecorder', 'headerActions'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+    const manageButton = document.querySelector('[data-lg="manage"]'); if (manageButton) manageButton.classList.add('hidden');
     switchTab('league');
+    applyLock();
   });
 }
 
