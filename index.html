@@ -146,7 +146,11 @@
             </div>
             <div>
               <label class="block text-slate-400 mb-0.5 text-[10px] font-medium leading-tight">Match Date</label>
-              <input type="text" id="matchDate" value="Saturday, 18 Oct 2026" oninput="updateGraphic(); updateResultGraphic();" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white focus:outline-none focus:border-red-500 transition">
+              <input type="text" id="matchDate" value="Saturday, 18 Oct 2026" oninput="updateGraphic(); updateResultGraphic(); touchMatchdayState();" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white focus:outline-none focus:border-red-500 transition">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-0.5 text-[10px] font-medium leading-tight">Kick-off Time</label>
+              <input type="time" id="kickoffTime" value="" oninput="updateGraphic(); updateResultGraphic(); touchMatchdayState();" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white focus:outline-none focus:border-red-500 transition">
             </div>
             <div>
               <label class="block text-slate-400 mb-0.5 text-[10px] font-medium leading-tight">Kildrum Utd are playing</label>
@@ -275,6 +279,23 @@
           </div>
         </div>
 
+        <!-- Publish only the selected squad graphic to the parent-facing This Week's Match card. -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4" id="publishSquadAnnouncementPanel">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-bullhorn text-red-400"></i>
+            <h2 class="font-sports font-bold text-xs text-red-500 uppercase tracking-wider">Publish Squad Announcement</h2>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-3">Choose the upcoming Kildrum fixture that this squad is for. This publishes the squad graphic to the parents' This Week's Match card only. It does not publish scores, scorers or league-table changes.</p>
+          <label for="publishSquadFixtureSelect" class="block text-[11px] text-slate-300 font-semibold mb-1">Upcoming Kildrum fixture</label>
+          <select id="publishSquadFixtureSelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs font-semibold mb-3">
+            <option value="">Loading published fixtures...</option>
+          </select>
+          <button type="button" id="publishSquadAnnouncementBtn" onclick="lgPublishSquadAnnouncement()" class="w-full min-h-[44px] rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-extrabold tracking-wide px-3 py-2.5 flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i> PUBLISH SQUAD ANNOUNCEMENT
+          </button>
+          <p id="publishSquadAnnouncementStatus" role="status" aria-live="polite" class="text-[11px] text-slate-400 mt-2">Select an upcoming fixture and publish when the squad is ready.</p>
+        </div>
+
       </section>
 
       <!-- RIGHT PANEL: PREVIEW DISPLAY CONTAINER -->
@@ -291,42 +312,7 @@
               <div class="absolute inset-0 bg-gradient-to-b from-red-950/20 via-transparent to-slate-950/90"></div>
             </div>
 
-            <!-- Graphic Match Title Banner with Club Badges -->
-            <div class="relative z-10 p-4 sm:p-5 border-b border-white/10 backdrop-blur-md bg-slate-950/70">
-              <div class="flex items-center justify-between gap-2 max-w-3xl mx-auto">
-                
-                <!-- Home Team Badge (Kildrum Utd) -->
-                <div class="flex flex-col items-center justify-center w-[120px] sm:w-[140px] shrink-0 text-center">
-                  <div class="w-[101px] h-[101px] sm:w-[115px] sm:h-[115px] rounded-full bg-slate-900/80 border-2 border-red-500/50 p-1 flex items-center justify-center shadow-lg overflow-hidden">
-                    <img id="homeBadgeImg" src="" alt="Kildrum Utd FC" class="max-w-full max-h-full object-contain">
-                  </div>
-                  <span id="displayHomeName" class="font-sports font-bold text-[10px] sm:text-xs text-white uppercase mt-1.5 leading-tight break-words w-full">Kildrum Utd</span>
-                </div>
-
-                <!-- Match Announcement Header Text -->
-                <div class="flex-1 text-center">
-                  <div class="inline-block px-3 py-0.5 bg-red-600/90 text-white font-sports font-black text-[10px] sm:text-xs tracking-widest uppercase rounded shadow-sm mb-1">
-                    <span id="displayComp">CLYFA LEAGUE GAME</span>
-                  </div>
-                  <h2 class="font-sports font-black text-xl sm:text-3xl text-white tracking-tight uppercase drop-shadow-md">
-                    SQUAD ANNOUNCEMENT
-                  </h2>
-                  <div class="flex items-center justify-center gap-2 text-xs font-semibold text-slate-200 mt-0.5">
-                    <span id="displayDate" class="text-slate-300">Saturday, 18 Oct 2026</span>
-                  </div>
-                  <p id="displayVenue" class="text-[10px] text-slate-400 mt-0.5 font-medium">Broadwood Stadium (Home)</p>
-                </div>
-
-                <!-- Opposition Away Badge -->
-                <div class="flex flex-col items-center justify-center w-[120px] sm:w-[140px] shrink-0 text-center">
-                  <div class="w-[101px] h-[101px] sm:w-[115px] sm:h-[115px] rounded-full bg-slate-900/80 border-2 border-slate-600/50 p-1 flex items-center justify-center shadow-lg overflow-hidden">
-                    <img id="awayBadgeImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMxZTI5M2IiLz48dGV4dCB4PSI1MCIgeT0iNTgiIGZvbnQtZmFtaWx5PSJBcmlhbCxIZWx2ZXRpY2Esc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QVdBWTwvdGV4dD48L3N2Zz4=" alt="Opposition Logo" class="max-w-full max-h-full object-contain">
-                  </div>
-                  <span id="displayOppName" class="font-sports font-bold text-[10px] sm:text-xs text-slate-300 uppercase mt-1.5 leading-tight break-words w-full">Cumbernauld Colts</span>
-                </div>
-
-              </div>
-            </div>
+            <!-- Squad graphic uses the match information banner in the parent This Week card. -->
 
             <!-- Graphic Core Visual Area -->
             <div class="relative z-10 flex-1 p-4 sm:p-6 flex flex-col justify-center">
@@ -336,13 +322,10 @@
                 
                 <!-- Matchday Squad (starters + subs in one grid, 6 per row) -->
                 <div>
-                  <div class="flex items-center gap-2 mb-3">
-                    <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-                    <h3 class="font-sports font-extrabold text-xs sm:text-sm text-white uppercase tracking-wider drop-shadow-sm">
-                      MATCHDAY SQUAD <span class="text-red-400 font-normal ml-1" id="displayFormation">(3-5-2)</span>
-                    </h3>
+                  <div class="flex items-center justify-center mb-2">
+                    <h3 class="font-sports font-extrabold text-base sm:text-xl text-white uppercase tracking-wider drop-shadow-sm">SQUAD ANNOUNCEMENT</h3>
                   </div>
-                  <div id="startingXIJerseys" class="grid grid-cols-6 gap-x-2 gap-y-4 sm:gap-x-3 justify-items-center">
+                  <div id="startingXIJerseys" class="grid grid-cols-5 gap-x-3 gap-y-4 sm:gap-x-4 justify-items-center">
                     <!-- Dynamic 3D Jerseys -->
                   </div>
                 </div>
@@ -891,12 +874,22 @@
 
     window.matchdayLoaded = false;
     window.kildrumPublishedMatchday = null;
+    window.kildrumPublishedSquadAnnouncement = null;
     window.kildrumMatchdayDataIsPublished = false;
     window.initCloudAndLoad = async function() {
       try {
         const res = await window.cloud.get('matchday');
         window.fbState = 'ready';
         window.kildrumPublishedMatchday = res.exists ? res.data : null;
+        // Squad announcements have their own public document so publishing a team selection
+        // cannot overwrite a match report, staged score, scorer list or league result.
+        try {
+          const squadAnnouncementRes = await window.cloud.get('squad-announcement');
+          window.kildrumPublishedSquadAnnouncement = squadAnnouncementRes.exists ? squadAnnouncementRes.data : null;
+        } catch (squadAnnouncementLoadError) {
+          window.kildrumPublishedSquadAnnouncement = null;
+          console.warn('Squad announcement could not be loaded:', squadAnnouncementLoadError);
+        }
         let localReport = null;
         try { localReport = JSON.parse(localStorage.getItem('kildrum-matchday-report-v2') || 'null'); } catch (e) {}
         const parentView = new URLSearchParams(location.search).get('view') === 'league';
@@ -910,6 +903,7 @@
           if (data.compName) document.getElementById('compName').value = data.compName;
           if (data.oppName) document.getElementById('oppName').value = data.oppName;
           if (data.matchDate) document.getElementById('matchDate').value = data.matchDate;
+          if (typeof data.kickoffTime === 'string') document.getElementById('kickoffTime').value = data.kickoffTime;
           if (data.venueName) document.getElementById('venueName').value = data.venueName;
           if (data.formation) document.getElementById('formationSelect').value = data.formation;
           if (data.displayMode) document.getElementById('displayMode').value = data.displayMode;
@@ -949,6 +943,8 @@
             if (localReport.compName) document.getElementById('compName').value = localReport.compName;
             if (localReport.oppName) document.getElementById('oppName').value = localReport.oppName;
             if (localReport.matchDate) document.getElementById('matchDate').value = localReport.matchDate;
+            if (typeof localReport.kickoffTime === 'string') document.getElementById('kickoffTime').value = localReport.kickoffTime;
+            if (localReport.venueName) document.getElementById('venueName').value = localReport.venueName;
             if (localReport.homeScore != null) document.getElementById('homeScoreInput').value = localReport.homeScore;
             if (localReport.awayScore != null) document.getElementById('awayScoreInput').value = localReport.awayScore;
             if (Array.isArray(localReport.goalEvents)) goalEvents = normaliseGoalEvents(localReport.goalEvents);
@@ -1233,7 +1229,7 @@
       const SR = "M 75 15 L 94 30 Q 90 42, 80 40 L 78 30 Z";
 
       return `
-        <div class="relative w-full max-w-[104px] transition-transform duration-200 hover:scale-105" style="filter: drop-shadow(0 6px 5px rgba(0,0,0,0.55));">
+        <div class="relative w-full max-w-[120px] transition-transform duration-200 hover:scale-105" style="filter: drop-shadow(0 6px 5px rgba(0,0,0,0.55));">
           <svg viewBox="0 0 100 100" class="w-full h-auto overflow-visible">
             <defs>
               ${patternDef}
@@ -1562,6 +1558,9 @@
     function updateGraphic() {
       const compEl = document.getElementById('displayComp');
       if (compEl) compEl.innerText = document.getElementById('compName').value || 'CLYFA LEAGUE GAME';
+      const kickoffEl = document.getElementById('displayKickoff');
+      const kickoffValue = document.getElementById('kickoffTime')?.value || '';
+      if (kickoffEl) kickoffEl.innerText = kickoffValue ? `KO: ${kickoffValue}` : 'KO: TBC';
       
       const sides = getSides();
       const homeNameEl = document.getElementById('displayHomeName');
@@ -1574,7 +1573,7 @@
       if (dateEl) dateEl.innerText = document.getElementById('matchDate').value || 'MATCH DATE';
       
       const venueEl = document.getElementById('displayVenue');
-      if (venueEl) venueEl.innerText = document.getElementById('venueName').value || '';
+      if (venueEl) venueEl.innerText = (document.getElementById('venueName').value || '').replace(/\s*\((home|away)\)\s*$/i, '').trim() || 'Venue to be confirmed';
       
       const homeBadgeImg = document.getElementById('homeBadgeImg');
       if (homeBadgeImg) homeBadgeImg.src = sides.left.src;
@@ -1841,6 +1840,7 @@
         homeTeam: playingAway ? document.getElementById('oppName').value : OUR_NAME,
         awayTeam: playingAway ? OUR_NAME : document.getElementById('oppName').value,
         matchDate: document.getElementById('matchDate').value,
+        kickoffTime: document.getElementById('kickoffTime')?.value || '',
         venueName: document.getElementById('venueName').value,
         formation: document.getElementById('formationSelect').value,
         displayMode: document.getElementById('displayMode').value,
@@ -2106,6 +2106,7 @@
       setSide('home');
       document.getElementById('oppName').value = "Cumbernauld Colts";
       document.getElementById('matchDate').value = "Saturday, 18 Oct 2026";
+      document.getElementById('kickoffTime').value = "";
       document.getElementById('venueName').value = "Broadwood Stadium (Home)";
       document.getElementById('formationSelect').value = "3-5-2";
       document.getElementById('homeScoreInput').value = "3";
@@ -2167,12 +2168,17 @@ const lgEsc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','
 const lgFmtDate = iso => { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
 const lgFmtDateLong = iso => new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 const lgSerialToISO = n => new Date(Math.round((n - 25569) * 86400000)).toISOString().slice(0, 10);
+function lgTeamBadgeSource(team) {
+  if (normName(team) === normName(LG_OWN_TEAM)) return kildrumBadgeSVG;
+  const mapped = Object.entries(LG_BADGE_MAP).find(([leagueName]) => normName(leagueName) === normName(team))?.[1] || '';
+  const candidates = new Set([team, mapped].filter(Boolean).map(normName));
+  const hit = opponentBadges.find(b => candidates.has(normName(b.name)));
+  return hit?.src || null;
+}
 function lgBadge(team, size = 22) {
-  let src = null;
-  if (team === LG_OWN_TEAM) src = kildrumBadgeSVG;
-  else { const hit = opponentBadges.find(b => b.name === LG_BADGE_MAP[team]); if (hit) src = hit.src; }
-  if (!src) return `<span style="width:${size}px;height:${size}px" class="inline-flex items-center justify-center rounded-full bg-slate-800 text-[9px] font-bold text-slate-400">${lgEsc(team.slice(0,2).toUpperCase())}</span>`;
-  return `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain" alt="">`;
+  const src = lgTeamBadgeSource(team);
+  if (!src) return `<span style="width:${size}px;height:${size}px" class="inline-flex items-center justify-center rounded-full bg-slate-800 text-[9px] font-bold text-slate-400">${lgEsc(String(team || '?').slice(0,2).toUpperCase())}</span>`;
+  return `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain" alt="${lgEsc(team)} badge">`;
 }
 function lgAllTeams() {
   const set = new Set([...lg.teams]);
@@ -2227,6 +2233,7 @@ async function lgSave() {
   try { localStorage.setItem(LG_LOCAL_KEY, JSON.stringify(payload)); }
   catch (e) { console.warn('League local save unavailable:', e); return false; }
   lg.hasUnpublishedChanges = true;
+  if (typeof lgRefreshSquadAnnouncementOptions === 'function') lgRefreshSquadAnnouncementOptions();
   lgSetStatus(lg.mode === 'online'
     ? 'Local draft saved · not published online'
     : 'Offline · saved in this browser only');
@@ -2287,6 +2294,7 @@ async function lgLoad() {
       : 'Offline · could not reach the server, showing results saved in this browser');
   }
   lg.loaded = true;
+  if (typeof lgRefreshSquadAnnouncementOptions === 'function') lgRefreshSquadAnnouncementOptions();
   lgRenderAll();
   if (typeof lgMatchInit === 'function') lgMatchInit();
   if (typeof lgMatchPickerRefresh === 'function') lgMatchPickerRefresh();
@@ -2417,6 +2425,150 @@ function lgMatchdayMatchesFixture(md, fixture) {
     && normName(md.leagueTargetAway) === normName(fixture.away);
   return exactId && exactTarget;
 }
+function lgSquadAnnouncementMatchesFixture(announcement, fixture) {
+  if (!announcement || !fixture) return false;
+  return Number(announcement.fixtureId) === Number(fixture.id)
+    && String(announcement.fixtureDate || '') === String(fixture.date || '')
+    && normName(announcement.home) === normName(fixture.home)
+    && normName(announcement.away) === normName(fixture.away);
+}
+function lgRefreshSquadAnnouncementOptions() {
+  const select = document.getElementById('publishSquadFixtureSelect');
+  if (!select) return;
+  const previous = select.value;
+  const fixtures = (lg.fixtures || [])
+    .filter(f => (normName(f.home) === normName(LG_OWN_TEAM) || normName(f.away) === normName(LG_OWN_TEAM)) && String(f.date || '') >= lgLocalTodayISO())
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)) || Number(a.id) - Number(b.id));
+  select.innerHTML = '<option value="">Choose the fixture for this squad...</option>' + fixtures.map(f =>
+    `<option value="${Number(f.id)}" data-date="${lgEsc(f.date)}" data-home="${lgEsc(f.home)}" data-away="${lgEsc(f.away)}">${lgEsc(lgFmtDateLong(f.date))} · ${lgEsc(f.home)} v ${lgEsc(f.away)}</option>`
+  ).join('');
+  if (fixtures.some(f => String(f.id) === String(previous))) select.value = previous;
+  if (!fixtures.length) select.innerHTML = '<option value="">No upcoming Kildrum fixtures found</option>';
+}
+function lgClonePublishedSquadAnnouncement(stage, announcement) {
+  if (!stage || !announcement) return;
+  const controlIds = ['compName', 'oppName', 'matchDate', 'kickoffTime', 'venueName', 'formationSelect', 'displayMode', 'squadViewMode', 'kitSelectionType', 'kitMainColor', 'kitSleeveColor', 'gkMainColor'];
+  const previousValues = {};
+  controlIds.forEach(id => { const el = document.getElementById(id); if (el) previousValues[id] = el.value; });
+  const previousState = { squad, playingAway, homeBadgeSrc, awayBadgeSrc };
+  try {
+    const setValue = (id, value) => { const el = document.getElementById(id); if (el && value != null && value !== '') el.value = value; };
+    setValue('compName', announcement.compName || 'CLYFA League Game');
+    setValue('oppName', announcement.opponent || (announcement.home === LG_OWN_TEAM ? announcement.away : announcement.home));
+    setValue('matchDate', announcement.matchDate || longDate(announcement.fixtureDate));
+    const kickoffControl = document.getElementById('kickoffTime');
+    if (kickoffControl) kickoffControl.value = /^\d{2}:\d{2}$/.test(String(announcement.kickoffTime || '')) ? announcement.kickoffTime : '';
+    setValue('venueName', announcement.venueName || '');
+    setValue('formationSelect', announcement.formation || '3-5-2');
+    setValue('displayMode', announcement.displayMode || 'jerseys');
+    setValue('squadViewMode', announcement.squadViewMode || 'starting');
+    setValue('kitSelectionType', announcement.kitSelectionType || 'home');
+    setValue('kitMainColor', announcement.kitMain || '#dc2626');
+    setValue('kitSleeveColor', announcement.kitSleeve || '#1e293b');
+    setValue('gkMainColor', announcement.gkMain || '#facc15');
+    squad = Array.isArray(announcement.squad) ? JSON.parse(JSON.stringify(announcement.squad)) : [];
+    playingAway = !!announcement.playingAway;
+    if (announcement.homeBadgeSrc) homeBadgeSrc = announcement.homeBadgeSrc;
+    if (announcement.awayBadgeSrc) awayBadgeSrc = announcement.awayBadgeSrc;
+    updateGraphic();
+    lgCloneSquadAnnouncement(stage);
+  } catch (error) {
+    console.error('Published squad graphic rendering failed:', error);
+    stage.innerHTML = '<p class="text-sm text-slate-400 p-3">The published squad data was found, but its graphic could not be rendered.</p>';
+  } finally {
+    controlIds.forEach(id => { const el = document.getElementById(id); if (el && Object.prototype.hasOwnProperty.call(previousValues, id)) el.value = previousValues[id]; });
+    squad = previousState.squad;
+    playingAway = previousState.playingAway;
+    homeBadgeSrc = previousState.homeBadgeSrc;
+    awayBadgeSrc = previousState.awayBadgeSrc;
+    updateGraphic();
+  }
+}
+async function lgPublishSquadAnnouncement() {
+  const button = document.getElementById('publishSquadAnnouncementBtn');
+  const status = document.getElementById('publishSquadAnnouncementStatus');
+  const select = document.getElementById('publishSquadFixtureSelect');
+  const say = message => { if (status) status.textContent = message; };
+  if (!isUnlocked() || isParentLeagueView()) { say('Administrator access is required to publish a squad announcement.'); return; }
+  if (!select || !select.value) { say('Choose the upcoming Kildrum fixture first.'); return; }
+  if (lg.mode !== 'online') { say('The online league is not available. Reconnect before publishing.'); return; }
+  ensureStatuses();
+  const selectedSquad = squad.filter(p => p && (p.status === 'XI' || p.status === 'SUB'));
+  if (!selectedSquad.length) { say('No players are selected. Set players to XI or SUB before publishing.'); return; }
+  const option = select.options[select.selectedIndex];
+  const fixtureId = Number(select.value);
+  const expected = { id: fixtureId, date: option?.dataset?.date || '', home: option?.dataset?.home || '', away: option?.dataset?.away || '' };
+  if (!Number.isSafeInteger(fixtureId) || fixtureId <= 0 || !expected.date || !expected.home || !expected.away) { say('The selected fixture is incomplete. Refresh the league and try again.'); return; }
+  if (!confirm(`Publish the selected squad announcement for ${expected.home} v ${expected.away} on ${lgFmtDateLong(expected.date)}?
+
+This updates only the parent-facing squad announcement. Scores, scorers and the league table will not be changed.`)) return;
+  const oldLabel = button ? button.innerHTML : '';
+  if (button) { button.disabled = true; button.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> PUBLISHING SQUAD...'; }
+  say('Checking the published fixture and preparing the squad announcement...');
+  try {
+    if (!(await window.cloud.ensurePassword())) throw new Error('A valid administrator token is required.');
+    // Re-read the published league file: a local draft must never be enough to publish a squad.
+    const publishedLeague = await window.cloud.get('league');
+    if (!publishedLeague.exists || !publishedLeague.data) throw new Error('There is no published league data. Publish the fixture in Manage Results first.');
+    const matchingRecords = (publishedLeague.data.fixtures || []).filter(f => Number(f.id) === fixtureId);
+    if (matchingRecords.length !== 1) throw new Error('This fixture is not present exactly once in the published online fixtures. Publish the fixture in Manage Results first, then reload this page.');
+    const fixture = matchingRecords[0];
+    if (String(fixture.date || '') !== expected.date || normName(fixture.home) !== normName(expected.home) || normName(fixture.away) !== normName(expected.away)) {
+      throw new Error('The published fixture has changed since this list was loaded. Refresh the page and select the correct fixture again.');
+    }
+    const homeIsKildrum = normName(fixture.home) === normName(LG_OWN_TEAM);
+    const awayIsKildrum = normName(fixture.away) === normName(LG_OWN_TEAM);
+    if (homeIsKildrum === awayIsKildrum) throw new Error('The selected fixture must contain Kildrum exactly once.');
+    if (String(fixture.date) < lgLocalTodayISO()) throw new Error('This fixture is in the past. Squad announcements can only be published for upcoming fixtures.');
+    const opponent = homeIsKildrum ? fixture.away : fixture.home;
+    const playingAwayForFixture = awayIsKildrum;
+    const currentOpponent = document.getElementById('oppName')?.value || '';
+    const mappedOpponentBadge = lgTeamBadgeSource(opponent);
+    const mappedOpponentName = LG_BADGE_MAP[opponent] || '';
+    const selectedOpponentMatches = [opponent, mappedOpponentName].some(name => name && normName(currentOpponent) === normName(name));
+    const uploadedOpponentBadge = selectedOpponentMatches && awayBadgeSrc && awayBadgeSrc !== DEFAULT_AWAY_BADGE ? awayBadgeSrc : null;
+    const opponentBadge = mappedOpponentBadge || uploadedOpponentBadge;
+    if (!opponentBadge) throw new Error(`No badge is available for ${opponent}. Select the correct club badge or upload it before publishing.`);
+    const venueInput = document.getElementById('venueName')?.value || 'Venue to be confirmed';
+    const venue = venueInput.replace(/\s*\((home|away)\)\s*$/i, '') + (playingAwayForFixture ? ' (Away)' : ' (Home)');
+    const announcement = {
+      schemaVersion: 1,
+      fixtureId: Number(fixture.id),
+      fixtureDate: String(fixture.date),
+      home: String(fixture.home),
+      away: String(fixture.away),
+      opponent: String(opponent),
+      playingAway: playingAwayForFixture,
+      compName: document.getElementById('compName')?.value || 'CLYFA League Game',
+      matchDate: longDate(fixture.date),
+      kickoffTime: document.getElementById('kickoffTime')?.value || '',
+      venueName: venue,
+      formation: document.getElementById('formationSelect')?.value || '3-5-2',
+      displayMode: document.getElementById('displayMode')?.value || 'jerseys',
+      squadViewMode: document.getElementById('squadViewMode')?.value || 'starting',
+      kitSelectionType: document.getElementById('kitSelectionType')?.value || 'home',
+      kitMain: document.getElementById('kitMainColor')?.value || '#dc2626',
+      kitSleeve: document.getElementById('kitSleeveColor')?.value || '#1e293b',
+      gkMain: document.getElementById('gkMainColor')?.value || '#facc15',
+      squad: JSON.parse(JSON.stringify(squad)),
+      homeBadgeSrc,
+      awayBadgeSrc: opponentBadge,
+      publishedAt: new Date().toISOString()
+    };
+    // A dedicated JSON document keeps the published squad separate from results and scorer data.
+    await window.cloud.put('squad-announcement', announcement);
+    window.kildrumPublishedSquadAnnouncement = announcement;
+    say(`Published successfully for ${fixture.home} v ${fixture.away} · ${lgFmtDateLong(fixture.date)}. The league table and results are unchanged.`);
+    if (lg.tab === 'thisweek') lgRenderThisWeekMatch();
+    if (button) button.innerHTML = '<i class="fa-solid fa-check"></i> SQUAD PUBLISHED';
+  } catch (error) {
+    console.error('Squad announcement publish failed:', error);
+    say('Not published: ' + error.message);
+    if (button) button.innerHTML = oldLabel;
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
 function lgSquadHasSelection(md) {
   return Array.isArray(md?.squad) && md.squad.some(p => p && (p.status === 'XI' || p.status === 'SUB'));
 }
@@ -2484,6 +2636,11 @@ function lgRenderThisWeekMatch() {
   const opponent = homeKildrum ? fixture.away : fixture.home;
   const where = homeKildrum ? 'at home to' : 'away to';
   const dateText = lgFmtDateLong(fixture.date);
+  const publishedSquad = window.kildrumPublishedSquadAnnouncement || null;
+  const squadForFixture = lgSquadAnnouncementMatchesFixture(publishedSquad, fixture) ? publishedSquad : null;
+  const fixtureKickoff = squadForFixture && /^\d{2}:\d{2}$/.test(String(squadForFixture.kickoffTime || '')) ? squadForFixture.kickoffTime : '';
+  const fixtureVenue = squadForFixture ? String(squadForFixture.venueName || '').replace(/\s*\((home|away)\)\s*$/i, '').trim() : '';
+  const competitionLabel = String(squadForFixture?.compName || 'CLYFA League Game').trim().toUpperCase();
   const table = lgTable(lg.matches, lgAllTeams());
   const homeRow = table.find(r => r.team === fixture.home);
   const awayRow = table.find(r => r.team === fixture.away);
@@ -2531,19 +2688,27 @@ function lgRenderThisWeekMatch() {
   const preview = `Next up, Kildrum Utd are ${where} ${opponent} in their next league fixture on ${dateText}. Kildrum currently sit ${statLine(kildrumRow)}. ${opponent} are ${statLine(opponentRow)}. This preview is based on the published fixture and current league table.`;
 
   const md = window.kildrumPublishedMatchday || null;
-  const hasLinkedSquad = lgMatchdayMatchesFixture(md, fixture) && lgSquadHasSelection(md);
+  const hasDedicatedSquad = !!squadForFixture && lgSquadHasSelection(squadForFixture);
+  const hasLegacySquad = lgMatchdayMatchesFixture(md, fixture) && lgSquadHasSelection(md);
+  const hasLinkedSquad = hasDedicatedSquad || hasLegacySquad;
   const canShowProgression = lg.matches.length > 0 && !!window.Chart;
   content.innerHTML = `
-    <div class="flex flex-wrap items-center justify-between gap-2">
+    <div class="relative flex flex-wrap items-center justify-between gap-2">
       <div><h3 class="font-sports font-extrabold text-sm text-white uppercase tracking-wider"><i class="fa-solid fa-calendar-days text-red-500 mr-1.5"></i> This Week's Match</h3>
         <p class="text-[11px] text-slate-400 mt-0.5">Next scheduled Kildrum league fixture</p></div>
-      <span class="text-[10px] font-bold uppercase tracking-wide rounded-full bg-red-600/20 text-red-300 border border-red-500/30 px-2.5 py-1">${lgEsc(lgFmtDate(fixture.date))}</span>
+      <span class="inline-block mx-auto sm:mx-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 px-3 py-0.5 bg-red-600/90 text-white font-sports font-black text-[10px] sm:text-xs tracking-widest uppercase rounded shadow-sm">${lgEsc(competitionLabel || 'CLYFA LEAGUE GAME')}</span>
     </div>
     <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 sm:p-4">
       <div class="flex items-center justify-between gap-2 sm:gap-4">
-        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">${lgBadge(fixture.home, 52)}<span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.home)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Home</span></div>
-        <div class="shrink-0 text-center"><span class="font-sports font-black text-lg sm:text-xl text-red-400">VS</span><p class="text-[10px] text-slate-400 mt-1">${lgEsc(dateText)}</p></div>
-        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">${lgBadge(fixture.away, 52)}<span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.away)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Away</span></div>
+        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">
+          <div class="w-[82px] h-[82px] sm:w-[98px] sm:h-[98px] rounded-full bg-slate-900/80 border-2 border-red-500/50 p-1.5 flex items-center justify-center shadow-lg overflow-hidden">${lgBadge(fixture.home, 72)}</div>
+          <span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.home)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Home</span>
+        </div>
+        <div class="shrink-0 text-center w-[38%] min-w-0"><span class="font-sports font-black text-lg sm:text-xl text-red-400">VS</span><p class="text-[10px] sm:text-xs text-slate-300 mt-1">${lgEsc(dateText)}</p><p class="text-[11px] sm:text-sm font-extrabold text-white mt-1 drop-shadow-md">KO ${lgEsc(fixtureKickoff || 'TBC')}</p><p class="text-[9px] sm:text-[10px] text-slate-400 mt-1 leading-tight">${lgEsc(fixtureVenue || 'Venue to be confirmed')}</p></div>
+        <div class="flex-1 min-w-0 flex flex-col items-center text-center gap-1">
+          <div class="w-[82px] h-[82px] sm:w-[98px] sm:h-[98px] rounded-full bg-slate-900/80 border-2 border-slate-600/50 p-1.5 flex items-center justify-center shadow-lg overflow-hidden">${lgBadge(fixture.away, 72)}</div>
+          <span class="text-[11px] sm:text-xs font-bold text-white leading-tight">${lgEsc(fixture.away)}</span><span class="text-[9px] uppercase tracking-wider text-slate-500">Away</span>
+        </div>
       </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -2584,7 +2749,8 @@ function lgRenderThisWeekMatch() {
       <p class="text-[10px] text-slate-500">Position 1 is the top of the league. The graph compares both teams across the completed match dates this season.</p>
     </div>`;
 
-  if (hasLinkedSquad) lgCloneSquadAnnouncement(document.getElementById('thisWeekSquadPreview'));
+  if (hasDedicatedSquad) lgClonePublishedSquadAnnouncement(document.getElementById('thisWeekSquadPreview'), publishedSquad);
+  else if (hasLegacySquad) lgCloneSquadAnnouncement(document.getElementById('thisWeekSquadPreview'));
   if (canShowProgression && document.getElementById('lgThisWeekProgChart')) {
     lgDrawProgChart('lgThisWeekProgChart', [fixture.home, fixture.away], 'date', LG_OWN_TEAM);
   }
