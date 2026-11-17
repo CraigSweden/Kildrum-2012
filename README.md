@@ -1,115 +1,115 @@
-Kildrum – League & Match Information
+# ⚽ Kildrum United Matchday Studio
 
-Welcome to the Kildrum football information page for the 2012 team.
+> **CLYFA Division D · Season 26/27**
 
-This application provides parents, players and supporters with an easy way to keep up to date with league standings, team performances, match results and upcoming fixtures.
+The **Kildrum United Matchday Studio** is a web application for managing league standings, tracking live matchday events pitch-side, and generating social media graphics. The application features two viewing modes: a public **View-Only Mode** for parents, players, and supporters, and an unlocked **Coach/Admin Mode** for team management and live publishing.
 
-Our aim is to make it easy to see how the teams are performing and keep everyone informed throughout the season.
+---
 
-1. The League Table
+## 📋 Table of Contents
 
-The league table provides an overview of the current league standings.
+1. [Access Modes & Navigation](#1-access-modes--navigation)
+2. [League Hub (Public & Coach Views)](#2-league-hub-public--coach-views)
+3. [Lineup Generator (Coach Mode)](#3-lineup-generator-coach-mode)
+4. [Match Day Recorder (Coach Mode)](#4-match-day-recorder-coach-mode)
+5. [Result & Match Report Studio (Coach Mode)](#5-result--match-report-studio-coach-mode)
+6. [Saving, Cloud Sync & Help](#6-saving-cloud-sync--help)
 
-You can see:
+---
 
-Position – The team's current position in the league.
+## 1. Access Modes & Navigation
 
-Played (MP) – The number of matches played.
+### 👀 Public View-Only Mode (Parents & Supporters)
+By default (or when accessed via `?view=league`), the app opens directly to the **League** tab.
+* **Available Features:** League Table, This Week's Match, Progression Charts, Head-to-Head Comparisons, Diagnostics, Scorers Leaderboard, League Matrix, and the **Help** guide.
+* **Restricted Features:** The **Lineup Generator**, **Result & Match Report**, **Match Recorder**, and **Manage Results** tabs display a lock icon (`🔒`) and cannot be edited without authorization.
 
-Won (W) – Matches won.
+### 🔓 Unlocking Coach / Admin Mode
+1. Click on any locked tab (**Lineup Generator**, **Result & Match Report**, or **Match Recorder**).
+2. Paste your **GitHub Personal Access Token** (configured with `Contents: Read and write` permissions for this repository) into the password field and press **Enter** or click **Unlock**.
+3. Once verified, the token is saved locally on your device, the lock icons disappear, and top-bar actions (**Save Locally**, **Reset**, **Print**, **Save Graphic (PNG)**) become visible.
 
-Drawn (D) – Matches drawn.
+---
 
-Lost (L) – Matches lost.
+## 2. League Hub (Public & Coach Views)
 
-Goals For (GF) – Total goals scored.
+The **League** tab pulls live season data from the repository and organizes it into eight sub-tabs:
 
-Goals Against (GA) – Total goals conceded.
+| Sub-Tab | Access | Description |
+| :--- | :---: | :--- |
+| **Table** | Public | Current CLYFA Division D standings. Click any team name to open a pop-up modal showing their past results and upcoming fixtures. |
+| **This Week's Match** | Public | Displays the next scheduled Kildrum United fixture along with the published squad announcement graphic. |
+| **Progression** | Public | Interactive line charts tracking team points and position changes across the season. |
+| **Head to Head** | Public | Side-by-side statistical comparison between Kildrum United and any selected league opponent. |
+| **Diagnostics** | Public | Advanced team performance metrics, goal trends, and form analysis. |
+| **Scorers** | Public | Season goal-scoring leaderboard. |
+| **League Matrix** | Public | Grid overview showing all home and away scorelines between every team in the division. |
+| **Manage Results** | Coach Only | Allows editing league results and pushing updated standings and scorer tables online to GitHub. |
 
-Goal Difference (GD) – The difference between goals scored and conceded.
+---
 
-Points (PTS) – The team's total league points.
+## 3. Lineup Generator (Coach Mode)
 
-Form – A visual record of recent match results.
+Use this tab to build and publish pre-match squad announcement graphics.
 
-League positions and points are updated when completed match results are published.
+### Step 1: Match Info & Badges
+* Enter the **Competition**, **Match Date**, **Kick-off Time**, and **Venue / Pitch**.
+* Toggle whether Kildrum Utd are playing **HOME** or **AWAY**.
+* Select an **Opposition Club** from the dropdown (which automatically loads their club badge) or enter a custom **Opposition Name** and click **Upload opposition badge** to use a custom image.
 
-2. View a Team's Results and Fixtures
+### Step 2: Tactics & Kit Customization
+* **Starting Formation:** Choose from `4-4-2`, `3-5-2`, `4-3-3`, `4-2-3-1`, `3-4-3`, or `5-3-2`.
+* **Graphic View Style:** Switch between **Jerseys Grid (3D Shirt Style)** or **Tactical Pitch View**.
+* **Squad Display:** Choose whether to distinguish starters from bench players with `SUB` tags or show all called-up players equally.
+* **Kit Style & Colors:** Select the **Home Kit (Red & Black)**, **Away Kit (Green & Patterned)**, or customize the **Kit Body**, **Kit Sleeves**, and **GK Body** colors using the color pickers.
 
-You can find out more about any team by selecting its name in the league table.
+### Step 3: Squad Roster Manager
+* Click **Add Player** to add new names to the roster, or edit existing shirt numbers (`#`), names, and positions (`Pos`) directly in the table.
+* Set each player's matchday status:
+  * **`XI`** — Starting lineup *(included in graphic)*
+  * **`SUB`** — Substitute *(included in graphic)*
+  * **`NO`** — Not called up *(excluded from graphic)*
 
-This opens the Team Details panel, which provides an overview of that team's performance.
+### Step 4: Publish or Export
+* **Publish Squad Announcement:** Select the upcoming fixture from the dropdown and click **PUBLISH SQUAD ANNOUNCEMENT**. This updates the *This Week's Match* card for parents without altering league scores or standings.
+* **Export:** Use the header buttons to **Print** or **Save Graphic (PNG)** for sharing on social media.
 
-The panel includes:
+---
 
-Upcoming Fixtures
+## 4. Match Day Recorder (Coach Mode)
 
-See the scheduled matches for the selected team, including:
+Designed for pitch-side live tracking on a phone or tablet.
 
-Match date.
+1. **Setup:** Verify the **Match date** and set the **Half length (minutes)** (default is `40` minutes).
+2. **Match Clock:** Use **Start first half**, **Stop first half**, **Start second half**, and **Stop second half** to run the live countdown/match timer.
+3. **Recording Goals:**
+   * Tap the large **KILDRUM UTD** panel when Kildrum scores. A dialog will open prompting you to select the **Scorer** from the matchday squad and confirm the half and elapsed time.
+   * Tap the **OPPOSITION** panel to log an opponent goal.
+   * Click **Add missed goal** in the **Goal Log** section to manually enter or edit a goal after the fact.
+4. **Syncing:** Click **Push details to Match Report** to automatically transfer the final score, match date, and goal scorers into the *Result & Match Report* tab. Click **New match** to clear the timer and log for a fresh game.
 
-Opposing team.
+---
 
-Whether the match is home or away.
+## 5. Result & Match Report Studio (Coach Mode)
 
-Fixtures are subject to change, so please check the information before travelling to a match.
+Create a shareable `600×800px` full-time graphic and WhatsApp summary after the final whistle.
 
-Where no future matches have been scheduled, the panel will display a message confirming that there are no upcoming fixtures.
+1. **Link League Match:** Select the fixture from the **League Match** dropdown to auto-fill the opponent, date, and side.
+2. **Scoreline & Details:** Confirm the **Kildrum Utd Score** and **Opposition Score** (or import them from the Match Recorder), select the **Match Status Badge** (`FULL TIME`, `HALF TIME`, `EXTRA TIME`, `PENALTIES`), and enter the **Man of the Match**.
+3. **Goals & Assists:** Click **Add Goal** to list scorers, minutes, and assist providers beneath the score boxes.
+4. **Match Commentary & Photo:**
+   * Type your match summary in the **Match Report & WhatsApp Copy** box.
+   * Set **Include team photo?** to **Yes** to upload a post-match squad photo (the layout automatically adjusts badge sizes and text spacing to fit).
+5. **Share & Save:**
+   * Click **Copy WhatsApp Post** to copy a pre-formatted text summary ready to paste into team group chats.
+   * Click **Save Graphic (PNG)** in the top header to download the full-time graphic.
 
-Previous Results
+---
 
-See the team's completed matches, including:
+## 6. Saving, Cloud Sync & Help
 
-Match date.
-
-Opposing team.
-
-Final score.
-
-Whether the match was played at home or away.
-
-Match outcome.
-
-The coloured result circles make it easy to identify recent performances:
-
-🟢 Green – Win.
-
-🟠 Amber – Draw.
-
-🔴 Red – Loss.
-
-Select another team's name to view its details, or close the panel to return to the league table.
-
-3. Match Reports
-
-Match reports provide additional information about completed games.
-
-Where available, reports include:
-
-The teams involved.
-
-The final score.
-
-Goal scorers.
-
-Match details and highlights.
-
-These reports provide a useful record of the season and help everyone follow the team's progress.
-
-4. Keeping Information Up to Date
-
-League standings, completed results and team statistics are updated as match information becomes available.
-
-Upcoming fixtures are displayed separately from completed results. Adding a future fixture does not count as a played match and does not change the league table.
-
-Please remember that fixture dates and other match arrangements can change during the season.
-
-5. A Note to Parents and Supporters
-
-We hope this page makes it easier for everyone to follow the teams, check upcoming matches and celebrate the players' performances.
-
-Thank you for your continued support of the players and the club.
-
-Cheers Craig
-
-Come on Kildrum!
+* **Save Locally:** Stores your current lineup, match recorder state, and report draft in your browser's local storage so work is not lost if you refresh the page.
+* **Publishing Online:**
+  * *Squad lineups* are published via **Publish Squad Announcement** in the Lineup Generator tab.
+  * *Official league scores and scorers* are published online via **League > Manage Results > Push current data online**.
+* **In-App Help Panel:** Clicking **Help** in the top navigation bar loads this `README.md` directly inside the app for parents and supporters.
