@@ -4,6 +4,9 @@
 
 The **Kildrum United Matchday Studio** is a web application for managing league standings, tracking live matchday events pitch-side, and generating social media graphics. The application features two viewing modes: a public **View-Only Mode** for parents, players, and supporters, and an unlocked **Coach/Admin Mode** for team management and live publishing.
 
+For a full guide with screenshots, see the User Guide:
+https://github.com/craigsweden/Kildrum-2012/blob/HEAD/USER_GUIDE.md
+
 ---
 
 ## 📋 Table of Contents
