@@ -31,6 +31,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    input[type="date"] { color-scheme: dark; min-height: 34px; }
+    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.9; cursor: pointer; }
     .ico { display:inline-block; width:1em; height:1em; fill:currentColor; vertical-align:-0.125em; }
     body {
       font-family: 'Inter', sans-serif;
@@ -257,6 +259,10 @@
             </div>
           </div>
 
+          <label class="flex items-start gap-2 mb-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800 cursor-pointer">
+            <input type="checkbox" id="squadNotSelectedToggle" onchange="updateGraphic(); touchMatchdayState();" class="mt-0.5 w-4 h-4 accent-red-600 shrink-0">
+            <span class="text-[11px] text-slate-300"><span class="font-bold text-white">SQUAD not selected yet</span><br><span class="text-slate-400">Tick this when the match details (date, KO time, venue) are known but the squad has not been called. The graphic and This Week's Match will show &ldquo;Squad not selected&rdquo;. Untick it once the squad is ready.</span></span>
+          </label>
           <p class="text-[11px] text-slate-400 mb-2">
             Set each player to <span class="text-emerald-400 font-bold">XI</span> (starting), <span class="text-amber-400 font-bold">SUB</span> (substitute) or <span class="text-slate-300 font-bold">NO</span> (not called). XI and SUB players appear in the squad graphic; NO players are left out.
           </p>
@@ -330,6 +336,16 @@
                   </div>
                 </div>
 
+              </div>
+
+              <!-- VIEW 0: SQUAD NOT SELECTED YET -->
+              <div id="noSquadView" class="hidden w-full">
+                <div class="flex items-center justify-center mb-4">
+                  <h3 class="font-sports font-extrabold text-base sm:text-xl text-white uppercase tracking-wider drop-shadow-sm">SQUAD ANNOUNCEMENT</h3>
+                </div>
+                <div class="min-h-[260px] flex items-center justify-center rounded-lg border border-white/15 bg-slate-950/70 p-6 text-center">
+                  <div><i class="fa-solid fa-users-slash text-4xl text-slate-500"></i><p class="font-sports font-extrabold text-lg sm:text-2xl text-white uppercase tracking-wider mt-3">Squad not selected</p><p class="text-xs text-slate-400 mt-1">The squad will be announced once it has been confirmed.</p></div>
+                </div>
               </div>
 
               <!-- VIEW 2: TACTICAL PITCH DISPLAY -->
@@ -917,6 +933,7 @@
           if (data.motm != null) document.getElementById('motmInput').value = data.motm;
           if (data.commentary != null) document.getElementById('matchCommentaryInput').value = data.commentary;
           if (data.squad) squad = data.squad;
+          { const nsToggle = document.getElementById('squadNotSelectedToggle'); if (nsToggle && typeof data.squadNotSelected === 'boolean') nsToggle.checked = data.squadNotSelected; }
           if (Array.isArray(data.goalEvents)) goalEvents = normaliseGoalEvents(data.goalEvents);
           if (data.matchRecorder && window.loadMatchRecorderData) window.loadMatchRecorderData(data.matchRecorder);
           if (data.leagueMatchId != null) leagueMatchId = Number(data.leagueMatchId); else if (typeof leagueMatchId !== 'undefined') leagueMatchId = null;
@@ -1596,7 +1613,13 @@
 
       const jerseysView = document.getElementById('jerseysView');
       const tacticalView = document.getElementById('tacticalView');
-      if (jerseysView && tacticalView) {
+      const noSquadView = document.getElementById('noSquadView');
+      const squadNotSelected = !!document.getElementById('squadNotSelectedToggle')?.checked;
+      if (noSquadView) noSquadView.classList.toggle('hidden', !squadNotSelected);
+      if (jerseysView && tacticalView && squadNotSelected) {
+        jerseysView.classList.add('hidden');
+        tacticalView.classList.add('hidden');
+      } else if (jerseysView && tacticalView) {
         if (mode === 'jerseys') {
           jerseysView.classList.remove('hidden');
           tacticalView.classList.add('hidden');
@@ -1854,6 +1877,7 @@
         motm: document.getElementById('motmInput').value,
         commentary: document.getElementById('matchCommentaryInput').value,
         squad: JSON.parse(JSON.stringify(squad)),
+        squadNotSelected: !!document.getElementById('squadNotSelectedToggle')?.checked,
         goalEvents: goals,
         matchStatistics: matchdayStatistics(goals, recorder),
         matchRecorder: recorder,
@@ -2451,7 +2475,10 @@ function lgClonePublishedSquadAnnouncement(stage, announcement) {
   const previousValues = {};
   controlIds.forEach(id => { const el = document.getElementById(id); if (el) previousValues[id] = el.value; });
   const previousState = { squad, playingAway, homeBadgeSrc, awayBadgeSrc };
+  const nsToggleEl = document.getElementById('squadNotSelectedToggle');
+  const previousNoSquad = nsToggleEl ? nsToggleEl.checked : false;
   try {
+    if (nsToggleEl) nsToggleEl.checked = announcement.squadNotSelected === true;
     const setValue = (id, value) => { const el = document.getElementById(id); if (el && value != null && value !== '') el.value = value; };
     setValue('compName', announcement.compName || 'CLYFA League Game');
     setValue('oppName', announcement.opponent || (announcement.home === LG_OWN_TEAM ? announcement.away : announcement.home));
@@ -2477,6 +2504,7 @@ function lgClonePublishedSquadAnnouncement(stage, announcement) {
     stage.innerHTML = '<p class="text-sm text-slate-400 p-3">The published squad data was found, but its graphic could not be rendered.</p>';
   } finally {
     controlIds.forEach(id => { const el = document.getElementById(id); if (el && Object.prototype.hasOwnProperty.call(previousValues, id)) el.value = previousValues[id]; });
+    if (nsToggleEl) nsToggleEl.checked = previousNoSquad;
     squad = previousState.squad;
     playingAway = previousState.playingAway;
     homeBadgeSrc = previousState.homeBadgeSrc;
@@ -2493,13 +2521,14 @@ async function lgPublishSquadAnnouncement() {
   if (!select || !select.value) { say('Choose the upcoming Kildrum fixture first.'); return; }
   if (lg.mode !== 'online') { say('The online league is not available. Reconnect before publishing.'); return; }
   ensureStatuses();
+  const squadNotSelected = !!document.getElementById('squadNotSelectedToggle')?.checked;
   const selectedSquad = squad.filter(p => p && (p.status === 'XI' || p.status === 'SUB'));
-  if (!selectedSquad.length) { say('No players are selected. Set players to XI or SUB before publishing.'); return; }
+  if (!squadNotSelected && !selectedSquad.length) { say('No players are selected. Set players to XI or SUB, or tick "SQUAD not selected yet", before publishing.'); return; }
   const option = select.options[select.selectedIndex];
   const fixtureId = Number(select.value);
   const expected = { id: fixtureId, date: option?.dataset?.date || '', home: option?.dataset?.home || '', away: option?.dataset?.away || '' };
   if (!Number.isSafeInteger(fixtureId) || fixtureId <= 0 || !expected.date || !expected.home || !expected.away) { say('The selected fixture is incomplete. Refresh the league and try again.'); return; }
-  if (!confirm(`Publish the selected squad announcement for ${expected.home} v ${expected.away} on ${lgFmtDateLong(expected.date)}?
+  if (!confirm(`${squadNotSelected ? 'Publish the match details with "Squad not selected" for' : 'Publish the selected squad announcement for'} ${expected.home} v ${expected.away} on ${lgFmtDateLong(expected.date)}?
 
 This updates only the parent-facing squad announcement. Scores, scorers and the league table will not be changed.`)) return;
   const oldLabel = button ? button.innerHTML : '';
@@ -2550,7 +2579,8 @@ This updates only the parent-facing squad announcement. Scores, scorers and the 
       kitMain: document.getElementById('kitMainColor')?.value || '#dc2626',
       kitSleeve: document.getElementById('kitSleeveColor')?.value || '#1e293b',
       gkMain: document.getElementById('gkMainColor')?.value || '#facc15',
-      squad: JSON.parse(JSON.stringify(squad)),
+      squadNotSelected,
+      squad: squadNotSelected ? [] : JSON.parse(JSON.stringify(squad)),
       homeBadgeSrc,
       awayBadgeSrc: opponentBadge,
       publishedAt: new Date().toISOString()
@@ -2688,7 +2718,7 @@ function lgRenderThisWeekMatch() {
   const preview = `Next up, Kildrum Utd are ${where} ${opponent} in their next league fixture on ${dateText}. Kildrum currently sit ${statLine(kildrumRow)}. ${opponent} are ${statLine(opponentRow)}. This preview is based on the published fixture and current league table.`;
 
   const md = window.kildrumPublishedMatchday || null;
-  const hasDedicatedSquad = !!squadForFixture && lgSquadHasSelection(squadForFixture);
+  const hasDedicatedSquad = !!squadForFixture && (lgSquadHasSelection(squadForFixture) || squadForFixture.squadNotSelected === true);
   const hasLegacySquad = lgMatchdayMatchesFixture(md, fixture) && lgSquadHasSelection(md);
   const hasLinkedSquad = hasDedicatedSquad || hasLegacySquad;
   const canShowProgression = lg.matches.length > 0 && !!window.Chart;
@@ -3189,7 +3219,7 @@ function lgRenderManage() {
             <option value="fixture" ${(editingFixture || (!e && !lg.editId)) ? 'selected' : ''}>Upcoming fixture (does not affect table)</option>
             <option value="result" ${e ? 'selected' : ''}>Completed result (updates league table)</option>
           </select>
-          <label class="text-[11px] text-slate-400">Date</label><input id="lgfDate" type="date" value="${e ? e.date : f ? f.date : today}" class="${cls}">
+          <label class="text-[11px] text-slate-400">Date</label><div class="relative"><input id="lgfDate" type="date" value="${e ? e.date : f ? f.date : today}" class="${cls} pr-9"><button type="button" onclick="lgOpenDatePicker()" aria-label="Choose date from calendar" title="Choose date from calendar" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white rounded"><i class="fa-solid fa-calendar-days"></i></button></div>
           <label class="text-[11px] text-slate-400">Home team</label><select id="lgfHome" class="${cls}">${opt(e ? e.home : f ? f.home : LG_OWN_TEAM)}</select>
           <label class="text-[11px] text-slate-400">Away team</label><select id="lgfAway" class="${cls}">${opt(e ? e.away : f ? f.away : all.find(t => t !== LG_OWN_TEAM))}</select>
           <div id="lgScoreFields" class="grid grid-cols-2 gap-2 ${e ? '' : 'hidden'}"><div><label class="text-[11px] text-slate-400">Home goals</label><input id="lgfHG" type="number" min="0" value="${e ? e.hg : ''}" class="${cls}"></div>
@@ -3226,6 +3256,13 @@ function lgRenderManage() {
         </div>
       </div></div>`;
   lgToggleMatchType();
+}
+function lgOpenDatePicker() {
+  const el = document.getElementById('lgfDate');
+  if (!el) return;
+  el.focus();
+  try { if (typeof el.showPicker === 'function') { el.showPicker(); return; } } catch (err) { /* fall through */ }
+  try { el.click(); } catch (err) { /* typing the date still works */ }
 }
 function lgToggleMatchType() {
   const type = document.getElementById('lgfType')?.value || 'fixture';
