@@ -148,7 +148,11 @@
             </div>
             <div>
               <label class="block text-slate-400 mb-0.5 text-[10px] font-medium leading-tight">Match Date</label>
-              <input type="text" id="matchDate" value="Saturday, 18 Oct 2026" oninput="updateGraphic(); updateResultGraphic(); touchMatchdayState();" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white focus:outline-none focus:border-red-500 transition">
+              <div class="relative">
+                <input type="text" id="matchDate" value="Saturday, 18 Oct 2026" oninput="updateGraphic(); updateResultGraphic(); touchMatchdayState();" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 pr-8 text-white focus:outline-none focus:border-red-500 transition">
+                <button type="button" onclick="openMatchDatePicker()" aria-label="Choose match date from calendar" title="Choose match date from calendar" class="absolute right-0.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-slate-300 hover:text-white rounded"><i class="fa-solid fa-calendar-days"></i></button>
+                <input type="date" id="matchDatePicker" tabindex="-1" aria-hidden="true" onchange="setMatchDateFromPicker(this.value)" class="absolute left-0 bottom-0 w-full h-px opacity-0 pointer-events-none">
+              </div>
             </div>
             <div>
               <label class="block text-slate-400 mb-0.5 text-[10px] font-medium leading-tight">Kick-off Time</label>
@@ -2482,7 +2486,7 @@ function lgClonePublishedSquadAnnouncement(stage, announcement) {
     const setValue = (id, value) => { const el = document.getElementById(id); if (el && value != null && value !== '') el.value = value; };
     setValue('compName', announcement.compName || 'CLYFA League Game');
     setValue('oppName', announcement.opponent || (announcement.home === LG_OWN_TEAM ? announcement.away : announcement.home));
-    setValue('matchDate', announcement.matchDate || longDate(announcement.fixtureDate));
+    setValue('matchDate', announcement.matchDate || niceDate(announcement.fixtureDate));
     const kickoffControl = document.getElementById('kickoffTime');
     if (kickoffControl) kickoffControl.value = /^\d{2}:\d{2}$/.test(String(announcement.kickoffTime || '')) ? announcement.kickoffTime : '';
     setValue('venueName', announcement.venueName || '');
@@ -2569,7 +2573,7 @@ This updates only the parent-facing squad announcement. Scores, scorers and the 
       opponent: String(opponent),
       playingAway: playingAwayForFixture,
       compName: document.getElementById('compName')?.value || 'CLYFA League Game',
-      matchDate: longDate(fixture.date),
+      matchDate: niceDate(fixture.date),
       kickoffTime: document.getElementById('kickoffTime')?.value || '',
       venueName: venue,
       formation: document.getElementById('formationSelect')?.value || '3-5-2',
@@ -2642,6 +2646,62 @@ function lgCloneSquadAnnouncement(stage) {
     holder.style.height = `${naturalHeight * scale}px`;
   });
 }
+// Automatic match preview written from the published league data (no external AI call).
+function lgBuildMatchPreview({ fixture, opponent, where, dateText, kRow, oRow }) {
+  const K = 'Kildrum';
+  const pl = (n, one, many) => n === 1 ? one : many;
+  const avg = (a, b) => b ? Math.round((a / b) * 10) / 10 : 0;
+  const rec = r => `${r.w} won, ${r.d} drawn, ${r.l} lost`;
+  const formOf = r => (r.last5 || []).length ? [...r.last5].reverse().map(x => x.res).join('-') : '';
+  const signed = n => n > 0 ? '+' + n : String(n);
+  const paras = [`Next up, Kildrum Utd are ${where} ${opponent} on ${dateText}.`];
+  const bothPlayed = kRow && oRow && kRow.mp > 0 && oRow.mp > 0;
+
+  if (bothPlayed) {
+    const gap = kRow.pts - oRow.pts;
+    let gapText;
+    if (gap > 0) gapText = `That leaves Kildrum ${gap} ${pl(gap, 'point', 'points')} clear of ${opponent}.`;
+    else if (gap < 0) gapText = `That leaves Kildrum ${-gap} ${pl(-gap, 'point', 'points')} behind ${opponent}, so a win would really close the gap.`;
+    else gapText = `The two sides are level on points, so this one could shift the table.`;
+    paras.push(`In the table, Kildrum sit ${lgOrdinal(kRow.pos)} on ${kRow.pts} ${pl(kRow.pts, 'point', 'points')} from ${kRow.mp} ${pl(kRow.mp, 'match', 'matches')} (${rec(kRow)}), while ${opponent} are ${lgOrdinal(oRow.pos)} on ${oRow.pts} from ${oRow.mp} (${rec(oRow)}). ${gapText}`);
+
+    const kAtk = avg(kRow.gf, kRow.mp), oAtk = avg(oRow.gf, oRow.mp);
+    const kDef = avg(kRow.ga, kRow.mp), oDef = avg(oRow.ga, oRow.mp);
+    let edge;
+    if (kAtk > oDef && oAtk > kDef) edge = `Both attacks look likely to find chances here, so expect goals at both ends.`;
+    else if (kAtk > oDef) edge = `Kildrum's attack meets a defence that has been leaking goals, so there should be chances to take.`;
+    else if (oAtk > kDef) edge = `${opponent} carry a real goal threat, so concentration at the back will be important for Kildrum.`;
+    else edge = `Both defences have been tight, so this could be decided by one moment of quality.`;
+    paras.push(`Going forward, Kildrum average ${kAtk} ${pl(kAtk, 'goal', 'goals')} a game against ${oAtk} for ${opponent}. At the back, Kildrum concede ${kDef} a game compared with ${oDef} for ${opponent}, with goal differences of ${signed(kRow.gd)} and ${signed(oRow.gd)} respectively. ${edge}`);
+
+    const kForm = formOf(kRow), oForm = formOf(oRow);
+    if (kForm && oForm) paras.push(`Recent form reads ${kForm} for Kildrum and ${oForm} for ${opponent} (most recent result last).`);
+  } else {
+    paras.push(`The league picture is still taking shape, with ${!kRow || !kRow.mp ? 'Kildrum' : opponent} yet to record a completed league result, so this is a fresh chance for both teams to set their stall out.`);
+  }
+
+  const pair = (lg.matches || []).filter(m => (m.home === fixture.home && m.away === fixture.away) || (m.home === fixture.away && m.away === fixture.home))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (pair.length) {
+    const last = pair[pair.length - 1];
+    const kScore = last.home === LG_OWN_TEAM ? last.hg : last.ag, oScore = last.home === LG_OWN_TEAM ? last.ag : last.hg;
+    const outcome = kScore > oScore ? 'won' : kScore < oScore ? 'lost' : 'drew';
+    paras.push(`When these sides last met on ${niceDate(last.date)}, Kildrum ${outcome} ${kScore}-${oScore}.`);
+  } else {
+    paras.push(`These two teams have not met in the league yet this season, so there is nothing to separate them head to head.`);
+  }
+
+  if (bothPlayed) {
+    const kPpg = kRow.pts / kRow.mp, oPpg = oRow.pts / oRow.mp;
+    if (kPpg - oPpg > 0.5) paras.push(`On the numbers Kildrum go in as favourites, but tables don't win matches. Stay focused, work for every ball and enjoy it.`);
+    else if (oPpg - kPpg > 0.5) paras.push(`On paper this is a stiff test, but that is what makes it a great chance to show what this team is about. Play without fear and enjoy it.`);
+    else paras.push(`These two look closely matched, so the small moments, the work rate and the team spirit could make all the difference.`);
+  } else {
+    paras.push(`Whatever the numbers say, it comes down to effort, teamwork and enjoying the game.`);
+  }
+  paras.push('Come on Kildrum!');
+  return paras.join('\n\n');
+}
 function lgRenderThisWeekMatch() {
   const content = document.getElementById('thisWeekMatchContent');
   if (!content || !lg.loaded) return;
@@ -2665,7 +2725,7 @@ function lgRenderThisWeekMatch() {
   const homeKildrum = fixture.home === LG_OWN_TEAM;
   const opponent = homeKildrum ? fixture.away : fixture.home;
   const where = homeKildrum ? 'at home to' : 'away to';
-  const dateText = lgFmtDateLong(fixture.date);
+  const dateText = niceDate(fixture.date);
   const publishedSquad = window.kildrumPublishedSquadAnnouncement || null;
   const squadForFixture = lgSquadAnnouncementMatchesFixture(publishedSquad, fixture) ? publishedSquad : null;
   const fixtureKickoff = squadForFixture && /^\d{2}:\d{2}$/.test(String(squadForFixture.kickoffTime || '')) ? squadForFixture.kickoffTime : '';
@@ -2715,7 +2775,7 @@ function lgRenderThisWeekMatch() {
   };
   const kildrumRow = table.find(r => r.team === LG_OWN_TEAM);
   const opponentRow = table.find(r => r.team === opponent);
-  const preview = `Next up, Kildrum Utd are ${where} ${opponent} in their next league fixture on ${dateText}. Kildrum currently sit ${statLine(kildrumRow)}. ${opponent} are ${statLine(opponentRow)}. This preview is based on the published fixture and current league table.`;
+  const preview = lgBuildMatchPreview({ fixture, opponent, where, dateText, kRow: kildrumRow, oRow: opponentRow });
 
   const md = window.kildrumPublishedMatchday || null;
   const hasDedicatedSquad = !!squadForFixture && (lgSquadHasSelection(squadForFixture) || squadForFixture.squadNotSelected === true);
@@ -2766,7 +2826,7 @@ function lgRenderThisWeekMatch() {
     </div>
     <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
       <h4 class="font-sports font-bold text-xs text-red-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-comment-dots mr-1"></i> Match Preview</h4>
-      <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${lgEsc(preview)}</p>
+      <p class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">${lgEsc(preview)}</p>
     </div>
     <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 space-y-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
@@ -3518,6 +3578,38 @@ function scorerUndoAvailable() {
 }
 let matchLinkDone = false;
 const normName = v => String(v || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const NICE_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const NICE_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// e.g. 2026-11-28 -> "Sat, 28th of Nov, 2026"
+function niceDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return String(iso || '');
+  const n = d.getDate(), v = n % 100;
+  const suffix = (v >= 11 && v <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+  return `${NICE_DAYS[d.getDay()]}, ${n}${suffix} of ${NICE_MONTHS[d.getMonth()]}, ${d.getFullYear()}`;
+}
+function parseMatchDateText(text) {
+  const m = String(text || '').match(/(\d{1,2})(?:st|nd|rd|th)?(?:\s+of)?\s+([A-Za-z]{3})[A-Za-z]*\.?,?\s+(\d{4})/);
+  if (!m) return '';
+  const mi = NICE_MONTHS.findIndex(x => x.toLowerCase() === m[2].toLowerCase());
+  if (mi < 0) return '';
+  return `${m[3]}-${String(mi + 1).padStart(2, '0')}-${String(Number(m[1])).padStart(2, '0')}`;
+}
+function openMatchDatePicker() {
+  const picker = document.getElementById('matchDatePicker');
+  if (!picker) return;
+  const current = parseMatchDateText(document.getElementById('matchDate')?.value);
+  if (current) picker.value = current;
+  try { if (typeof picker.showPicker === 'function') { picker.showPicker(); return; } } catch (err) { /* fall through */ }
+  try { picker.focus(); picker.click(); } catch (err) { /* typing the date still works */ }
+}
+function setMatchDateFromPicker(iso) {
+  if (!iso) return;
+  const field = document.getElementById('matchDate');
+  if (!field) return;
+  field.value = niceDate(iso);
+  updateGraphic(); updateResultGraphic(); touchMatchdayState();
+}
 function longDate(iso) { const d = new Date(iso + 'T00:00:00'); return d.toLocaleDateString('en-GB', { weekday: 'long' }) + ', ' + d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'short' }) + ' ' + d.getFullYear(); }
 window.getUpcomingLeagueFixtures = () => (lg.fixtures || []).map(f => ({ ...f }));
 function kildrumMatches() { return lg.matches.filter(m => m.home === LG_OWN_TEAM || m.away === LG_OWN_TEAM).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id); }
@@ -3548,7 +3640,7 @@ function validateMatchdayLink(snapshot) {
   // report with a changed home/away selection being saved against another fixture.
   if (snapshot.homeTeam && normName(snapshot.homeTeam) !== normName(target.home)) return { ok: false, message: 'The report home team does not match the linked league match. Re-select the correct fixture before saving.' };
   if (snapshot.awayTeam && normName(snapshot.awayTeam) !== normName(target.away)) return { ok: false, message: 'The report away team does not match the linked league match. Re-select the correct fixture before saving.' };
-  if (snapshot.matchDate && snapshot.matchDate !== longDate(target.date)) return { ok: false, message: 'The date displayed on the Match Report does not match the linked league fixture. Re-select the correct fixture before saving.' };
+  if (snapshot.matchDate && snapshot.matchDate !== longDate(target.date) && snapshot.matchDate !== niceDate(target.date)) return { ok: false, message: 'The date displayed on the Match Report does not match the linked league fixture. Re-select the correct fixture before saving.' };
   return { ok: true, target, type: fixtureId != null ? 'fixture' : 'result' };
 }
 window.validateMatchdayLink = validateMatchdayLink;
