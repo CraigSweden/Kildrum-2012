@@ -2702,6 +2702,141 @@ function lgBuildMatchPreview({ fixture, opponent, where, dateText, kRow, oRow })
   paras.push('Come on Kildrum!');
   return paras.join('\n\n');
 }
+// ---------- THIS WEEK'S MATCH: single landscape image for WhatsApp ----------
+function lgSlideBadge(team, size) {
+  const src = lgTeamBadgeSource(team);
+  if (src) return `<img src="${src}" style="width:${size}px;height:${size}px;object-fit:contain;flex:none" alt="">`;
+  const ini = lgEsc(String(team || '?').slice(0, 2).toUpperCase());
+  return `<span style="width:${size}px;height:${size}px;border-radius:50%;background:#1e293b;color:#94a3b8;font-weight:800;font-size:${Math.round(size * 0.36)}px;display:inline-flex;align-items:center;justify-content:center;flex:none">${ini}</span>`;
+}
+const LG_SLIDE = { W: 1920, H: 1080, PAD: 22, GAP: 14, HEADER: 54, BANNER: 214, LEFT: 1100 };
+function lgBuildThisWeekSlideHTML(d) {
+  const S = LG_SLIDE;
+  const bodyH = S.H - S.PAD * 2 - S.HEADER - S.BANNER - S.GAP * 2;
+  const rightW = S.W - S.PAD * 2 - S.LEFT - S.GAP;
+  const card = 'background:#020617;border:1px solid #1e293b;border-radius:16px;box-sizing:border-box;';
+  const h4 = 'font-family:Montserrat,Inter,sans-serif;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.08em;';
+  const dot = r => `<span style="display:inline-block;width:19px;height:19px;border-radius:50%;margin-right:5px;background:${r.res === 'W' ? '#10b981' : r.res === 'D' ? '#fbbf24' : '#ef4444'}"></span>`;
+  const rows = [d.homeRow, d.awayRow].filter(Boolean).map(r => {
+    const gd = r.gd > 0 ? '+' + r.gd : String(r.gd);
+    const own = r.team === LG_OWN_TEAM;
+    return `<tr style="border-top:1px solid #1e293b;${own ? 'background:rgba(220,38,38,.12);' : ''}">
+      <td style="padding:12px 4px;text-align:center;font-weight:800;font-size:28px">${r.pos}</td>
+      <td style="padding:12px 6px"><div style="display:flex;align-items:center;gap:10px">${lgSlideBadge(r.team, 46)}<span style="font-weight:700;font-size:23px;line-height:1.1">${lgEsc(r.team)}</span></div></td>
+      <td style="padding:12px 4px;text-align:center;font-size:23px">${r.mp}</td>
+      <td style="padding:12px 4px;text-align:center;font-size:23px;white-space:nowrap">${r.w}-${r.d}-${r.l}</td>
+      <td style="padding:12px 4px;text-align:center;font-size:23px">${gd}</td>
+      <td style="padding:12px 4px;text-align:center;font-weight:800;font-size:28px">${r.pts}</td>
+      <td style="padding:12px 4px;white-space:nowrap">${(r.last5 || []).map(dot).join('') || '&mdash;'}</td></tr>`;
+  }).join('') || `<tr><td colspan="7" style="padding:18px;text-align:center;color:#94a3b8;font-size:22px">League positions are not yet available.</td></tr>`;
+  const th = 'padding:0 4px 8px;font-size:15px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700;';
+  const n = d.otherFixtures.length;
+  const fs = n > 8 ? 17 : n > 6 ? 19 : 22;
+  const bs = n > 8 ? 30 : n > 6 ? 36 : 44;
+  const others = n ? d.otherFixtures.map(f => `<div style="flex:1 1 0;min-height:0;max-height:104px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(15,23,42,.8);border:1px solid #1e293b;border-radius:10px">
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px">${lgSlideBadge(f.home, bs)}<span style="font-weight:600;font-size:${fs}px;line-height:1.1">${lgEsc(f.home)}</span></div>
+      <span style="flex:none;font-family:Montserrat,Inter,sans-serif;font-weight:900;font-size:${fs - 3}px;color:#f87171">VS</span>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;text-align:right"><span style="font-weight:600;font-size:${fs}px;line-height:1.1">${lgEsc(f.away)}</span>${lgSlideBadge(f.away, bs)}</div>
+    </div>`).join('')
+    : `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:22px;text-align:center">There are no other fixtures scheduled for this matchday.</div>`;
+  const squadFallback = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:#0f172a;border-radius:12px"><div><div style="font-family:Montserrat,Inter,sans-serif;font-weight:900;font-size:64px;text-transform:uppercase;letter-spacing:.06em">Squad not selected</div><div style="margin-top:12px;font-size:26px;color:#94a3b8">The squad will be announced once it has been confirmed.</div></div></div>`;
+  const stageW = S.LEFT - 32, stageH = bodyH - 32 - 52;
+  return `<div id="lgSlideRoot" style="width:${S.W}px;height:${S.H}px;box-sizing:border-box;padding:${S.PAD}px;display:flex;flex-direction:column;gap:${S.GAP}px;background:radial-gradient(circle at 50% 0%,#12203f 0%,#050b1c 55%,#020617 100%);color:#fff;font-family:Inter,sans-serif;overflow:hidden">
+    <div style="height:${S.HEADER}px;position:relative;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-family:Montserrat,Inter,sans-serif;font-weight:800;font-size:34px;letter-spacing:.06em;text-transform:uppercase;line-height:1">This Week's Match</div><div style="font-size:17px;color:#7dd3fc;margin-top:5px">Next scheduled Kildrum league fixture</div></div>
+      <div style="position:absolute;left:50%;transform:translateX(-50%);background:#dc2626;border-radius:6px;padding:7px 26px;font-family:Montserrat,Inter,sans-serif;font-weight:900;font-size:24px;letter-spacing:.14em;text-transform:uppercase">${lgEsc(d.competitionLabel || 'CLYFA LEAGUE GAME')}</div>
+      <div style="font-size:16px;color:#64748b;font-style:italic">Generated by Kildrum Utd Media</div>
+    </div>
+    <div style="${card}height:${S.BANNER}px;display:flex;align-items:center;justify-content:space-between;padding:0 60px">
+      <div style="width:400px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+        <div style="width:138px;height:138px;border-radius:50%;background:rgba(15,23,42,.85);border:3px solid rgba(239,68,68,.55);display:flex;align-items:center;justify-content:center;overflow:hidden">${lgSlideBadge(d.fixture.home, 118)}</div>
+        <div style="font-weight:800;font-size:28px;line-height:1.05">${lgEsc(d.fixture.home)}</div><div style="font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#64748b;margin-top:-4px">Home</div>
+      </div>
+      <div style="flex:1;text-align:center">
+        <div style="font-family:Montserrat,Inter,sans-serif;font-weight:900;font-size:50px;color:#f87171;line-height:1">VS</div>
+        <div style="font-size:30px;color:#e2e8f0;margin-top:8px;font-weight:600">${lgEsc(d.dateText)}</div>
+        <div style="font-size:50px;font-weight:900;margin-top:2px;line-height:1.1">KO ${lgEsc(d.fixtureKickoff || 'TBC')}</div>
+        <div style="font-size:24px;color:#cbd5e1;margin-top:4px">${lgEsc(d.fixtureVenue || 'Venue to be confirmed')}</div>
+      </div>
+      <div style="width:400px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+        <div style="width:138px;height:138px;border-radius:50%;background:rgba(15,23,42,.85);border:3px solid rgba(100,116,139,.55);display:flex;align-items:center;justify-content:center;overflow:hidden">${lgSlideBadge(d.fixture.away, 118)}</div>
+        <div style="font-weight:800;font-size:28px;line-height:1.05">${lgEsc(d.fixture.away)}</div><div style="font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#64748b;margin-top:-4px">Away</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:${S.GAP}px;height:${bodyH}px">
+      <div style="${card}width:${S.LEFT}px;padding:16px;display:flex;flex-direction:column">
+        <div style="${h4}font-size:32px;height:52px;line-height:44px">Squad Announcement</div>
+        <div id="lgSlideSquadStage" style="position:relative;width:${stageW}px;height:${stageH}px;overflow:hidden;border-radius:12px">${d.hasLinkedSquad ? '' : squadFallback}</div>
+      </div>
+      <div style="width:${rightW}px;display:flex;flex-direction:column;gap:${S.GAP}px">
+        <div style="${card}padding:16px">
+          <div style="${h4}font-size:24px;margin-bottom:8px">League Table Positions</div>
+          <table style="width:100%;border-collapse:collapse"><thead><tr><th style="${th}">Pos</th><th style="${th}text-align:left">Team</th><th style="${th}">MP</th><th style="${th}">W-D-L</th><th style="${th}">GD</th><th style="${th}">Pts</th><th style="${th}text-align:left">Form</th></tr></thead><tbody>${rows}</tbody></table>
+        </div>
+        <div style="${card}padding:16px;flex:1;min-height:0;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px"><span style="${h4}font-size:24px">Other Fixtures on Matchday</span><span style="font-size:16px;color:#64748b;text-transform:uppercase;letter-spacing:.06em">${n} fixture${n === 1 ? '' : 's'}</span></div>
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:9px">${others}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+// Fill the squad stage with the real squad graphic, scaled as large as the space allows.
+function lgFitThisWeekSquad(host, d) {
+  const stage = host.querySelector('#lgSlideSquadStage');
+  if (!stage || !d.hasLinkedSquad) return;
+  const scratch = document.createElement('div');
+  scratch.style.cssText = 'width:700px;position:absolute;left:0;top:0;';
+  host.appendChild(scratch);
+  if (d.hasDedicatedSquad) lgClonePublishedSquadAnnouncement(scratch, d.publishedSquad);
+  else lgCloneSquadAnnouncement(scratch);
+  const clone = scratch.firstElementChild?.firstElementChild?.firstElementChild;
+  if (!clone) { scratch.remove(); return; }
+  const stageW = stage.clientWidth, stageH = stage.clientHeight;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:absolute;left:0;top:0;transform-origin:top left;';
+  wrap.appendChild(clone);
+  stage.appendChild(wrap);
+  scratch.remove();
+  clone.style.margin = '0'; clone.style.maxWidth = 'none';
+  let used = 0.5;
+  for (let s = 1.8; s >= 0.5; s = Math.round((s - 0.05) * 100) / 100) {
+    const W = stageW / s, H = stageH / s;
+    clone.style.width = W + 'px'; clone.style.minWidth = W + 'px';
+    clone.style.minHeight = H + 'px'; clone.style.height = 'auto';
+    wrap.style.width = W + 'px';
+    used = s;
+    if (clone.scrollHeight <= H + 1) break;
+  }
+  wrap.style.transform = `scale(${used})`;
+}
+async function lgDownloadThisWeekImage() {
+  const d = window.lgThisWeekExport;
+  const btn = document.getElementById('lgThisWeekImgBtn');
+  if (!d) { alert('There is no upcoming fixture to create an image for.'); return; }
+  if (!window.htmlToImage) { alert('The image tools have not loaded. Please check your connection and try again.'); return; }
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Rendering...'; }
+  const host = document.createElement('div');
+  host.style.cssText = `position:fixed;left:-4000px;top:0;width:${LG_SLIDE.W}px;height:${LG_SLIDE.H}px;pointer-events:none;`;
+  try {
+    host.innerHTML = lgBuildThisWeekSlideHTML(d);
+    document.body.appendChild(host);
+    const slide = host.firstElementChild;
+    lgFitThisWeekSquad(slide, d);
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) { /* carry on */ } }
+    const fontEmbedCSS = await getEmbedFontCSS();
+    const opts = { width: LG_SLIDE.W, height: LG_SLIDE.H, pixelRatio: 1.5, cacheBust: false, backgroundColor: '#020617', fontEmbedCSS };
+    await htmlToImage.toPng(slide, opts); // warm-up pass for fonts and images
+    const url = await htmlToImage.toPng(slide, opts);
+    const a = document.createElement('a');
+    a.download = `Kildrum-This-Weeks-Match-${d.fixture.date || Date.now()}.png`;
+    a.href = url; a.click();
+  } catch (e) { console.error(e); alert('Could not create the image.'); }
+  finally { host.remove(); if (btn) { btn.disabled = false; btn.innerHTML = orig; } }
+}
+window.lgDownloadThisWeekImage = lgDownloadThisWeekImage;
+
 function lgRenderThisWeekMatch() {
   const content = document.getElementById('thisWeekMatchContent');
   if (!content || !lg.loaded) return;
@@ -2710,6 +2845,7 @@ function lgRenderThisWeekMatch() {
     .filter(f => (f.home === LG_OWN_TEAM || f.away === LG_OWN_TEAM) && String(f.date || '') >= today)
     .sort((a, b) => a.date.localeCompare(b.date) || Number(a.id) - Number(b.id))[0];
 
+  window.lgThisWeekExport = null;
   if (!fixture) {
     content.innerHTML = `
       <div class="flex flex-wrap items-center justify-between gap-2">
@@ -2782,11 +2918,13 @@ function lgRenderThisWeekMatch() {
   const hasLegacySquad = lgMatchdayMatchesFixture(md, fixture) && lgSquadHasSelection(md);
   const hasLinkedSquad = hasDedicatedSquad || hasLegacySquad;
   const canShowProgression = lg.matches.length > 0 && !!window.Chart;
+  window.lgThisWeekExport = { fixture, dateText, fixtureKickoff, fixtureVenue, competitionLabel, homeRow, awayRow, otherFixtures, hasLinkedSquad, hasDedicatedSquad, publishedSquad };
   content.innerHTML = `
     <div class="relative flex flex-wrap items-center justify-between gap-2">
       <div><h3 class="font-sports font-extrabold text-sm text-white uppercase tracking-wider"><i class="fa-solid fa-calendar-days text-red-500 mr-1.5"></i> This Week's Match</h3>
         <p class="text-[11px] text-slate-400 mt-0.5">Next scheduled Kildrum league fixture</p></div>
       <span class="inline-block mx-auto sm:mx-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 px-3 py-0.5 bg-red-600/90 text-white font-sports font-black text-[10px] sm:text-xs tracking-widest uppercase rounded shadow-sm">${lgEsc(competitionLabel || 'CLYFA LEAGUE GAME')}</span>
+      <button type="button" id="lgThisWeekImgBtn" onclick="lgDownloadThisWeekImage()" title="Download a single landscape image of this section to share on WhatsApp" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-white font-sports font-bold text-[10px] sm:text-xs uppercase tracking-wider shadow-sm"><i class="fa-solid fa-download"></i> Download image</button>
     </div>
     <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 sm:p-4">
       <div class="flex items-center justify-between gap-2 sm:gap-4">
