@@ -562,6 +562,8 @@
                 </div>
 
               </div>
+              <!-- Compact scorers strip: used automatically when there are too many goals for the small list under the score -->
+              <div id="resGoalsStrip" class="hidden w-full max-w-2xl mt-2 flex-wrap items-center justify-center gap-1.5 font-sans uppercase"></div>
 
             </div>
 
@@ -1748,13 +1750,41 @@
       const goalsLeft = document.getElementById('resGoalsLeft');
       const goalsRight = document.getElementById('resGoalsRight');
       if (goalsLeft && goalsRight) {
-        const html = goalEvents
+        const scored = goalEvents
           .map((g, index) => ({ ...g, _index: index }))
-          .filter(g => String(g.scorer || '').trim())
-          .map(g => `<div>${gEsc(String(g.scorer).trim())}${String(g.minute || '').trim() ? ` <span style="color:#fbbf24">${gEsc(String(g.minute).trim())}</span>` : ''}</div>`)
-          .join('');
-        goalsLeft.innerHTML = playingAway ? '' : html;
-        goalsRight.innerHTML = playingAway ? html : '';
+          .filter(g => String(g.scorer || '').trim());
+        const strip = document.getElementById('resGoalsStrip');
+        // Many goals: group by scorer (top scorers first) and show a compact strip across the panel.
+        const compact = scored.length > 4;
+        if (compact && strip) {
+          const groups = [];
+          scored.forEach(g => {
+            const name = String(g.scorer).trim();
+            let grp = groups.find(x => x.name.toUpperCase() === name.toUpperCase());
+            if (!grp) { grp = { name, minutes: [] }; groups.push(grp); }
+            const m = String(g.minute || '').trim();
+            if (m) grp.minutes.push(/^\d+$/.test(m) ? m + "'" : m);
+            grp.count = (grp.count || 0) + 1;
+          });
+          groups.sort((a, b) => b.count - a.count);
+          const fs = groups.length > 10 ? 10 : 11;
+          strip.innerHTML = groups.map(grp => {
+            const tag = grp.count >= 3 ? `<span style="background:#dc2626;color:#fff;border-radius:4px;padding:0 4px;font-size:${fs - 2}px;font-weight:800;letter-spacing:.04em">${grp.count === 3 ? 'HAT-TRICK' : grp.count + ' GOALS'}</span>` : '';
+            const mins = grp.minutes.length ? `<span style="color:#fbbf24;font-weight:600">${gEsc(grp.minutes.join(' '))}</span>` : '';
+            return `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(2,6,23,.72);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;font-size:${fs}px;line-height:1.3;color:#e2e8f0;font-weight:700"><i class="fa-solid fa-futbol" style="color:#fbbf24;font-size:${fs - 1}px"></i>${gEsc(grp.name)}${tag}${mins}</span>`;
+          }).join('');
+          strip.classList.remove('hidden');
+          strip.classList.add('flex');
+          goalsLeft.innerHTML = '';
+          goalsRight.innerHTML = '';
+        } else {
+          if (strip) { strip.classList.add('hidden'); strip.classList.remove('flex'); strip.innerHTML = ''; }
+          const html = scored
+            .map(g => `<div>${gEsc(String(g.scorer).trim())}${String(g.minute || '').trim() ? ` <span style="color:#fbbf24">${gEsc(String(g.minute).trim())}</span>` : ''}</div>`)
+            .join('');
+          goalsLeft.innerHTML = playingAway ? '' : html;
+          goalsRight.innerHTML = playingAway ? html : '';
+        }
       }
 
       if (typeof updateGoalsNote === 'function') updateGoalsNote();
